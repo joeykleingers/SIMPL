@@ -283,11 +283,6 @@ class SVWidgetsLib_EXPORT SVPipelineFilterWidget : public QFrame, public Pipelin
      */
     void initialize();
 
-    /**
-     * @brief createAnimations
-     */
-    void createAnimations();
-
     SVPipelineFilterWidget(const SVPipelineFilterWidget&); // Copy Constructor Not Implemented
     void operator=(const SVPipelineFilterWidget&); // Operator '=' Not Implemented
 };

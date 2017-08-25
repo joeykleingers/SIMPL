@@ -38,10 +38,10 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
-#include <QtWidgets/QWidget>
+
+#include <QtWidgets/QOpenGLWidget>
 
 #include "SVWidgetsLib/QtSupport/QtSFaderWidget.h"
-
 
 #include "SIMPLib/Common/AbstractFilter.h"
 
@@ -55,7 +55,7 @@ class PipelineFilterObject;
 /**
  * @brief The FilterInputWidget class
  */
-class SVWidgetsLib_EXPORT FilterInputWidget : public QWidget, private Ui::FilterInputWidget
+class SVWidgetsLib_EXPORT FilterInputWidget : public QOpenGLWidget, private Ui::FilterInputWidget
 {
     Q_OBJECT
 

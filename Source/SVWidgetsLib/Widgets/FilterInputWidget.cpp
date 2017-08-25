@@ -132,7 +132,7 @@ QFileInfo getFilterParameterPath(AbstractFilter* filter, FilterParameter* parame
 //
 // -----------------------------------------------------------------------------
 FilterInputWidget::FilterInputWidget(QString filterClassName, PipelineFilterObject* filterObj, QWidget* parent)
-: QWidget(parent)
+: QOpenGLWidget(parent)
 , m_FilterClassName(filterClassName)
 , m_AdvFadedOut(false)
 {

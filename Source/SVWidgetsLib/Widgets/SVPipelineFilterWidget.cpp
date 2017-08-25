@@ -393,35 +393,16 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
   FilterInputWidget* fiw = getFilterInputWidget();
 
   QPropertyAnimation* anim1 = new QPropertyAnimation(fiw, "geometry");
-  anim1->setDuration(100);
+  anim1->setDuration(750);
   connect(anim1, &QPropertyAnimation::finished, [=] { anim1->deleteLater(); });
 
   QPoint start = QCursor::pos();
   anim1->setStartValue(QRect(start.x(), start.y(), 0, 0));
   anim1->setEndValue(QRect(start.x() + 50, start.y() - (fiw->size().height() / 3), fiw->size().width(), fiw->size().height()));
-  anim1->setEasingCurve(QEasingCurve::Linear);
+  anim1->setEasingCurve(QEasingCurve::OutCubic);
 
   fiw->show();
   anim1->start();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineFilterWidget::createAnimations()
-{
-  FilterInputWidget* fiw = getFilterInputWidget();
-
-  QPropertyAnimation* anim1 = new QPropertyAnimation(fiw, "geometry");
-  anim1->setDuration(100);
-
-  QPoint start = QCursor::pos();
-  anim1->setStartValue(QRect(start.x(), start.y(), 0, 0));
-  anim1->setEndValue(QRect(start.x() + 50, start.y() - (fiw->geometry().height() / 2), fiw->geometry().width(), fiw->geometry().height()));
-  anim1->setEasingCurve(QEasingCurve::Linear);
-
-  m_FilterParametersAnimation = new QParallelAnimationGroup();
-  m_FilterParametersAnimation->addAnimation(anim1);
 }
 
 // -----------------------------------------------------------------------------
