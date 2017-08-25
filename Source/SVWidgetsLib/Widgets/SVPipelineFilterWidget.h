@@ -39,10 +39,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QSettings>
 #include <QtCore/QUrl>
+#include <QtCore/QParallelAnimationGroup>
 
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QMenu>
-
 
 #include "SIMPLib/Common/AbstractFilter.h"
 #include "SIMPLib/FilterParameters/FilterParameter.h"
@@ -173,6 +173,11 @@ class SVWidgetsLib_EXPORT SVPipelineFilterWidget : public QFrame, public Pipelin
     void on_deleteBtn_clicked();
 
     /**
+     * @brief on_filterParametersBtn_clicked
+     */
+    void on_filterParametersBtn_clicked();
+
+    /**
      * @brief filterInputWidget_filterParametersChanged
      */
     void filterInputWidget_filterParametersChanged();
@@ -270,12 +275,18 @@ class SVWidgetsLib_EXPORT SVPipelineFilterWidget : public QFrame, public Pipelin
     QPoint                            m_DragStartPosition;
     IObserver*                        m_Observer;
     bool                              m_HasRightClickTarget;
+    QParallelAnimationGroup*          m_FilterParametersAnimation = nullptr;
 
     /**
      * @brief initialize Calls all the necessary initialization code for the widget
      * @param filter
      */
     void initialize();
+
+    /**
+     * @brief createAnimations
+     */
+    void createAnimations();
 
     SVPipelineFilterWidget(const SVPipelineFilterWidget&); // Copy Constructor Not Implemented
     void operator=(const SVPipelineFilterWidget&); // Operator '=' Not Implemented

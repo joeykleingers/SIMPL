@@ -10,6 +10,9 @@
     <height>412</height>
    </rect>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>[*]Filter Input Parameters</string>
   </property>

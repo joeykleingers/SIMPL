@@ -182,6 +182,8 @@ bool FilterInputWidget::eventFilter(QObject* o, QEvent* e)
 // -----------------------------------------------------------------------------
 void FilterInputWidget::setupGui()
 {
+  setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
+
   QFont humanLabelFont = QtSStyles::GetHumanLabelFont();
   QFont brandingFont = QtSStyles::GetBrandingLabelFont();
 

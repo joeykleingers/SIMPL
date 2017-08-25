@@ -115,6 +115,7 @@ void PipelineFilterObject::setupFilterInputWidget()
     m_FilterInputWidget->deleteLater();
   }
   m_FilterInputWidget = new FilterInputWidget(m_Filter->getNameOfClass(), this, nullptr);
+  m_FilterInputWidget->setWindowTitle(QObject::tr("'%1' Parameters").arg(getHumanLabel()));
 
   // Initialize the filter input widget with values
   m_FilterInputWidget->displayFilterParameters(this);
