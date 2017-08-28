@@ -39,7 +39,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
-#include <QtWidgets/QOpenGLWidget>
+#include <QtWidgets/QWidget>
 
 #include "SVWidgetsLib/QtSupport/QtSFaderWidget.h"
 
@@ -55,7 +55,7 @@ class PipelineFilterObject;
 /**
  * @brief The FilterInputWidget class
  */
-class SVWidgetsLib_EXPORT FilterInputWidget : public QOpenGLWidget, private Ui::FilterInputWidget
+class SVWidgetsLib_EXPORT FilterInputWidget : public QWidget, private Ui::FilterInputWidget
 {
     Q_OBJECT
 
@@ -69,8 +69,6 @@ class SVWidgetsLib_EXPORT FilterInputWidget : public QOpenGLWidget, private Ui::
 
     void toRunningState();
     void toIdleState();
-
-    QWidget* getVariablesTabContentsWidget();
 
   public slots :
     void on_filterHelpBtn_clicked();

@@ -132,7 +132,7 @@ QFileInfo getFilterParameterPath(AbstractFilter* filter, FilterParameter* parame
 //
 // -----------------------------------------------------------------------------
 FilterInputWidget::FilterInputWidget(QString filterClassName, PipelineFilterObject* filterObj, QWidget* parent)
-: QOpenGLWidget(parent)
+: QWidget(parent)
 , m_FilterClassName(filterClassName)
 , m_AdvFadedOut(false)
 {
@@ -382,11 +382,6 @@ void FilterInputWidget::layoutWidgets(AbstractFilter::Pointer filter)
   else
   {
     delete noCategoryGroupBox;
-  }
-
-  if(!addSpacer)
-  {
-    scrollAreaVertSpacer->removeItem(inputVertSpacer);
   }
 }
 
@@ -693,12 +688,4 @@ void FilterInputWidget::fadeOutWidget(QWidget* widget)
   connect(m_FaderWidget, SIGNAL(animationComplete()), widget, SLOT(hide()));
   m_FaderWidget->start();
   m_AdvFadedOut = true;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QWidget* FilterInputWidget::getVariablesTabContentsWidget()
-{
-  return variablesTabContents;
 }

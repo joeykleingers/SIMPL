@@ -391,18 +391,31 @@ void SVPipelineFilterWidget::on_deleteBtn_clicked()
 void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
 {
   FilterInputWidget* fiw = getFilterInputWidget();
+  fiw->setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
+  fiw->move(QCursor::pos().x() + 55, QCursor::pos().y() - 50);
 
-  QPropertyAnimation* anim1 = new QPropertyAnimation(fiw, "geometry");
-  anim1->setDuration(750);
-  connect(anim1, &QPropertyAnimation::finished, [=] { anim1->deleteLater(); });
+//  QPropertyAnimation* anim1 = new QPropertyAnimation(fiw, "maximumHeight");
+//  anim1->setDuration(2000);
+//  connect(anim1, &QPropertyAnimation::finished, [=] { anim1->deleteLater(); });
 
-  QPoint start = QCursor::pos();
-  anim1->setStartValue(QRect(start.x(), start.y(), 0, 0));
-  anim1->setEndValue(QRect(start.x() + 50, start.y() - (fiw->size().height() / 3), fiw->size().width(), fiw->size().height()));
-  anim1->setEasingCurve(QEasingCurve::OutCubic);
+//  anim1->setStartValue(0);
+//  anim1->setEndValue(fiw->height());
+//  anim1->setEasingCurve(QEasingCurve::OutCubic);
+
+//  QPropertyAnimation* anim2 = new QPropertyAnimation(scrollArea, "maximumWidth");
+//  anim2->setDuration(2000);
+//  connect(anim2, &QPropertyAnimation::finished, [=] { anim2->deleteLater(); });
+
+//  anim2->setStartValue(0);
+//  anim2->setEndValue(fiw->width());
+//  anim2->setEasingCurve(QEasingCurve::OutCubic);
+
+//  QParallelAnimationGroup* group = new QParallelAnimationGroup();
+//  group->addAnimation(anim1);
+//  group->addAnimation(anim2);
 
   fiw->show();
-  anim1->start();
+//  anim1->start();
 }
 
 // -----------------------------------------------------------------------------
