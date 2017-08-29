@@ -379,20 +379,13 @@ void SVPipelineFilterWidget::changeStyle()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineFilterWidget::on_deleteBtn_clicked()
-{
-  emit filterWidgetRemoved(this);
-  emit filterWidgetPressed(nullptr, qApp->queryKeyboardModifiers());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
 {
   FilterInputWidget* fiw = getFilterInputWidget();
   fiw->setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
-  fiw->move(QCursor::pos().x() + 55, QCursor::pos().y() - 50);
+  QPoint fpBtnPos = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width(), 0));
+
+  fiw->move(fpBtnPos.x() + 35, fpBtnPos.y() - 20);
 
 //  QPropertyAnimation* anim1 = new QPropertyAnimation(fiw, "maximumHeight");
 //  anim1->setDuration(2000);
@@ -547,7 +540,6 @@ void SVPipelineFilterWidget::toRunningState()
 {
   PipelineFilterObject::toRunningState();
   getFilterInputWidget()->toRunningState();
-  deleteBtn->setDisabled(true);
   changeStyle();
 }
 
@@ -558,7 +550,6 @@ void SVPipelineFilterWidget::toStoppedState()
 {
   PipelineFilterObject::toStoppedState();
   getFilterInputWidget()->toIdleState();
-  deleteBtn->setEnabled(true);
   changeStyle();
 }
 

@@ -168,11 +168,6 @@ class SVWidgetsLib_EXPORT SVPipelineFilterWidget : public QFrame, public Pipelin
   protected slots:
 
     /**
-     * @brief on_deleteBtn_clicked
-     */
-    void on_deleteBtn_clicked();
-
-    /**
      * @brief on_filterParametersBtn_clicked
      */
     void on_filterParametersBtn_clicked();
@@ -219,13 +214,6 @@ class SVWidgetsLib_EXPORT SVPipelineFilterWidget : public QFrame, public Pipelin
     * @brief filterWidgetPasted
     */
     void filterWidgetPasted();
-
-    /**
-     * @brief filterWidgetRemoved
-     * @param widget
-     */
-    void filterWidgetRemoved(PipelineFilterObject* widget);
-
 
     /**
     * @brief focusInEventStarted
