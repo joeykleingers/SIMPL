@@ -112,6 +112,7 @@ void PopUpWidget::paintEvent(QPaintEvent* event)
   }
 
   QPainter painter(this);
+  painter.setRenderHint(QPainter::Antialiasing);
   QPen pen = painter.pen();
   pen.setWidth(5);
   pen.setColor(QColor(121, 121, 121));
