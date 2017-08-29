@@ -425,15 +425,15 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
     arrowOffset = arrowOffset + arrowOffsetAdjust;
   }
 
-//  if (y < QApplication::desktop()->availableGeometry(screenNumber).top())
-//  {
-//    // The widget is off the top portion of the screen. We need to adjust the y-coordinate so that the pop-up stays completely on the screen.
-//    // We also need to figure out how far it is off the screen, and then add that offset to the arrow placement so that the arrow still points
-//    // to the correct button.
-//    int arrowOffsetAdjust = QApplication::desktop()->availableGeometry(screenNumber).top() - y;
-//    y = 0;
-//    arrowOffset = arrowOffset;
-//  }
+  if (y < QApplication::desktop()->availableGeometry(screenNumber).top())
+  {
+    // The widget is off the top portion of the screen. We need to adjust the y-coordinate so that the pop-up stays completely on the screen.
+    // We also need to figure out how far it is off the screen, and then add that offset to the arrow placement so that the arrow still points
+    // to the correct button.
+    int arrowOffsetAdjust = QApplication::desktop()->availableGeometry(screenNumber).top() - y;
+    y = QApplication::desktop()->availableGeometry(screenNumber).top();
+    arrowOffset = arrowOffset - arrowOffsetAdjust;
+  }
 
   popUpWidget->setArrowOffset(arrowOffset);
   popUpWidget->move(x, y);
