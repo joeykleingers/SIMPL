@@ -389,15 +389,9 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
   popUpWidget->setArrowHeight(30);
   popUpWidget->setArrowWidth(40);
 
-  // Set the amount of space between the top-left corner of the PopUpWidget and the start of the arrow drawing
-  int arrowOffset = 50;
-  popUpWidget->setArrowOffset(arrowOffset);
-
   // Find the global coordinates of the middle-edge of the filterParametersBtn on all sides
   QPoint leftTarget = filterParametersBtn->mapToGlobal(QPoint(0, filterParametersBtn->geometry().height() / 2));
   QPoint rightTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width(), filterParametersBtn->geometry().height() / 2));
-  QPoint topTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width() / 2, 0));
-  QPoint bottomTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width() / 2, filterParametersBtn->geometry().height()));
 
   // Needed for multiple screen support
   int screenNumber = QApplication::desktop()->screenNumber(this);
@@ -416,20 +410,32 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
     x = leftTarget.x() - popUpWidget->size().width();
   }
 
+  // Set the amount of space between the top-left corner of the PopUpWidget and the start of the arrow drawing
+  int arrowOffset = 50;
+
   int y = rightTarget.y() - arrowOffset - popUpWidget->getArrowWidth() / 2;
 
-//  if (rightBtnTarget.y() - 20 + popUpWidget->size().height() > QApplication::desktop()->availableGeometry(screenNumber).bottom())
-//  {
-//    // The widget is off the bottom portion of the screen
-//    y = QApplication::desktop()->availableGeometry(screenNumber).bottom() - fiw->size().height();
-//  }
+  if (y + popUpWidget->size().height() > QApplication::desktop()->availableGeometry(screenNumber).bottom())
+  {
+    // The widget is off the bottom portion of the screen.  We need to adjust the y-coordinate so that the pop-up stays completely on the screen.
+    // We also need to figure out how far it is off the screen, and then add that offset to the arrow placement so that the arrow still points
+    // to the correct button.
+    int arrowOffsetAdjust = y + popUpWidget->size().height() - QApplication::desktop()->availableGeometry(screenNumber).bottom();
+    y = QApplication::desktop()->availableGeometry(screenNumber).bottom() - popUpWidget->size().height();
+    arrowOffset = arrowOffset + arrowOffsetAdjust;
+  }
 
-//  if (rightBtnTarget.y() - 20 < QApplication::desktop()->availableGeometry(screenNumber).top())
+//  if (y < QApplication::desktop()->availableGeometry(screenNumber).top())
 //  {
-//    // The widget is off the top portion of the screen
+//    // The widget is off the top portion of the screen. We need to adjust the y-coordinate so that the pop-up stays completely on the screen.
+//    // We also need to figure out how far it is off the screen, and then add that offset to the arrow placement so that the arrow still points
+//    // to the correct button.
+//    int arrowOffsetAdjust = QApplication::desktop()->availableGeometry(screenNumber).top() - y;
 //    y = 0;
+//    arrowOffset = arrowOffset;
 //  }
 
+  popUpWidget->setArrowOffset(arrowOffset);
   popUpWidget->move(x, y);
   popUpWidget->show();
 }
