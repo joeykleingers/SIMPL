@@ -60,6 +60,7 @@ class QFormLayout;
 class QLabel;
 class QComboBox;
 class IObserver;
+class PopUpWidget;
 
 /**
  * @class SVPipelineFilterWidget SVPipelineFilterWidget.h FilterWidgets/SVPipelineFilterWidget.h
@@ -264,6 +265,7 @@ class SVWidgetsLib_EXPORT SVPipelineFilterWidget : public QFrame, public Pipelin
     IObserver*                        m_Observer;
     bool                              m_HasRightClickTarget;
     QParallelAnimationGroup*          m_FilterParametersAnimation = nullptr;
+    PopUpWidget*                      m_PopUpWidget;
 
     /**
      * @brief initialize Calls all the necessary initialization code for the widget

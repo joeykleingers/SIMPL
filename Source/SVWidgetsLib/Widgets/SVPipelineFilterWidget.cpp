@@ -136,6 +136,13 @@ void SVPipelineFilterWidget::initialize()
     connect(filter.get(), SIGNAL(filterCompleted()), this, SLOT(toCompletedState()));
     connect(filter.get(), SIGNAL(filterInProgress()), this, SLOT(toExecutingState()));
   }
+
+  // Set up the Filter Parameters pop-up
+  FilterInputWidget* fiw = getFilterInputWidget();
+  m_PopUpWidget = new PopUpWidget();
+  m_PopUpWidget->setWidget(fiw);
+  m_PopUpWidget->setArrowHeight(30);
+  m_PopUpWidget->setArrowWidth(40);
 }
 
 // -----------------------------------------------------------------------------
@@ -383,12 +390,6 @@ void SVPipelineFilterWidget::changeStyle()
 // -----------------------------------------------------------------------------
 void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
 {
-  FilterInputWidget* fiw = getFilterInputWidget();
-  PopUpWidget* popUpWidget = new PopUpWidget();
-  popUpWidget->setWidget(fiw);
-  popUpWidget->setArrowHeight(30);
-  popUpWidget->setArrowWidth(40);
-
   // Find the global coordinates of the middle-edge of the filterParametersBtn on all sides
   QPoint leftTarget = filterParametersBtn->mapToGlobal(QPoint(0, filterParametersBtn->geometry().height() / 2));
   QPoint rightTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width(), filterParametersBtn->geometry().height() / 2));
@@ -397,31 +398,31 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
   int screenNumber = QApplication::desktop()->screenNumber(this);
 
   int x;
-  if (rightTarget.x() + popUpWidget->size().width() < QApplication::desktop()->availableGeometry(screenNumber).right())
+  if (rightTarget.x() + m_PopUpWidget->size().width() < QApplication::desktop()->availableGeometry(screenNumber).right())
   {
     // The pop-up can appear on the right side of the filterParametersBtn
-    popUpWidget->setArrowOrientation(PopUpWidget::ArrowOrientation::Left);
+    m_PopUpWidget->setArrowOrientation(PopUpWidget::ArrowOrientation::Left);
     x = rightTarget.x();
   }
   else
   {
     // The pop-up won't fit on the right side, so it can appear on the left side of the filterParametersBtn
-    popUpWidget->setArrowOrientation(PopUpWidget::ArrowOrientation::Right);
-    x = leftTarget.x() - popUpWidget->size().width();
+    m_PopUpWidget->setArrowOrientation(PopUpWidget::ArrowOrientation::Right);
+    x = leftTarget.x() - m_PopUpWidget->size().width();
   }
 
   int arrowOffset = 50;
 
   // Set the y-coordinate so that the arrow will point at the correct filter parameters button
-  int y = rightTarget.y() - arrowOffset - popUpWidget->getArrowWidth() / 2;
+  int y = rightTarget.y() - arrowOffset - m_PopUpWidget->getArrowWidth() / 2;
 
-  if (y + popUpWidget->size().height() > QApplication::desktop()->availableGeometry(screenNumber).bottom())
+  if (y + m_PopUpWidget->size().height() > QApplication::desktop()->availableGeometry(screenNumber).bottom())
   {
     // The widget is off the bottom portion of the screen.  We need to adjust the y-coordinate so that the pop-up stays completely on the screen.
     // We also need to figure out how far it is off the screen, and then add that offset to the arrow placement so that the arrow still points
     // to the correct button.
-    int arrowOffsetAdjust = y + popUpWidget->size().height() - QApplication::desktop()->availableGeometry(screenNumber).bottom();
-    y = QApplication::desktop()->availableGeometry(screenNumber).bottom() - popUpWidget->size().height();
+    int arrowOffsetAdjust = y + m_PopUpWidget->size().height() - QApplication::desktop()->availableGeometry(screenNumber).bottom();
+    y = QApplication::desktop()->availableGeometry(screenNumber).bottom() - m_PopUpWidget->size().height();
     arrowOffset = arrowOffset + arrowOffsetAdjust;
   }
 
@@ -436,11 +437,11 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
   }
 
   // Set the amount of space between the top-left corner of the PopUpWidget and the start of the arrow drawing
-  popUpWidget->setArrowOffset(arrowOffset);
+  m_PopUpWidget->setArrowOffset(arrowOffset);
 
   // Move the pop-up into the correct position and show
-  popUpWidget->move(x, y);
-  popUpWidget->show();
+  m_PopUpWidget->move(x, y);
+  m_PopUpWidget->show();
 }
 
 // -----------------------------------------------------------------------------
