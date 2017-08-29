@@ -22,6 +22,9 @@
   <property name="windowTitle">
    <string>[*]Filter Input Parameters</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="leftMargin">
     <number>0</number>

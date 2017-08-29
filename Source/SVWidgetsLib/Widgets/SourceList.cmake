@@ -33,6 +33,7 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SIMPLViewToolbox.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SIMPLViewMenuItems.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ProgressDialog.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PopUpWidget.h
 )
 
 set(SVWidgetsLib_Widgets_HDRS
@@ -73,6 +74,7 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SIMPLViewToolbox.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SIMPLViewMenuItems.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ProgressDialog.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PopUpWidget.cpp
   )
 
 set(SVWidgetsLib_Widgets_UIS
@@ -90,6 +92,7 @@ set(SVWidgetsLib_Widgets_UIS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/UI_Files/StandardOutputWidget.ui
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/UI_Files/DataStructureWidget.ui
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/UI_Files/ProgressDialog.ui
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/UI_Files/PopUpWidget.ui
   )
 
 SET(SVWidgetsLib_Widgets_Util_HDRS

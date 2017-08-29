@@ -45,6 +45,7 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QDesktopWidget>
 
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QGroupBox>
@@ -67,6 +68,7 @@
 #include "SVWidgetsLib/FilterParameterWidgets/LinkedBooleanWidget.h"
 #include "SVWidgetsLib/Widgets/DataContainerArrayWidget.h"
 #include "SVWidgetsLib/Widgets/SVPipelineViewWidget.h"
+#include "SVWidgetsLib/Widgets/PopUpWidget.h"
 
 // Include the MOC generated CPP file which has all the QMetaObject methods/data
 #include "moc_SVPipelineFilterWidget.cpp"
@@ -382,33 +384,54 @@ void SVPipelineFilterWidget::changeStyle()
 void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
 {
   FilterInputWidget* fiw = getFilterInputWidget();
-  fiw->setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
-  QPoint fpBtnPos = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width(), 0));
+  PopUpWidget* popUpWidget = new PopUpWidget();
+  popUpWidget->setWidget(fiw);
+  popUpWidget->setArrowHeight(30);
+  popUpWidget->setArrowWidth(40);
 
-  fiw->move(fpBtnPos.x() + 35, fpBtnPos.y() - 20);
+  // Set the amount of space between the top-left corner of the PopUpWidget and the start of the arrow drawing
+  int arrowOffset = 50;
+  popUpWidget->setArrowOffset(arrowOffset);
 
-//  QPropertyAnimation* anim1 = new QPropertyAnimation(fiw, "maximumHeight");
-//  anim1->setDuration(2000);
-//  connect(anim1, &QPropertyAnimation::finished, [=] { anim1->deleteLater(); });
+  // Find the global coordinates of the middle-edge of the filterParametersBtn on all sides
+  QPoint leftTarget = filterParametersBtn->mapToGlobal(QPoint(0, filterParametersBtn->geometry().height() / 2));
+  QPoint rightTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width(), filterParametersBtn->geometry().height() / 2));
+  QPoint topTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width() / 2, 0));
+  QPoint bottomTarget = filterParametersBtn->mapToGlobal(QPoint(filterParametersBtn->geometry().width() / 2, filterParametersBtn->geometry().height()));
 
-//  anim1->setStartValue(0);
-//  anim1->setEndValue(fiw->height());
-//  anim1->setEasingCurve(QEasingCurve::OutCubic);
+  // Needed for multiple screen support
+  int screenNumber = QApplication::desktop()->screenNumber(this);
 
-//  QPropertyAnimation* anim2 = new QPropertyAnimation(scrollArea, "maximumWidth");
-//  anim2->setDuration(2000);
-//  connect(anim2, &QPropertyAnimation::finished, [=] { anim2->deleteLater(); });
+  int x;
+  if (rightTarget.x() + popUpWidget->size().width() < QApplication::desktop()->availableGeometry(screenNumber).right())
+  {
+    // The pop-up can appear on the right side of the filterParametersBtn
+    popUpWidget->setArrowOrientation(PopUpWidget::ArrowOrientation::Left);
+    x = rightTarget.x();
+  }
+  else
+  {
+    // The pop-up won't fit on the right side, so it can appear on the left side of the filterParametersBtn
+    popUpWidget->setArrowOrientation(PopUpWidget::ArrowOrientation::Right);
+    x = leftTarget.x() - popUpWidget->size().width();
+  }
 
-//  anim2->setStartValue(0);
-//  anim2->setEndValue(fiw->width());
-//  anim2->setEasingCurve(QEasingCurve::OutCubic);
+  int y = rightTarget.y() - arrowOffset - popUpWidget->getArrowWidth() / 2;
 
-//  QParallelAnimationGroup* group = new QParallelAnimationGroup();
-//  group->addAnimation(anim1);
-//  group->addAnimation(anim2);
+//  if (rightBtnTarget.y() - 20 + popUpWidget->size().height() > QApplication::desktop()->availableGeometry(screenNumber).bottom())
+//  {
+//    // The widget is off the bottom portion of the screen
+//    y = QApplication::desktop()->availableGeometry(screenNumber).bottom() - fiw->size().height();
+//  }
 
-  fiw->show();
-//  anim1->start();
+//  if (rightBtnTarget.y() - 20 < QApplication::desktop()->availableGeometry(screenNumber).top())
+//  {
+//    // The widget is off the top portion of the screen
+//    y = 0;
+//  }
+
+  popUpWidget->move(x, y);
+  popUpWidget->show();
 }
 
 // -----------------------------------------------------------------------------

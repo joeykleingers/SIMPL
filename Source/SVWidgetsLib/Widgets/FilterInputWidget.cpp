@@ -40,6 +40,7 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/QPropertyAnimation>
 #include <QtCore/QSequentialAnimationGroup>
+
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGroupBox>
@@ -182,8 +183,6 @@ bool FilterInputWidget::eventFilter(QObject* o, QEvent* e)
 // -----------------------------------------------------------------------------
 void FilterInputWidget::setupGui()
 {
-  setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
-
   QFont humanLabelFont = QtSStyles::GetHumanLabelFont();
   QFont brandingFont = QtSStyles::GetBrandingLabelFont();
 
