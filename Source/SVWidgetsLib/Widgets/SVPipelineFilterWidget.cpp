@@ -410,9 +410,9 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
     x = leftTarget.x() - popUpWidget->size().width();
   }
 
-  // Set the amount of space between the top-left corner of the PopUpWidget and the start of the arrow drawing
   int arrowOffset = 50;
 
+  // Set the y-coordinate so that the arrow will point at the correct filter parameters button
   int y = rightTarget.y() - arrowOffset - popUpWidget->getArrowWidth() / 2;
 
   if (y + popUpWidget->size().height() > QApplication::desktop()->availableGeometry(screenNumber).bottom())
@@ -435,7 +435,10 @@ void SVPipelineFilterWidget::on_filterParametersBtn_clicked()
     arrowOffset = arrowOffset - arrowOffsetAdjust;
   }
 
+  // Set the amount of space between the top-left corner of the PopUpWidget and the start of the arrow drawing
   popUpWidget->setArrowOffset(arrowOffset);
+
+  // Move the pop-up into the correct position and show
   popUpWidget->move(x, y);
   popUpWidget->show();
 }

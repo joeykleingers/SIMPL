@@ -92,19 +92,23 @@ void PopUpWidget::paintEvent(QPaintEvent* event)
             << QPointF(size().width() - m_ArrowHeight, m_ArrowOffset + m_ArrowWidth) << QPointF(size().width() - m_ArrowHeight, m_ArrowOffset);
     painterPath.addPolygon(polygon);
   }
-  else if (m_ArrowOrientation == PopUpWidget::ArrowOrientation::Top)
-  {
-    setContentsMargins(0, m_ArrowHeight, 0, 0);
-    polygon << QPointF(m_ArrowOffset, m_ArrowHeight) << QPointF(m_ArrowOffset + m_ArrowWidth / 2, 0)
-            << QPointF(m_ArrowOffset + m_ArrowWidth, m_ArrowHeight) << QPointF(m_ArrowOffset, m_ArrowHeight);
-    painterPath.addPolygon(polygon);
-  }
+//  else if (m_ArrowOrientation == PopUpWidget::ArrowOrientation::Top)
+//  {
+//    setContentsMargins(0, m_ArrowHeight, 0, 0);
+//    polygon << QPointF(m_ArrowOffset, m_ArrowHeight) << QPointF(m_ArrowOffset + m_ArrowWidth / 2, 0)
+//            << QPointF(m_ArrowOffset + m_ArrowWidth, m_ArrowHeight) << QPointF(m_ArrowOffset, m_ArrowHeight);
+//    painterPath.addPolygon(polygon);
+//  }
+//  else if (m_ArrowOrientation == PopUpWidget::ArrowOrientation::Bottom)
+//  {
+//    setContentsMargins(0, 0, 0, m_ArrowHeight);
+//    polygon << QPointF(m_ArrowOffset, size().height()) << QPointF(m_ArrowOffset + m_ArrowWidth / 2, size().height() + m_ArrowHeight)
+//            << QPointF(m_ArrowOffset + m_ArrowWidth, size().height()) << QPointF(m_ArrowOffset, size().height());
+//    painterPath.addPolygon(polygon);
+//  }
   else
   {
-    setContentsMargins(0, 0, 0, m_ArrowHeight);
-    polygon << QPointF(m_ArrowOffset, size().height()) << QPointF(m_ArrowOffset + m_ArrowWidth / 2, size().height() + m_ArrowHeight)
-            << QPointF(m_ArrowOffset + m_ArrowWidth, size().height()) << QPointF(m_ArrowOffset, size().height());
-    painterPath.addPolygon(polygon);
+    return;
   }
 
   QPainter painter(this);
