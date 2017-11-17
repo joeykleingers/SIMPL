@@ -51,6 +51,10 @@ class SIMPLib_EXPORT SIMPLH5DataReaderRequirements
 
     virtual ~SIMPLH5DataReaderRequirements();
 
+    // This enumeration is not a class enumeration because it is not possible to
+    // do a bit-wise NOT operation on a class enumeration value.  We need to be
+    // able to do a bit-wise NOT operation so that we can turn off certain flags.
+    // This enumeration allows us to flip integer bits to turn on/off various types.
     enum PrimitiveTypeFlag : unsigned int {
       Unknown_PType = 0x0,
       Bool_PType = 0x1,
@@ -72,6 +76,10 @@ class SIMPLib_EXPORT SIMPLH5DataReaderRequirements
     };
     Q_DECLARE_FLAGS(PrimitiveTypeFlags, PrimitiveTypeFlag)
 
+    // This enumeration is not a class enumeration because it is not possible to
+    // do a bit-wise NOT operation on a class enumeration value.  We need to be
+    // able to do a bit-wise NOT operation so that we can turn off certain flags.
+    // This enumeration allows us to flip integer bits to turn on/off various types.
     enum AMTypeFlag : unsigned int {
       Unknown_AMType = 0x0,
       Vertex_AMType = 0x1,
@@ -91,6 +99,10 @@ class SIMPLib_EXPORT SIMPLH5DataReaderRequirements
     };
     Q_DECLARE_FLAGS(AMTypeFlags, AMTypeFlag)
 
+    // This enumeration is not a class enumeration because it is not possible to
+    // do a bit-wise NOT operation on a class enumeration value.  We need to be
+    // able to do a bit-wise NOT operation so that we can turn off certain flags.
+    // This enumeration allows us to flip integer bits to turn on/off various types.
     enum DCGeometryTypeFlag : unsigned int {
       Unknown_DCGeomType = 0x0,
       Image_DCGeomType = 0x1,
