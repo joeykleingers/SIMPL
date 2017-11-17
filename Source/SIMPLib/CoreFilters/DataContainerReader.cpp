@@ -313,7 +313,10 @@ DataContainerArrayProxy DataContainerReader::readDataContainerArrayStructure(con
   }
 
   int err = 0;
-  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
+  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyComponentSize);
+  req.setPrimitiveTypeFlags(SIMPLH5DataReaderRequirements::PrimitiveTypeFlag::Any_PType);
+  req.setAMTypeFlags(SIMPLH5DataReaderRequirements::AMTypeFlag::Any_AMType);
+  req.setDCGeometryTypeFlags(SIMPLH5DataReaderRequirements::DCGeometryTypeFlag::Any_DCGeomType);
   DataContainerArrayProxy proxy = h5Reader->readDataContainerArrayStructure(req, err);
   if (err < 0)
   {
@@ -420,8 +423,10 @@ int DataContainerReader::writeExistingPipelineToFile(QJsonObject& rootJson, int 
 // -----------------------------------------------------------------------------
 bool DataContainerReader::syncProxies()
 {
-//  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
-  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::Any, IGeometry::Type::Image);
+  SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyComponentSize);
+  req.setPrimitiveTypeFlags(SIMPLH5DataReaderRequirements::PrimitiveTypeFlag::Any_PType);
+  req.setAMTypeFlags(SIMPLH5DataReaderRequirements::AMTypeFlag::Any_AMType);
+  req.setDCGeometryTypeFlags(SIMPLH5DataReaderRequirements::DCGeometryTypeFlag::Any_DCGeomType);
 
   SIMPLH5DataReader::Pointer simplReader = SIMPLH5DataReader::New();
   connect(simplReader.get(), &SIMPLH5DataReader::errorGenerated, [=] (const QString &msg, const int &code) {

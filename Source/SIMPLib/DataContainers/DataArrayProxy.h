@@ -173,7 +173,7 @@ class DataArrayProxy
         err = QH5Lite::readStringAttribute(attrMatGid, dataArrayName, SIMPL::HDF5::ObjectType, proxy.objectType);
         if(err < 0) { std::cout << "Error Reading the Object Type for DataArray " << dataArrayName.toStdString() << std::endl; }
 
-        QVector<QString> daTypes = req.getDATypes();
+        QVector<QString> daTypes = req.getPrimitiveTypes();
         if ((daTypes.size() <= 0 || daTypes.contains(proxy.objectType)) && cDimsResult == true)
         {
           proxy.flag = Qt::Checked;

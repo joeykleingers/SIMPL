@@ -44,20 +44,95 @@
  */
 class SIMPLib_EXPORT SIMPLH5DataReaderRequirements
 {
+  typedef QVector< QVector<size_t> > QVectorSizeT;
+
   public:
-    SIMPLH5DataReaderRequirements(const QString &primitiveType, size_t allowedCompDim, AttributeMatrix::Type attributeMatrixType, IGeometry::Type geometryType);
+    SIMPLH5DataReaderRequirements(size_t allowedCompDim);
+
     virtual ~SIMPLH5DataReaderRequirements();
 
-    typedef QVector< QVector<size_t> > QVectorSizeT;
+    enum PrimitiveTypeFlag : unsigned int {
+      Unknown_PType = 0x0,
+      Bool_PType = 0x1,
+      Float_PType = 0x2,
+      Double_PType = 0x4,
+      Int8_PType = 0x8,
+      UInt8_PType = 0x10,
+      Int16_PType = 0x20,
+      UInt16_PType = 0x40,
+      Int32_PType = 0x80,
+      UInt32_PType = 0x100,
+      Int64_PType = 0x200,
+      UInt64_PType = 0x400,
+      StatsDataArray_PType = 0x800,
+      NeighborList_PType = 0x1000,
+      StringArray_PType = 0x2000,
+      NumericalPrimitives_PType = 0x07FE,
+      Any_PType = 0x3FFF
+    };
+    Q_DECLARE_FLAGS(PrimitiveTypeFlags, PrimitiveTypeFlag)
 
-    SIMPL_INSTANCE_PROPERTY(IGeometry::Types, DCGeometryTypes)
-    SIMPL_INSTANCE_PROPERTY(AttributeMatrix::Types, AMTypes)
-    SIMPL_INSTANCE_PROPERTY(QVector<QString>, DATypes)
+    enum AMTypeFlag : unsigned int {
+      Unknown_AMType = 0x0,
+      Vertex_AMType = 0x1,
+      Face_AMType = 0x2,
+      Cell_AMType = 0x4,
+      VertexFeature_AMType = 0x8,
+      EdgeFeature_AMType = 0x10,
+      FaceFeature_AMType = 0x20,
+      CellFeature_AMType = 0x40,
+      VertexEnsemble_AMType = 0x80,
+      EdgeEnsemble_AMType = 0x100,
+      FaceEnsemble_AMType = 0x200,
+      CellEnsemble_AMType = 0x400,
+      MetaData_AMType = 0x800,
+      Generic_AMType = 0x1000,
+      Any_AMType = 0x1FFF
+    };
+    Q_DECLARE_FLAGS(AMTypeFlags, AMTypeFlag)
+
+    enum DCGeometryTypeFlag : unsigned int {
+      Unknown_DCGeomType = 0x0,
+      Image_DCGeomType = 0x1,
+      RectGrid_DCGeomType = 0x2,
+      Vertex_DCGeomType = 0x4,
+      Edge_DCGeomType = 0x8,
+      Triangle_DCGeomType = 0x10,
+      Quad_DCGeomType = 0x20,
+      Tetrahedral_DCGeomType = 0x40,
+      Any_DCGeomType = 0x7F
+    };
+    Q_DECLARE_FLAGS(DCGeometryTypeFlags, DCGeometryTypeFlag)
+
+    SIMPL_INSTANCE_PROPERTY(DCGeometryTypeFlags, DCGeometryTypeFlags)
+    SIMPL_INSTANCE_PROPERTY(AMTypeFlags, AMTypeFlags)
+    SIMPL_INSTANCE_PROPERTY(PrimitiveTypeFlags, PrimitiveTypeFlags)
+
     SIMPL_INSTANCE_PROPERTY(QVectorSizeT, ComponentDimensions)
+
+    /**
+     * @brief getPrimitiveTypes
+     * @return
+     */
+    QVector<QString> getPrimitiveTypes();
+
+    /**
+     * @brief getAMTypes
+     * @return
+     */
+    QVector<AttributeMatrix::Type> getAMTypes();
+
+    /**
+     * @brief getDCGeometryTypes
+     * @return
+     */
+    QVector<IGeometry::Type> getDCGeometryTypes();
 
   private:
 
 };
-
+Q_DECLARE_OPERATORS_FOR_FLAGS(SIMPLH5DataReaderRequirements::PrimitiveTypeFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SIMPLH5DataReaderRequirements::AMTypeFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SIMPLH5DataReaderRequirements::DCGeometryTypeFlags)
 
 #endif /* _simplh5datareaderrequirements_h_ */
