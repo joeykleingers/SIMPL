@@ -37,6 +37,10 @@
 
 #include <QtCore/QDir>
 
+#include "H5Support/H5Utilities.h"
+#include "H5Support/QH5Utilities.h"
+#include "H5Support/HDF5ScopedFileSentinel.h"
+
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
@@ -45,16 +49,13 @@
 #include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
+
 #ifdef _WIN32
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
 #define APPEND_DATA_TRUE 1
 #define APPEND_DATA_FALSE 0
-
-
-// Include the MOC generated file for this class
-#include "moc_DataContainerWriter.cpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -523,6 +524,14 @@ const QString DataContainerWriter::getFilterVersion()
 const QString DataContainerWriter::getGroupName()
 {
   return SIMPL::FilterGroups::IOFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid DataContainerWriter::getUuid()
+{
+  return QUuid("{3fcd4c43-9d75-5b86-aad4-4441bc914f37}");
 }
 
 // -----------------------------------------------------------------------------

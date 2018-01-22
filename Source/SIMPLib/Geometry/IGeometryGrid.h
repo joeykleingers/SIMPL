@@ -47,7 +47,7 @@ class SIMPLib_EXPORT IGeometryGrid : public IGeometry
 {
   public:
     SIMPL_SHARED_POINTERS(IGeometryGrid)
-    SIMPL_TYPE_MACRO_SUPER(IGeometryGrid, Observable)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(IGeometryGrid, Observable)
 
     IGeometryGrid();
     virtual ~IGeometryGrid();
@@ -76,8 +76,8 @@ class SIMPLib_EXPORT IGeometryGrid : public IGeometry
     virtual void getCoords(size_t idx, double coords[3]) = 0;
 
   private:
-    IGeometryGrid(const IGeometryGrid&); // Copy Constructor Not Implemented
-    void operator=(const IGeometryGrid&); // Operator '=' Not Implemented
+    IGeometryGrid(const IGeometryGrid&) = delete;  // Copy Constructor Not Implemented
+    void operator=(const IGeometryGrid&) = delete; // Operator '=' Not Implemented
 };
 
 #endif /* _igeometrygrid_h_ */

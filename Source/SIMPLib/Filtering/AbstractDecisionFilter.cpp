@@ -37,9 +37,6 @@
 
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 
-// Include the MOC generated file for this class
-#include "moc_AbstractDecisionFilter.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -52,9 +49,7 @@ AbstractDecisionFilter::AbstractDecisionFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractDecisionFilter::~AbstractDecisionFilter()
-{
-}
+AbstractDecisionFilter::~AbstractDecisionFilter() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -153,6 +148,14 @@ const QString AbstractDecisionFilter::getCompiledLibraryName()
 const QString AbstractDecisionFilter::getGroupName()
 {
   return "";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid AbstractDecisionFilter::getUuid()
+{
+  return QUuid("{e4fcd394-6ac6-5559-98a1-1945a0da3427}");
 }
 
 // -----------------------------------------------------------------------------

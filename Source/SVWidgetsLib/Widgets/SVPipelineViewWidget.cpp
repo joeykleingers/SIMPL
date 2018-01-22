@@ -87,7 +87,6 @@
 
 
 // Include the MOC generated CPP file which has all the QMetaObject methods/data
-#include "moc_SVPipelineViewWidget.cpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -97,7 +96,6 @@ SVPipelineViewWidget::SVPipelineViewWidget(QWidget* parent)
 , PipelineView(parent)
 , m_PipelineIsRunning(false)
 , m_FilterOrigPos(-1)
-, m_DropIndex(-1)
 , m_AutoScroll(true)
 , m_AutoScrollMargin(10)
 , m_autoScrollCount(0)
@@ -1852,7 +1850,7 @@ void SVPipelineViewWidget::dragMoveEvent(QDragMoveEvent* event)
     {
       return;
     }
-    IFilterFactory::Pointer wf = fm->getFactoryForFilter(data);
+    IFilterFactory::Pointer wf = fm->getFactoryFromClassName(data);
 
     // If the dragged item is a filter item...
     if(nullptr != wf)
@@ -1965,7 +1963,7 @@ void SVPipelineViewWidget::dropEvent(QDropEvent* event)
     {
       return;
     }
-    IFilterFactory::Pointer wf = fm->getFactoryForFilter(data);
+    IFilterFactory::Pointer wf = fm->getFactoryFromClassName(data);
 
     // If the dragged item is a filter item...
     if(nullptr != wf)

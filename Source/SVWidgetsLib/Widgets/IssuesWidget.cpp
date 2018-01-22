@@ -49,8 +49,9 @@
 
 #include "ui_IssuesWidget.h"
 
-// Include the MOC generated CPP file which has all the QMetaObject methods/data
-#include "moc_IssuesWidget.cpp"
+#if defined(SIMPL_DISCOUNT_DOCUMENTATION) && defined(SIMPL_DOXYGEN_DOCUMENTATION)
+#error Both SIMPL_DISCOUNT_DOCUMENTATION and SIMPL_DOXYGEN_DOCUMENTATION are both defined and this can not happen.
+#endif
 
 // -----------------------------------------------------------------------------
 //
@@ -66,9 +67,7 @@ IssuesWidget::IssuesWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IssuesWidget::~IssuesWidget()
-{
-}
+IssuesWidget::~IssuesWidget() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -116,6 +115,7 @@ void IssuesWidget::displayCachedMessages()
 {
   // Figure out how many error and warning messages that we have. We ignore the rest
   int count = 0;
+  int warnCount = 0;
   int errCount = 0;
   for(int i = 0; i < m_CachedMessages.size(); i++)
   {
@@ -128,6 +128,7 @@ void IssuesWidget::displayCachedMessages()
       break;
     case PipelineMessage::MessageType::Warning:
       count++;
+      warnCount++;
       break;
     case PipelineMessage::MessageType::StatusMessage:
     case PipelineMessage::MessageType::StandardOutputMessage:
@@ -137,15 +138,8 @@ void IssuesWidget::displayCachedMessages()
       break;
     }
   }
-  if(errCount > 0)
-  {
-    emit tableHasErrors(true);
-    emit showTable(true);
-  }
-  else
-  {
-    emit tableHasErrors(false);
-  }
+
+  emit tableHasErrors(errCount > 0, errCount, warnCount);
 
   // Now create the correct number of table rows.
   ui->errorTableWidget->setRowCount(count);
@@ -246,8 +240,15 @@ QLabel* IssuesWidget::createHyperlinkLabel(PipelineMessage msg)
 
     return new QLabel("Unknown Filter Class");
   }
+#ifdef SIMPL_DOXYGEN_DOCUMENTATION
+  QString adjustedClassName = filterClassName.toLower();
+#endif
 
-  QUrl filterURL = QtSHelpUrlGenerator::generateHTMLUrl(filterClassName.toLower());
+#ifdef SIMPL_DISCOUNT_DOCUMENTATION
+  QString adjustedClassName = filterClassName;
+#endif
+
+  QUrl filterURL = QtSHelpUrlGenerator::generateHTMLUrl(adjustedClassName);
   QString filterHTMLText("<a href=\"");
   filterHTMLText.append(filterURL.toString()).append("\">").append(filterHumanLabel).append("</a>");
 

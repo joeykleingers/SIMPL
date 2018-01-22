@@ -41,6 +41,8 @@
 
 #include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
+#include "H5Support/HDF5ScopedFileSentinel.h"
+
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/H5FilterParametersConstants.h"
@@ -57,9 +59,7 @@ H5FilterParametersWriter::H5FilterParametersWriter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-H5FilterParametersWriter::~H5FilterParametersWriter()
-{
-}
+H5FilterParametersWriter::~H5FilterParametersWriter() = default;
 
 // -----------------------------------------------------------------------------
 //

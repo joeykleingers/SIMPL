@@ -41,9 +41,6 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_Breakpoint.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -56,9 +53,7 @@ Breakpoint::Breakpoint()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Breakpoint::~Breakpoint()
-{
-}
+Breakpoint::~Breakpoint() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -189,6 +184,14 @@ const QString Breakpoint::getFilterVersion()
 const QString Breakpoint::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid Breakpoint::getUuid()
+{
+  return QUuid("{a6d82abf-7043-51c0-88ed-b8d0153bf8ab}");
 }
 
 // -----------------------------------------------------------------------------

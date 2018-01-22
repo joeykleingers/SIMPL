@@ -43,9 +43,6 @@
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 
-// Include the MOC generated file for this class
-#include "moc_MakeDataContainer.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -74,9 +71,7 @@ MakeDataContainer::MakeDataContainer()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MakeDataContainer::~MakeDataContainer()
-{
-}
+MakeDataContainer::~MakeDataContainer() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -246,6 +241,14 @@ const QString MakeDataContainer::getCompiledLibraryName()
 const QString MakeDataContainer::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid MakeDataContainer::getUuid()
+{
+  return QUuid("{9df9906c-1db6-5ecf-a85c-c4ef1a484c05}");
 }
 
 // -----------------------------------------------------------------------------

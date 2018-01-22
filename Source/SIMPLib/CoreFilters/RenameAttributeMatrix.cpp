@@ -41,9 +41,6 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_RenameAttributeMatrix.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -58,9 +55,7 @@ RenameAttributeMatrix::RenameAttributeMatrix()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RenameAttributeMatrix::~RenameAttributeMatrix()
-{
-}
+RenameAttributeMatrix::~RenameAttributeMatrix() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -206,6 +201,14 @@ const QString RenameAttributeMatrix::getFilterVersion()
 const QString RenameAttributeMatrix::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid RenameAttributeMatrix::getUuid()
+{
+  return QUuid("{ee29e6d6-1f59-551b-9350-a696523261d5}");
 }
 
 // -----------------------------------------------------------------------------

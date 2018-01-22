@@ -44,7 +44,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 
-#include "moc_RequiredZThickness.cpp"
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -60,9 +59,7 @@ RequiredZThickness::RequiredZThickness()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RequiredZThickness::~RequiredZThickness()
-{
-}
+RequiredZThickness::~RequiredZThickness() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -234,6 +231,14 @@ const QString RequiredZThickness::getCompiledLibraryName()
 const QString RequiredZThickness::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid RequiredZThickness::getUuid()
+{
+  return QUuid("{1fe19578-6856-55f2-adc8-2236fac22c25}");
 }
 
 // -----------------------------------------------------------------------------

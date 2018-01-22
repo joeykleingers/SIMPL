@@ -66,7 +66,7 @@ class SIMPLib_EXPORT DynamicChoiceFilterParameter : public FilterParameter
   public:
     SIMPL_SHARED_POINTERS(DynamicChoiceFilterParameter)
     SIMPL_STATIC_NEW_MACRO(DynamicChoiceFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(DynamicChoiceFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(DynamicChoiceFilterParameter, FilterParameter)
 
     typedef std::function<void(QString)> SetterCallbackType;
     typedef std::function<QString(void)> GetterCallbackType;
@@ -141,8 +141,8 @@ class SIMPLib_EXPORT DynamicChoiceFilterParameter : public FilterParameter
     DynamicChoiceFilterParameter();
 
   private:
-    DynamicChoiceFilterParameter(const DynamicChoiceFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const DynamicChoiceFilterParameter&); // Operator '=' Not Implemented
+    DynamicChoiceFilterParameter(const DynamicChoiceFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const DynamicChoiceFilterParameter&) = delete;               // Operator '=' Not Implemented
 };
 
 #endif /* _DynamicChoiceFilterParameter_H_ */

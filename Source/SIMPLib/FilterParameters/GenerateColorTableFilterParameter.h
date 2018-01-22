@@ -51,7 +51,7 @@ class SIMPLib_EXPORT GenerateColorTableFilterParameter : public FilterParameter
   public:
     SIMPL_SHARED_POINTERS(GenerateColorTableFilterParameter)
     SIMPL_STATIC_NEW_MACRO(GenerateColorTableFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(GenerateColorTableFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(GenerateColorTableFilterParameter, FilterParameter)
 
     /**
      * @brief New This function instantiates an instance of the DataContainerCreationFilterParameter.
@@ -99,9 +99,8 @@ class SIMPLib_EXPORT GenerateColorTableFilterParameter : public FilterParameter
     GenerateColorTableFilterParameter();
 
   private:
-
-    GenerateColorTableFilterParameter(const GenerateColorTableFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const GenerateColorTableFilterParameter&); // Operator '=' Not Implemented
+    GenerateColorTableFilterParameter(const GenerateColorTableFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const GenerateColorTableFilterParameter&) = delete;                    // Operator '=' Not Implemented
 };
 
 #endif /* _generatecolortablefilterparameter_h_ */

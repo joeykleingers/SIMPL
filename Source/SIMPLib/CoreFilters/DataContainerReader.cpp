@@ -50,9 +50,7 @@
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Utilities/SIMPLH5DataReader.h"
 #include "SIMPLib/SIMPLibVersion.h"
-
-// Include the MOC generated file for this class
-#include "moc_DataContainerReader.cpp"
+#include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -313,11 +311,12 @@ DataContainerArrayProxy DataContainerReader::readDataContainerArrayStructure(con
   }
 
   int err = 0;
+    
   SIMPLH5DataReaderRequirements req(SIMPL::Defaults::AnyComponentSize);
   req.setPrimitiveTypeFlags(SIMPLH5DataReaderRequirements::PrimitiveTypeFlag::Any_PType);
   req.setAMTypeFlags(SIMPLH5DataReaderRequirements::AMTypeFlag::Any_AMType);
   req.setDCGeometryTypeFlags(SIMPLH5DataReaderRequirements::DCGeometryTypeFlag::Any_DCGeomType);
-  DataContainerArrayProxy proxy = h5Reader->readDataContainerArrayStructure(req, err);
+  DataContainerArrayProxy proxy = h5Reader->readDataContainerArrayStructure(&req, err);
   if (err < 0)
   {
     return DataContainerArrayProxy();
@@ -366,7 +365,7 @@ int DataContainerReader::readExistingPipelineFromFile(hid_t fileId)
     }
     // Instantiate a new filter using the FilterFactory based on the value of the className attribute
     FilterManager* fm = FilterManager::Instance();
-    IFilterFactory::Pointer ff = fm->getFactoryForFilter(classNameStr);
+    IFilterFactory::Pointer ff = fm->getFactoryFromClassName(classNameStr);
     if(nullptr != ff.get())
     {
       AbstractFilter::Pointer filter = ff->create();
@@ -443,7 +442,7 @@ bool DataContainerReader::syncProxies()
   if(m_InputFileDataContainerArrayProxy.dataContainers.size() > 0)
   {
     int err = 0;
-    DataContainerArrayProxy fileProxy = simplReader->readDataContainerArrayStructure(req, err);
+    DataContainerArrayProxy fileProxy = simplReader->readDataContainerArrayStructure(&req, err);
     if (err < 0)
     {
       return false;
@@ -458,7 +457,7 @@ bool DataContainerReader::syncProxies()
   else
   {
     int err = 0;
-    DataContainerArrayProxy fileProxy = simplReader->readDataContainerArrayStructure(req, err);
+    DataContainerArrayProxy fileProxy = simplReader->readDataContainerArrayStructure(&req, err);
     if (err < 0)
     {
       return false;
@@ -524,6 +523,14 @@ const QString DataContainerReader::getFilterVersion()
 const QString DataContainerReader::getGroupName()
 {
   return SIMPL::FilterGroups::IOFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid DataContainerReader::getUuid()
+{
+  return QUuid("{043cbde5-3878-5718-958f-ae75714df0df}");
 }
 
 // -----------------------------------------------------------------------------

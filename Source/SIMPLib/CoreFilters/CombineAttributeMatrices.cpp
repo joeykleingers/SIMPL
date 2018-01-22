@@ -44,9 +44,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_CombineAttributeMatrices.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -68,9 +65,7 @@ CombineAttributeMatrices::CombineAttributeMatrices()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CombineAttributeMatrices::~CombineAttributeMatrices()
-{
-}
+CombineAttributeMatrices::~CombineAttributeMatrices() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -411,6 +406,14 @@ const QString CombineAttributeMatrices::getFilterVersion()
 const QString CombineAttributeMatrices::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid CombineAttributeMatrices::getUuid()
+{
+  return QUuid("{334034e9-405f-51a3-9c3c-8d9c955835d9}");
 }
 
 // -----------------------------------------------------------------------------

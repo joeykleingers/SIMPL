@@ -85,7 +85,7 @@ class SIMPLib_EXPORT TransformationStatsData : public StatsData
   public:
     SIMPL_SHARED_POINTERS(TransformationStatsData)
     SIMPL_STATIC_NEW_MACRO(TransformationStatsData)
-    SIMPL_TYPE_MACRO_SUPER(TransformationStatsData, StatsData)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(TransformationStatsData, StatsData)
 
     virtual ~TransformationStatsData();
 
@@ -202,8 +202,8 @@ class SIMPLib_EXPORT TransformationStatsData : public StatsData
     TransformationStatsData();
 
   private:
-    TransformationStatsData(const TransformationStatsData&); // Copy Constructor Not Implemented
-    void operator=(const TransformationStatsData&); // Operator '=' Not Implemented
+    TransformationStatsData(const TransformationStatsData&) = delete; // Copy Constructor Not Implemented
+    void operator=(const TransformationStatsData&) = delete;          // Operator '=' Not Implemented
 };
 
 #endif /* _TransformationStatsDataTUPLE_H_ */

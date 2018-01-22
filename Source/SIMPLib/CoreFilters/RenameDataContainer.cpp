@@ -41,9 +41,6 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_RenameDataContainer.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -58,9 +55,7 @@ RenameDataContainer::RenameDataContainer()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RenameDataContainer::~RenameDataContainer()
-{
-}
+RenameDataContainer::~RenameDataContainer() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -202,6 +197,14 @@ const QString RenameDataContainer::getFilterVersion()
 const QString RenameDataContainer::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid RenameDataContainer::getUuid()
+{
+  return QUuid("{d53c808f-004d-5fac-b125-0fffc8cc78d6}");
 }
 
 // -----------------------------------------------------------------------------

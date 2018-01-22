@@ -42,9 +42,6 @@
 #include "SIMPLib/FilterParameters/DoubleFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_ReplaceValueInArray.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -53,7 +50,6 @@ ReplaceValueInArray::ReplaceValueInArray()
 , m_SelectedArray("", "", "")
 , m_RemoveValue(0.0)
 , m_ReplaceValue(0.0)
-, m_Array(nullptr)
 {
   setupFilterParameters();
 }
@@ -61,9 +57,7 @@ ReplaceValueInArray::ReplaceValueInArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ReplaceValueInArray::~ReplaceValueInArray()
-{
-}
+ReplaceValueInArray::~ReplaceValueInArray() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -329,6 +323,14 @@ const QString ReplaceValueInArray::getFilterVersion()
 const QString ReplaceValueInArray::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ReplaceValueInArray::getUuid()
+{
+  return QUuid("{a37f2e24-7400-5005-b9a7-b2224570cbe9}");
 }
 
 // -----------------------------------------------------------------------------

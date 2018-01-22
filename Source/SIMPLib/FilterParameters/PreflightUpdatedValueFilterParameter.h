@@ -66,7 +66,7 @@ class SIMPLib_EXPORT PreflightUpdatedValueFilterParameter : public FilterParamet
   public:
     SIMPL_SHARED_POINTERS(PreflightUpdatedValueFilterParameter)
     SIMPL_STATIC_NEW_MACRO(PreflightUpdatedValueFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(PreflightUpdatedValueFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(PreflightUpdatedValueFilterParameter, FilterParameter)
 
     typedef std::function<void(QString)> SetterCallbackType;
     typedef std::function<QString(void)> GetterCallbackType;
@@ -121,8 +121,8 @@ class SIMPLib_EXPORT PreflightUpdatedValueFilterParameter : public FilterParamet
     PreflightUpdatedValueFilterParameter();
 
   private:
-    PreflightUpdatedValueFilterParameter(const PreflightUpdatedValueFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const PreflightUpdatedValueFilterParameter&); // Operator '=' Not Implemented
+    PreflightUpdatedValueFilterParameter(const PreflightUpdatedValueFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const PreflightUpdatedValueFilterParameter&) = delete;                       // Operator '=' Not Implemented
 };
 
 #endif /* _PreflightUpdatedValueFilterParameter_H_ */

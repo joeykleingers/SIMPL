@@ -90,9 +90,6 @@ public:
 #endif
 };
 
-// Include the MOC generated file for this class
-#include "moc_SetOriginResolutionImageGeom.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -116,9 +113,7 @@ SetOriginResolutionImageGeom::SetOriginResolutionImageGeom()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SetOriginResolutionImageGeom::~SetOriginResolutionImageGeom()
-{
-}
+SetOriginResolutionImageGeom::~SetOriginResolutionImageGeom() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -263,6 +258,14 @@ const QString SetOriginResolutionImageGeom::getFilterVersion()
 const QString SetOriginResolutionImageGeom::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid SetOriginResolutionImageGeom::getUuid()
+{
+  return QUuid("{6d3a3852-6251-5d2e-b749-6257fd0d8951}");
 }
 
 // -----------------------------------------------------------------------------

@@ -54,6 +54,7 @@
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedDataContainerSelectionFilterParameter.h"
+#include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 
 #include "SVWidgetsLib/QtSupport/QtSHelpUrlGenerator.h"
 #include "SVWidgetsLib/QtSupport/QtSStyles.h"
@@ -73,7 +74,6 @@
 #endif
 
 // Include the MOC generated CPP file which has all the QMetaObject methods/data
-#include "moc_FilterInputWidget.cpp"
 
 // Initialize private static member variable
 QString FilterInputWidget::m_OpenDialogLastFilePath = "";
@@ -516,8 +516,13 @@ void FilterInputWidget::linkConditionalWidgets(QVector<FilterParameter::Pointer>
       QWidget* checkboxSource = m_PropertyToWidget[optionPtr2->getPropertyName()];
       while(iter.hasNext())
       {
+        QWidget* w = nullptr;
         QString propName = iter.next();
-        QWidget* w = m_PropertyToWidget[propName];
+        if(m_PropertyToWidget.contains(propName))
+        {
+          w = m_PropertyToWidget[propName];
+        }
+         
         if(w)
         {
           // qDebug() << "Connecting: " << optionPtr2->getPropertyName() << " to " << propName;
@@ -542,8 +547,12 @@ void FilterInputWidget::linkConditionalWidgets(QVector<FilterParameter::Pointer>
       QWidget* checkboxSource = m_PropertyToWidget[optionPtr3->getPropertyName()];
       while(iter.hasNext())
       {
+        QWidget* w = nullptr;
         QString propName = iter.next();
-        QWidget* w = m_PropertyToWidget[propName];
+        if(m_PropertyToWidget.contains(propName))
+        {
+          w = m_PropertyToWidget[propName];
+        }
         if(w)
         {
           // qDebug() << "Connecting: " << optionPtr2->getPropertyName() << " to " << propName;
@@ -615,7 +624,15 @@ void FilterInputWidget::displayFilterParameters(PipelineFilterObject* w)
   AbstractFilter::Pointer f = w->getFilter();
   if(f.get())
   {
-    m_BrandingLabel = f->getBrandingString() + "  [" + w->getCompiledLibraryName() + "/" + w->getFilterGroup() + "/" + w->getFilterClassName() + "]";
+    ISIMPLibPlugin* plug = f->getPluginInstance();
+    if(plug)
+    {
+      m_BrandingLabel = QString("Plugin: %1 (%2) Filter Name: %3").arg(plug->getPluginDisplayName()).arg(plug->getVersion()).arg(w->getFilterClassName());
+    }
+    else
+    {
+      m_BrandingLabel = QString("Plugin: Unknown Plugin. Filter Name: %1").arg(w->getFilterClassName());
+    }
     brandingLabel->setText(m_BrandingLabel);
   }
   // Add a label at the top of the Inputs Tabs to show what filter we are working on

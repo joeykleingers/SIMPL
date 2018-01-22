@@ -36,8 +36,7 @@
 #include "DynamicTableData.h"
 
 #include <QtCore/QJsonArray>
-
-#include "moc_DynamicTableData.cpp"
+#include <QtCore/QJsonObject>
 
 // -----------------------------------------------------------------------------
 //
@@ -126,9 +125,7 @@ DynamicTableData::DynamicTableData(std::vector<std::vector<double>> data, QStrin
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DynamicTableData::~DynamicTableData()
-{
-}
+DynamicTableData::~DynamicTableData() = default;
 
 // -----------------------------------------------------------------------------
 //

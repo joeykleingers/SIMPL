@@ -32,6 +32,9 @@
 
 #include "ImportHDF5DatasetFilterParameter.h"
 
+#include <QtCore/QJsonObject>
+
+
 #include "SIMPLib/CoreFilters/ImportHDF5Dataset.h"
 
 // -----------------------------------------------------------------------------
@@ -45,9 +48,7 @@ ImportHDF5DatasetFilterParameter::ImportHDF5DatasetFilterParameter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportHDF5DatasetFilterParameter::~ImportHDF5DatasetFilterParameter()
-{
-}
+ImportHDF5DatasetFilterParameter::~ImportHDF5DatasetFilterParameter() = default;
 
 // -----------------------------------------------------------------------------
 //

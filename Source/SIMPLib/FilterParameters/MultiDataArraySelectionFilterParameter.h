@@ -70,7 +70,7 @@ class SIMPLib_EXPORT MultiDataArraySelectionFilterParameter : public FilterParam
   public:
     SIMPL_SHARED_POINTERS(MultiDataArraySelectionFilterParameter)
     SIMPL_STATIC_NEW_MACRO(MultiDataArraySelectionFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(MultiDataArraySelectionFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(MultiDataArraySelectionFilterParameter, FilterParameter)
 
     typedef std::function<void(QVector<DataArrayPath>)> SetterCallbackType;
     typedef std::function<QVector<DataArrayPath>(void)> GetterCallbackType;
@@ -182,8 +182,8 @@ class SIMPLib_EXPORT MultiDataArraySelectionFilterParameter : public FilterParam
     MultiDataArraySelectionFilterParameter();
 
   private:
-    MultiDataArraySelectionFilterParameter(const MultiDataArraySelectionFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const MultiDataArraySelectionFilterParameter&); // Operator '=' Not Implemented
+    MultiDataArraySelectionFilterParameter(const MultiDataArraySelectionFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const MultiDataArraySelectionFilterParameter&) = delete;                         // Operator '=' Not Implemented
 };
 
 #endif /* _MultiDataArraySelectionFilterParameter_H_ */

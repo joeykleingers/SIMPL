@@ -47,9 +47,6 @@
 #include "SIMPLib/Math/SIMPLibRandom.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_FindDerivatives.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -65,9 +62,7 @@ FindDerivatives::FindDerivatives()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FindDerivatives::~FindDerivatives()
-{
-}
+FindDerivatives::~FindDerivatives() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -421,6 +416,14 @@ const QString FindDerivatives::getFilterVersion()
 const QString FindDerivatives::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid FindDerivatives::getUuid()
+{
+  return QUuid("{8ec1fc8e-6484-5412-a898-8079986c0a26}");
 }
 
 // -----------------------------------------------------------------------------

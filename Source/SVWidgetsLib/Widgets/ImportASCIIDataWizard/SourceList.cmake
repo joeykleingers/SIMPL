@@ -52,7 +52,7 @@ cmp_IDE_SOURCE_PROPERTIES( "Widgets/ImportASCIIDataWizard" "${SVWidgetsLib_Widge
 # Organize the Source files for things like Visual Studio and Xcode
 cmp_IDE_GENERATED_PROPERTIES("Widgets/ImportASCIIDataWizard/UI_Files" "${SVWidgetsLib_Widgets_UIS}" "")
 
-QT5_WRAP_CPP( SVWidgetsLib_Widgets_Generated_MOC_SRCS ${SVWidgetsLib_Widgets_MOC_HDRS} )
+# QT5_WRAP_CPP( SVWidgetsLib_Widgets_Generated_MOC_SRCS ${SVWidgetsLib_Widgets_MOC_HDRS} )
 
 # --------------------------------------------------------------------
 # We are using CMake's AuotMoc feature so we do not need to wrap our .cpp files with a specific call to 'moc'
@@ -64,6 +64,9 @@ QT5_WRAP_CPP( SVWidgetsLib_Widgets_Generated_MOC_SRCS ${SVWidgetsLib_Widgets_MOC
 # --------------------------------------------------------------------
 # -- Run UIC on the necessary files
 QT5_WRAP_UI( SVWidgetsLib_Widgets_Generated_UI_HDRS ${SVWidgetsLib_Widgets_UIS} )
+foreach(h ${SVWidgetsLib_Widgets_Generated_UI_HDRS})
+  set_property(SOURCE ${h} PROPERTY SKIP_AUTOMOC ON)
+endforeach()
 
 # --------------------------------------------------------------------
 #-- Put the Qt generated files into their own group for IDEs

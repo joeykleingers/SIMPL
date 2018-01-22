@@ -43,9 +43,6 @@
 #include "SIMPLib/Filtering/ThresholdFilterHelper.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_MultiThresholdObjects2.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -61,9 +58,7 @@ MultiThresholdObjects2::MultiThresholdObjects2()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MultiThresholdObjects2::~MultiThresholdObjects2()
-{
-}
+MultiThresholdObjects2::~MultiThresholdObjects2() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -489,6 +484,14 @@ const QString MultiThresholdObjects2::getFilterVersion()
 const QString MultiThresholdObjects2::getGroupName()
 {
   return SIMPL::FilterGroups::ProcessingFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid MultiThresholdObjects2::getUuid()
+{
+  return QUuid("{686d5393-2b02-5c86-b887-dd81a8ae80f2}");
 }
 
 // -----------------------------------------------------------------------------

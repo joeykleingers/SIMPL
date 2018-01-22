@@ -36,6 +36,7 @@
 #include "FilterManager.h"
 
 #include "SIMPLib/Filtering/FilterFactory.hpp"
+#include "SIMPLib/Filtering/CorePlugin.h"
 
 FilterManager* FilterManager::self = nullptr;
 
@@ -51,9 +52,7 @@ FilterManager::FilterManager()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FilterManager::~FilterManager()
-{
-}
+FilterManager::~FilterManager() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -63,6 +62,9 @@ FilterManager* FilterManager::Instance()
   if(self == nullptr)
   {
     self = new FilterManager();
+    // Always register the Core Filters
+    CorePlugin cp;
+    cp.registerFilters(self);
   }
   return self;
 }
@@ -78,6 +80,14 @@ void FilterManager::RegisterFilterFactory(const QString& name, IFilterFactory::P
     FilterManager* idManager = FilterManager::Instance();
     idManager->addFilterFactory(name, factory);
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void FilterManager::RegisterKnownFilters(FilterManager* /* fm */)
+{
+
 }
 
 // -----------------------------------------------------------------------------
@@ -141,6 +151,7 @@ void FilterManager::addFilterFactory(const QString& name, IFilterFactory::Pointe
 {
   // std::cout << this << " - Registering Filter: " << name.toStdString() << std::endl;
   m_Factories[name] = factory;
+  m_UuidFactories[factory->getUuid()] = factory;
 }
 
 // -----------------------------------------------------------------------------
@@ -189,7 +200,7 @@ QSet<QString> FilterManager::getSubGroupNames(const QString& groupName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IFilterFactory::Pointer FilterManager::getFactoryForFilter(const QString& filterName)
+IFilterFactory::Pointer FilterManager::getFactoryFromClassName(const QString& filterName) const
 {
   if(m_Factories.contains(filterName))
   {
@@ -198,10 +209,23 @@ IFilterFactory::Pointer FilterManager::getFactoryForFilter(const QString& filter
   return IFilterFactory::NullPointer();
 }
 
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IFilterFactory::Pointer FilterManager::getFactoryForFilterHumanName(const QString& humanName)
+IFilterFactory::Pointer FilterManager::getFactoryFromUuid(const QUuid& uuid) const
+{
+  if(m_UuidFactories.contains(uuid))
+  {
+    return m_UuidFactories[uuid];
+  }
+  return IFilterFactory::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IFilterFactory::Pointer FilterManager::getFactoryFromHumanName(const QString& humanName)
 {
   IFilterFactory::Pointer Factory;
 
@@ -217,7 +241,3 @@ IFilterFactory::Pointer FilterManager::getFactoryForFilterHumanName(const QStrin
   return Factory;
 }
 
-/* This next line includes a file that is generated at CMake time and includes all the filter headers
- * and code to register a factory instance for each filter.
- */
-#include "SIMPLib/RegisterKnownFilters.cpp"

@@ -48,8 +48,6 @@
 #include "SIMPLib/SIMPLibVersion.h"
 
 #define WRITE_EDGES_FILE 0
-// Include the MOC generated file for this class
-#include "moc_WriteTriangleGeometry.cpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -66,9 +64,7 @@ WriteTriangleGeometry::WriteTriangleGeometry()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-WriteTriangleGeometry::~WriteTriangleGeometry()
-{
-}
+WriteTriangleGeometry::~WriteTriangleGeometry() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -316,6 +312,14 @@ const QString WriteTriangleGeometry::getFilterVersion()
 const QString WriteTriangleGeometry::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid WriteTriangleGeometry::getUuid()
+{
+  return QUuid("{5e523ec1-49ac-541e-a4ba-6fa725798b91}");
 }
 
 // -----------------------------------------------------------------------------

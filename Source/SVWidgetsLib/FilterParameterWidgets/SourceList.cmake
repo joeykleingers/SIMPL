@@ -35,6 +35,7 @@ set(SIMPLView_PARAMETER_WIDGETS
     MultiAttributeMatrixSelectionWidget
     MultiDataArraySelectionWidget
     NumericTypeWidget
+    ParagraphWidget
     PreflightUpdatedValueWidget
     RangeWidget
     ScalarTypeWidget
@@ -211,7 +212,7 @@ cmp_IDE_GENERATED_PROPERTIES("SVWidgetsLib/FilterParameterWidgets/UI_Files" "${S
 
 # --------------------------------------------------------------------
 # and finally this will run moc:
-QT5_WRAP_CPP( SVWidgetsLib_ParameterWidgets_Generated_MOC_SRCS ${SVWidgetsLib_FilterParameterWidgets_MOC_HDRS} )
+# QT5_WRAP_CPP( SVWidgetsLib_ParameterWidgets_Generated_MOC_SRCS ${SVWidgetsLib_FilterParameterWidgets_MOC_HDRS} )
 set_source_files_properties( ${SVWidgetsLib_ParameterWidgets_Generated_MOC_SRCS} PROPERTIES GENERATED TRUE)
 set_source_files_properties( ${SVWidgetsLib_ParameterWidgets_Generated_MOC_SRCS} PROPERTIES HEADER_FILE_ONLY TRUE)
 
@@ -220,8 +221,11 @@ set_source_files_properties( ${SVWidgetsLib_ParameterWidgets_Generated_MOC_SRCS}
 # QT5_ADD_RESOURCES( SVWidgetsLib_Generated_RC_SRCS "${SIMPLViewProj_SOURCE_DIR}/Documentation/Filters/Generated_FilterDocs.qrc"  )
 
 # --------------------------------------------------------------------
-# Continue on with our Qt4 section
+# Wrap UI files so they are AUTO UIC'ed
 QT5_WRAP_UI( SVWidgetsLib_ParameterWidgets_Generated_UI_HDRS ${SVWidgetsLib_FilterParameterWidgets_UIS} )
+foreach(h ${SVWidgetsLib_ParameterWidgets_Generated_UI_HDRS})
+  set_property(SOURCE ${h} PROPERTY SKIP_AUTOMOC ON)
+endforeach()
 
 # --------------------------------------------------------------------
 #-- Put the Qt generated files into their own group for IDEs

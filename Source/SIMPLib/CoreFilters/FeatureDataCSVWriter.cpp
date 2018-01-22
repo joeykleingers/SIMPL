@@ -47,9 +47,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_FeatureDataCSVWriter.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -68,9 +65,7 @@ FeatureDataCSVWriter::FeatureDataCSVWriter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FeatureDataCSVWriter::~FeatureDataCSVWriter()
-{
-}
+FeatureDataCSVWriter::~FeatureDataCSVWriter() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -376,6 +371,14 @@ const QString FeatureDataCSVWriter::getFilterVersion()
 const QString FeatureDataCSVWriter::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid FeatureDataCSVWriter::getUuid()
+{
+  return QUuid("{737b8d5a-8622-50f9-9a8a-bfdb57608891}");
 }
 
 // -----------------------------------------------------------------------------

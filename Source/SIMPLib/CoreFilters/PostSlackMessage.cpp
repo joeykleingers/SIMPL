@@ -46,9 +46,6 @@
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_PostSlackMessage.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -231,6 +228,14 @@ const QString PostSlackMessage::getFilterVersion()
 const QString PostSlackMessage::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid PostSlackMessage::getUuid()
+{
+  return QUuid("{0ca83462-8564-54ea-9f4e-e5141974f30b}");
 }
 
 // -----------------------------------------------------------------------------

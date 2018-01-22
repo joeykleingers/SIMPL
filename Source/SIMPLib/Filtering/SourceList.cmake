@@ -9,11 +9,12 @@ set(SIMPLib_${SUBDIR_NAME}_Moc_HDRS
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonInputs.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonInputsAdvanced.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/FilterPipeline.h
+  ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/CorePlugin.h
 )
 
 # --------------------------------------------------------------------
 # Run Qts automoc program to generate some source files that get compiled
-QT5_WRAP_CPP( SIMPLib_${SUBDIR_NAME}_Generated_MOC_SRCS ${SIMPLib_${SUBDIR_NAME}_Moc_HDRS})
+# QT5_WRAP_CPP( SIMPLib_${SUBDIR_NAME}_Generated_MOC_SRCS ${SIMPLib_${SUBDIR_NAME}_Moc_HDRS})
 set_source_files_properties( ${SIMPLib_${SUBDIR_NAME}_Generated_MOC_SRCS} PROPERTIES GENERATED TRUE)
 set_source_files_properties( ${SIMPLib_${SUBDIR_NAME}_Generated_MOC_SRCS} PROPERTIES HEADER_FILE_ONLY TRUE)
 
@@ -21,6 +22,7 @@ set(SIMPLib_${SUBDIR_NAME}_HDRS
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/AbstractComparison.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonSet.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonValue.h
+  ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/CoreConstants.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/FilterFactory.hpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/FilterManager.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/IFilterFactory.hpp
@@ -37,6 +39,7 @@ set(SIMPLib_${SUBDIR_NAME}_SRCS
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonInputsAdvanced.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonSet.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ComparisonValue.cpp
+  ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/CorePlugin.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/FilterManager.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/FilterPipeline.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/QMetaObjectUtilities.cpp

@@ -64,7 +64,7 @@ class SIMPLib_EXPORT PhaseTypeSelectionFilterParameter : public FilterParameter
 public:
   SIMPL_SHARED_POINTERS(PhaseTypeSelectionFilterParameter)
   SIMPL_STATIC_NEW_MACRO(PhaseTypeSelectionFilterParameter)
-  SIMPL_TYPE_MACRO_SUPER(PhaseTypeSelectionFilterParameter, FilterParameter)
+   SIMPL_TYPE_MACRO_SUPER_OVERRIDE(PhaseTypeSelectionFilterParameter, FilterParameter)
 
   typedef std::function<void(PhaseType::Types)> SetterCallbackType;
   typedef std::function<PhaseType::Types(void)> GetterCallbackType;
@@ -145,7 +145,7 @@ protected:
   PhaseTypeSelectionFilterParameter();
 
 private:
-  PhaseTypeSelectionFilterParameter(const PhaseTypeSelectionFilterParameter&); // Copy Constructor Not Implemented
+  PhaseTypeSelectionFilterParameter(const PhaseTypeSelectionFilterParameter&) = delete; // Copy Constructor Not Implemented
   void operator=(const PhaseTypeSelectionFilterParameter&);                    // Operator '=' Not Implemented
 };
 

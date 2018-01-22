@@ -155,9 +155,6 @@ template <typename T> int32_t readBinaryFile(typename DataArray<T>::Pointer p, c
   return RBR_NO_ERROR;
 }
 
-// Include the MOC generated file for this class
-#include "moc_RawBinaryReader.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -177,9 +174,7 @@ RawBinaryReader::RawBinaryReader()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RawBinaryReader::~RawBinaryReader()
-{
-}
+RawBinaryReader::~RawBinaryReader() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -557,6 +552,14 @@ const QString RawBinaryReader::getFilterVersion()
 const QString RawBinaryReader::getGroupName()
 {
   return SIMPL::FilterGroups::IOFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid RawBinaryReader::getUuid()
+{
+  return QUuid("{0791f556-3d73-5b1e-b275-db3f7bb6850d}");
 }
 
 // -----------------------------------------------------------------------------

@@ -37,9 +37,6 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_DynamicTableExample.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -52,9 +49,7 @@ DynamicTableExample::DynamicTableExample()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DynamicTableExample::~DynamicTableExample()
-{
-}
+DynamicTableExample::~DynamicTableExample() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -223,6 +218,14 @@ const QString DynamicTableExample::getCompiledLibraryName()
 const QString DynamicTableExample::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid DynamicTableExample::getUuid()
+{
+  return QUuid("{7baae579-69bf-5559-a876-d0ef1cab77eb}");
 }
 
 // -----------------------------------------------------------------------------

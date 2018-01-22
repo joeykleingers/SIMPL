@@ -68,7 +68,7 @@ class SIMPLib_EXPORT DataContainerArrayProxyFilterParameter : public FilterParam
   public:
     SIMPL_SHARED_POINTERS(DataContainerArrayProxyFilterParameter)
     SIMPL_STATIC_NEW_MACRO(DataContainerArrayProxyFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(DataContainerArrayProxyFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(DataContainerArrayProxyFilterParameter, FilterParameter)
 
     typedef std::function<void(DataContainerArrayProxy)> SetterCallbackType;
     typedef std::function<DataContainerArrayProxy(void)> GetterCallbackType;
@@ -143,8 +143,8 @@ class SIMPLib_EXPORT DataContainerArrayProxyFilterParameter : public FilterParam
     DataContainerArrayProxyFilterParameter();
 
   private:
-    DataContainerArrayProxyFilterParameter(const DataContainerArrayProxyFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const DataContainerArrayProxyFilterParameter&); // Operator '=' Not Implemented
+    DataContainerArrayProxyFilterParameter(const DataContainerArrayProxyFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const DataContainerArrayProxyFilterParameter&) = delete;                         // Operator '=' Not Implemented
 };
 
 #endif /* _DataContainerArrayProxyFilterParameter_H_ */

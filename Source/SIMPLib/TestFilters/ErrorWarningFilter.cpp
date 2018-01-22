@@ -35,9 +35,6 @@
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_ErrorWarningFilter.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -56,9 +53,7 @@ ErrorWarningFilter::ErrorWarningFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ErrorWarningFilter::~ErrorWarningFilter()
-{
-}
+ErrorWarningFilter::~ErrorWarningFilter() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -203,6 +198,14 @@ const QString ErrorWarningFilter::getFilterVersion()
 const QString ErrorWarningFilter::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ErrorWarningFilter::getUuid()
+{
+  return QUuid("{c367f998-3cc8-5a24-8616-70b659c5ce46}");
 }
 
 // -----------------------------------------------------------------------------

@@ -45,9 +45,6 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_ExecuteProcess.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -60,9 +57,7 @@ ExecuteProcess::ExecuteProcess()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ExecuteProcess::~ExecuteProcess()
-{
-}
+ExecuteProcess::~ExecuteProcess() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -381,6 +376,14 @@ const QString ExecuteProcess::getFilterVersion()
 const QString ExecuteProcess::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ExecuteProcess::getUuid()
+{
+  return QUuid("{8a2308ec-86cd-5636-9a0a-6c7d383e9e7f}");
 }
 
 // -----------------------------------------------------------------------------

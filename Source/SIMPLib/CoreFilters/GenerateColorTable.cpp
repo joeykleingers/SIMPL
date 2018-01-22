@@ -18,9 +18,6 @@
 #include "SIMPLib/Utilities/ColorTable.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_GenerateColorTable.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -225,9 +222,7 @@ GenerateColorTable::GenerateColorTable() :
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenerateColorTable::~GenerateColorTable()
-{
-}
+GenerateColorTable::~GenerateColorTable() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -413,6 +408,14 @@ const QString GenerateColorTable::getFilterVersion()
 // -----------------------------------------------------------------------------
 const QString GenerateColorTable::getGroupName()
 { return SIMPL::FilterGroups::CoreFilters; }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid GenerateColorTable::getUuid()
+{
+  return QUuid("{0d0a6535-6565-51c5-a3fc-fbc00008606d}");
+}
 
 // -----------------------------------------------------------------------------
 //

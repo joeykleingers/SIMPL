@@ -65,10 +65,6 @@
 
 #define kBufferSize 1024
 
-
-// Include the MOC generated file for this class
-#include "moc_ImportAsciDataArray.cpp"
-
 namespace Detail
 {
 // -----------------------------------------------------------------------------
@@ -273,9 +269,7 @@ ImportAsciDataArray::ImportAsciDataArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportAsciDataArray::~ImportAsciDataArray()
-{
-}
+ImportAsciDataArray::~ImportAsciDataArray() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -719,6 +713,14 @@ const QString ImportAsciDataArray::getFilterVersion()
 const QString ImportAsciDataArray::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ImportAsciDataArray::getUuid()
+{
+  return QUuid("{a7007472-29e5-5d0a-89a6-1aed11b603f8}");
 }
 
 // -----------------------------------------------------------------------------

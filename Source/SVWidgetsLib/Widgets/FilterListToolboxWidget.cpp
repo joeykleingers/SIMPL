@@ -47,7 +47,6 @@
 #include "SVWidgetsLib/QtSupport/QtSStyles.h"
 
 // Include the MOC generated CPP file which has all the QMetaObject methods/data
-#include "moc_FilterListToolboxWidget.cpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -68,9 +67,7 @@ FilterListToolboxWidget::FilterListToolboxWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FilterListToolboxWidget::~FilterListToolboxWidget()
-{
-}
+FilterListToolboxWidget::~FilterListToolboxWidget() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -183,7 +180,7 @@ void FilterListToolboxWidget::launchHelpForItem(QString humanLabel)
   {
     return;
   }
-  IFilterFactory::Pointer factory = fm->getFactoryForFilterHumanName(humanLabel);
+  IFilterFactory::Pointer factory = fm->getFactoryFromHumanName(humanLabel);
   if(nullptr == factory.get())
   {
     return;

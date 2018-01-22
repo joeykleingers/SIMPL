@@ -8,9 +8,6 @@
 
 #include "IO/IOConstants.h"
 
-// Include the MOC generated file for this class
-#include "moc_RawBinaryWriter.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -24,9 +21,7 @@ RawBinaryWriter::RawBinaryWriter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RawBinaryWriter::~RawBinaryWriter()
-{
-}
+RawBinaryWriter::~RawBinaryWriter() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -151,6 +146,14 @@ const QString RawBinaryWriter::getGroupName()
 const QString RawBinaryWriter::getHumanLabel()
 {
   return "RawBinaryWriter";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid RawBinaryWriter::getUuid()
+{
+  return QUuid("{a16c46b5-a9d8-511c-a3a2-37933c56e2e5}");
 }
 
 // -----------------------------------------------------------------------------

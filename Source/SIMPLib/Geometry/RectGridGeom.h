@@ -47,7 +47,7 @@ class SIMPLib_EXPORT RectGridGeom : public IGeometryGrid
   public:
     SIMPL_SHARED_POINTERS(RectGridGeom)
     SIMPL_STATIC_NEW_MACRO(RectGridGeom)
-    SIMPL_TYPE_MACRO_SUPER(RectGridGeom, Observable)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(RectGridGeom, Observable)
 
     virtual ~RectGridGeom();
 
@@ -290,8 +290,8 @@ class SIMPLib_EXPORT RectGridGeom : public IGeometryGrid
 
     friend class FindRectGridDerivativesImpl;
 
-    RectGridGeom(const RectGridGeom&); // Copy Constructor Not Implemented
-    void operator=(const RectGridGeom&); // Operator '=' Not Implemented
+    RectGridGeom(const RectGridGeom&) = delete;   // Copy Constructor Not Implemented
+    void operator=(const RectGridGeom&) = delete; // Operator '=' Not Implemented
 };
 
 

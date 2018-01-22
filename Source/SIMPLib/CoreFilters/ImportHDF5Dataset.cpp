@@ -38,11 +38,11 @@
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/ImportHDF5DatasetFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
-
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_ImportHDF5Dataset.cpp"
+#include "H5Support/H5Utilities.h"
+#include "H5Support/QH5Utilities.h"
+#include "H5Support/HDF5ScopedFileSentinel.h"
 
 namespace Detail
 {
@@ -80,9 +80,7 @@ ImportHDF5Dataset::ImportHDF5Dataset()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportHDF5Dataset::~ImportHDF5Dataset()
-{
-}
+ImportHDF5Dataset::~ImportHDF5Dataset() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -567,6 +565,14 @@ const QString ImportHDF5Dataset::getFilterVersion()
 const QString ImportHDF5Dataset::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ImportHDF5Dataset::getUuid()
+{
+  return QUuid("{9e98c3b0-5707-5a3b-b8b5-23ef83b02896}");
 }
 
 // -----------------------------------------------------------------------------

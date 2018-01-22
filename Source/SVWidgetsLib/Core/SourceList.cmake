@@ -24,15 +24,10 @@ cmp_IDE_SOURCE_PROPERTIES( "SVWidgetsLib" "${SVWidgetsLib_Core_HDRS};${SVWidgets
 
 # --------------------------------------------------------------------
 # and finally this will run moc:
-QT5_WRAP_CPP( SVWidgetsLib_Core_Generated_MOC_SRCS ${SVWidgetsLib_Core_MOC_HDRS} )
+# QT5_WRAP_CPP( SVWidgetsLib_Core_Generated_MOC_SRCS ${SVWidgetsLib_Core_MOC_HDRS} )
 set_source_files_properties( ${SVWidgetsLib_Core_Generated_MOC_SRCS} PROPERTIES GENERATED TRUE)
 set_source_files_properties( ${SVWidgetsLib_Core_Generated_MOC_SRCS} PROPERTIES HEADER_FILE_ONLY TRUE)
 
-
-
-# --------------------------------------------------------------------
-# Continue on with our Qt4 section
-QT5_WRAP_UI( SVWidgetsLib_Core_Generated_UI_HDRS   )
 
 # --------------------------------------------------------------------
 #-- Put the Qt generated files into their own group for IDEs

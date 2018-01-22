@@ -33,9 +33,6 @@
 
 #include "SIMPLib/Common/Constants.h"
 
-// Include the MOC generated file for this class
-#include "moc_TESTCLASSNAME.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -49,9 +46,7 @@ TESTCLASSNAME::TESTCLASSNAME()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-TESTCLASSNAME::~TESTCLASSNAME()
-{
-}
+TESTCLASSNAME::~TESTCLASSNAME() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -170,6 +165,14 @@ const QString TESTCLASSNAME::getFilterVersion()
 const QString TESTCLASSNAME::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid FilterGroup00::getUuid()
+{
+  return QUuid("{17ca59f3-f409-51cd-a4f6-49aa1e85a538}");
 }
 
 // -----------------------------------------------------------------------------

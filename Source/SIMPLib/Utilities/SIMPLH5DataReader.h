@@ -37,15 +37,16 @@
 
 #include <hdf5.h>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/Observable.h"
 #include "SIMPLib/DataContainers/DataArrayPath.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/Utilities/SIMPLH5DataReaderRequirements.h"
+#include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
 
-#include "SIMPLib/SIMPLib.h"
 
 class IObserver;
 class DataContainerArrayProxy;
+class SIMPLH5DataReaderRequirements;
 
 /**
  * @brief The SIMPLH5DataReader class
@@ -58,7 +59,7 @@ class SIMPLib_EXPORT SIMPLH5DataReader : public Observable
     SIMPL_SHARED_POINTERS(SIMPLH5DataReader)
     SIMPL_STATIC_NEW_MACRO(SIMPLH5DataReader)
 
-    SIMPLH5DataReader(IObserver* obs = nullptr);
+    SIMPLH5DataReader();
     virtual ~SIMPLH5DataReader();
 
     /**
@@ -79,7 +80,7 @@ class SIMPLib_EXPORT SIMPLH5DataReader : public Observable
      * @param err
      * @return
      */
-    DataContainerArrayProxy readDataContainerArrayStructure(SIMPLH5DataReaderRequirements req, int &err);
+    DataContainerArrayProxy readDataContainerArrayStructure(SIMPLH5DataReaderRequirements *req, int &err);
 
     /**
      * @brief readSIMPLDataUsingProxy
@@ -87,7 +88,7 @@ class SIMPLib_EXPORT SIMPLH5DataReader : public Observable
      * @param preflight
      * @return
      */
-    DataContainerArray::Pointer readSIMPLDataUsingProxy(DataContainerArrayProxy proxy, bool preflight);
+    DataContainerArray::Pointer readSIMPLDataUsingProxy(const DataContainerArrayProxy &proxy, bool preflight);
 
     /**
      * @brief readPipelineJson
@@ -108,7 +109,6 @@ class SIMPLib_EXPORT SIMPLH5DataReader : public Observable
     void errorGenerated(const QString &msg, const int &code);
 
   private:
-    IObserver*                        m_Observer = nullptr;
     QString                           m_CurrentFilePath = "";
     hid_t                             m_FileId = -1;
 
@@ -120,8 +120,8 @@ class SIMPLib_EXPORT SIMPLH5DataReader : public Observable
      */
     bool readDataContainerBundles(hid_t fileId, DataContainerArray::Pointer dca);
 
-    SIMPLH5DataReader(const SIMPLH5DataReader&); // Copy Constructor Not Implemented
-    void operator=(const SIMPLH5DataReader&); // Operator '=' Not Implemented
+    SIMPLH5DataReader(const SIMPLH5DataReader&) = delete; // Copy Constructor Not Implemented
+    void operator=(const SIMPLH5DataReader&) = delete;    // Operator '=' Not Implemented
 };
 
 

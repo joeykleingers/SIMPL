@@ -35,7 +35,6 @@
 #include "PluginDetails.h"
 
 // Include the MOC generated CPP file which has all the QMetaObject methods/data
-#include "moc_PluginDetails.cpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -52,9 +51,7 @@ PluginDetails::PluginDetails(QString pluginName, QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PluginDetails::~PluginDetails()
-{
-}
+PluginDetails::~PluginDetails() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -76,7 +73,7 @@ void PluginDetails::loadPluginDetails()
   ISIMPLibPlugin* plugin = manager->findPlugin(m_PluginName);
 
   // Add plugin details to PluginDetails dialog box
-  nameLabel->setText(plugin->getPluginName());
+  nameLabel->setText(plugin->getPluginBaseName());
 
   if(plugin->getDidLoad() == true)
   {

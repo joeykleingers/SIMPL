@@ -44,9 +44,6 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_ExtractComponentAsArray.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -55,8 +52,6 @@ ExtractComponentAsArray::ExtractComponentAsArray()
 , m_SelectedArrayPath("", "", "")
 , m_CompNumber(0)
 , m_NewArrayArrayName("")
-, m_InArray(nullptr)
-, m_NewArray(nullptr)
 {
   setupFilterParameters();
 }
@@ -64,9 +59,7 @@ ExtractComponentAsArray::ExtractComponentAsArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ExtractComponentAsArray::~ExtractComponentAsArray()
-{
-}
+ExtractComponentAsArray::~ExtractComponentAsArray() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -264,6 +257,14 @@ const QString ExtractComponentAsArray::getFilterVersion()
 const QString ExtractComponentAsArray::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ExtractComponentAsArray::getUuid()
+{
+  return QUuid("{79d59b85-01e8-5c4a-a6e1-3fd3e2ceffb4}");
 }
 
 // -----------------------------------------------------------------------------

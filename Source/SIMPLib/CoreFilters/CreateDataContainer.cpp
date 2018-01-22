@@ -40,9 +40,6 @@
 #include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_CreateDataContainer.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -56,9 +53,7 @@ CreateDataContainer::CreateDataContainer()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CreateDataContainer::~CreateDataContainer()
-{
-}
+CreateDataContainer::~CreateDataContainer() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -195,6 +190,14 @@ const QString CreateDataContainer::getGroupName()
 const QString CreateDataContainer::getHumanLabel()
 {
   return "Create Data Container";
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid CreateDataContainer::getUuid()
+{
+  return QUuid("{816fbe6b-7c38-581b-b149-3f839fb65b93}");
 }
 
 // -----------------------------------------------------------------------------

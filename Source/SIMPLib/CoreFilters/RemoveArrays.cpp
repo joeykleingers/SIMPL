@@ -40,9 +40,6 @@
 #include "SIMPLib/FilterParameters/DataContainerArrayProxyFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_RemoveArrays.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -55,9 +52,7 @@ RemoveArrays::RemoveArrays()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RemoveArrays::~RemoveArrays()
-{
-}
+RemoveArrays::~RemoveArrays() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -271,6 +266,14 @@ const QString RemoveArrays::getFilterVersion()
 const QString RemoveArrays::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid RemoveArrays::getUuid()
+{
+  return QUuid("{7b1c8f46-90dd-584a-b3ba-34e16958a7d0}");
 }
 
 // -----------------------------------------------------------------------------

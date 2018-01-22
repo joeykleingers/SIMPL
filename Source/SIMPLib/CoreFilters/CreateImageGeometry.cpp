@@ -44,9 +44,6 @@
 #include "SIMPLib/FilterParameters/PreflightUpdatedValueFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 
-// Include the MOC generated file for this class
-#include "moc_CreateImageGeometry.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -72,9 +69,7 @@ CreateImageGeometry::CreateImageGeometry()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CreateImageGeometry::~CreateImageGeometry()
-{
-}
+CreateImageGeometry::~CreateImageGeometry() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -244,6 +239,14 @@ const QString CreateImageGeometry::getFilterVersion()
 const QString CreateImageGeometry::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid CreateImageGeometry::getUuid()
+{
+  return QUuid("{f2132744-3abb-5d66-9cd9-c9a233b5c4aa}");
 }
 
 // -----------------------------------------------------------------------------

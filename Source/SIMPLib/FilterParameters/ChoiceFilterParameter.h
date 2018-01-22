@@ -66,7 +66,7 @@ class SIMPLib_EXPORT ChoiceFilterParameter : public FilterParameter
   public:
     SIMPL_SHARED_POINTERS(ChoiceFilterParameter)
     SIMPL_STATIC_NEW_MACRO(ChoiceFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(ChoiceFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(ChoiceFilterParameter, FilterParameter)
 
     typedef std::function<void(int)> SetterCallbackType;
     typedef std::function<int(void)> GetterCallbackType;
@@ -141,8 +141,8 @@ class SIMPLib_EXPORT ChoiceFilterParameter : public FilterParameter
     ChoiceFilterParameter();
 
   private:
-    ChoiceFilterParameter(const ChoiceFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const ChoiceFilterParameter&); // Operator '=' Not Implemented
+    ChoiceFilterParameter(const ChoiceFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const ChoiceFilterParameter&) = delete;        // Operator '=' Not Implemented
 };
 
 #endif /* _ChoiceFilterParameter_H_ */

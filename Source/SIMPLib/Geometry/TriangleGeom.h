@@ -48,7 +48,7 @@ class SIMPLib_EXPORT TriangleGeom : public IGeometry2D
 
     SIMPL_SHARED_POINTERS(TriangleGeom)
     SIMPL_STATIC_NEW_MACRO(TriangleGeom)
-    SIMPL_TYPE_MACRO_SUPER(TriangleGeom, Observable)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(TriangleGeom, Observable)
 
     virtual ~TriangleGeom();
 
@@ -478,8 +478,8 @@ class SIMPLib_EXPORT TriangleGeom : public IGeometry2D
 
     friend class FindTriangleDerivativesImpl;
 
-    TriangleGeom(const TriangleGeom&); // Copy Constructor Not Implemented
-    void operator=(const TriangleGeom&); // Operator '=' Not Implemented
+    TriangleGeom(const TriangleGeom&) = delete;   // Copy Constructor Not Implemented
+    void operator=(const TriangleGeom&) = delete; // Operator '=' Not Implemented
 };
 
 

@@ -182,9 +182,6 @@ void ConvertData(AbstractFilter* filter, T* ptr, QVector<size_t> dims, DataConta
 }
 } // End Namespace Detail
 
-// Include the MOC generated file for this class
-#include "moc_ConvertData.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -200,9 +197,7 @@ ConvertData::ConvertData()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ConvertData::~ConvertData()
-{
-}
+ConvertData::~ConvertData() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -425,6 +420,14 @@ const QString ConvertData::getFilterVersion()
 const QString ConvertData::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ConvertData::getUuid()
+{
+  return QUuid("{f4ba5fa4-bb5c-5dd1-9429-0dd86d0ecb37}");
 }
 
 // -----------------------------------------------------------------------------

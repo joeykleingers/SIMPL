@@ -54,9 +54,6 @@ const QString addColTT = "Adds a column to the table.";
 const QString deleteRowTT = "Removes the currently selected row from the table.";
 const QString deleteColTT = "Removes the currently selected column from the table.";
 
-// Include the MOC generated file for this class
-#include "moc_DynamicTableWidget.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -388,7 +385,7 @@ void DynamicTableWidget::populateTable()
     if(m_FilterParameter->getErrorCondition() < 0)
     {
       QString errorMessage = m_FilterParameter->getErrorMessage();
-      QString pluginName = getFilter()->getPluginInstance()->getPluginName();
+      QString pluginName = getFilter()->getPluginInstance()->getPluginBaseName();
       QString filterName = getFilter()->getHumanLabel();
       QString filterParameterName = m_FilterParameter->getPropertyName();
       QString vendorName = getFilter()->getPluginInstance()->getVendor();

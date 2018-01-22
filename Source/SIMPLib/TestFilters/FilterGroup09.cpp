@@ -34,9 +34,6 @@
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_FilterGroup09.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -50,9 +47,7 @@ FilterGroup09::FilterGroup09()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FilterGroup09::~FilterGroup09()
-{
-}
+FilterGroup09::~FilterGroup09() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -171,6 +166,14 @@ const QString FilterGroup09::getFilterVersion()
 const QString FilterGroup09::getGroupName()
 {
   return SIMPL::FilterGroups::SurfaceMeshingFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid FilterGroup09::getUuid()
+{
+  return QUuid("{30b7d2a0-6e92-506c-bbbe-3d4c948679b8}");
 }
 
 // -----------------------------------------------------------------------------

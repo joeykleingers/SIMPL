@@ -42,8 +42,6 @@
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 
-#include "moc_MaskCountDecision.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -59,9 +57,7 @@ MaskCountDecision::MaskCountDecision()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MaskCountDecision::~MaskCountDecision()
-{
-}
+MaskCountDecision::~MaskCountDecision() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -234,6 +230,14 @@ const QString MaskCountDecision::getCompiledLibraryName()
 const QString MaskCountDecision::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid MaskCountDecision::getUuid()
+{
+  return QUuid("{34a19028-c50b-5dea-af0e-e06c798d3686}");
 }
 
 // -----------------------------------------------------------------------------

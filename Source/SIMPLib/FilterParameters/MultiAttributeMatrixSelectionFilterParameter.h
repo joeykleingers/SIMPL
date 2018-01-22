@@ -70,7 +70,7 @@ class SIMPLib_EXPORT MultiAttributeMatrixSelectionFilterParameter : public Filte
   public:
     SIMPL_SHARED_POINTERS(MultiAttributeMatrixSelectionFilterParameter)
     SIMPL_STATIC_NEW_MACRO(MultiAttributeMatrixSelectionFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(MultiAttributeMatrixSelectionFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(MultiAttributeMatrixSelectionFilterParameter, FilterParameter)
 
     typedef std::function<void(QVector<DataArrayPath>)> SetterCallbackType;
     typedef std::function<QVector<DataArrayPath>(void)> GetterCallbackType;
@@ -182,8 +182,8 @@ class SIMPLib_EXPORT MultiAttributeMatrixSelectionFilterParameter : public Filte
     MultiAttributeMatrixSelectionFilterParameter();
 
   private:
-    MultiAttributeMatrixSelectionFilterParameter(const MultiAttributeMatrixSelectionFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const MultiAttributeMatrixSelectionFilterParameter&); // Operator '=' Not Implemented
+    MultiAttributeMatrixSelectionFilterParameter(const MultiAttributeMatrixSelectionFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const MultiAttributeMatrixSelectionFilterParameter&) = delete;                               // Operator '=' Not Implemented
 };
 
 #endif /* _MultiAttributeMatrixSelectionFilterParameter_H_ */

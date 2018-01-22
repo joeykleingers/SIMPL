@@ -44,7 +44,7 @@ class SIMPLib_EXPORT ConstrainedFilterParameter : public FilterParameter
   public:
     SIMPL_SHARED_POINTERS(ConstrainedFilterParameter<T>)
     SIMPL_STATIC_NEW_MACRO(ConstrainedFilterParameter<T>)
-    SIMPL_TYPE_MACRO_SUPER(ConstrainedFilterParameter<T>, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(ConstrainedFilterParameter<T>, FilterParameter)
 
     virtual ~ConstrainedFilterParameter() {}
 
@@ -61,8 +61,8 @@ class SIMPLib_EXPORT ConstrainedFilterParameter : public FilterParameter
     ConstrainedFilterParameter() {}
 
   private:
-    ConstrainedFilterParameter(const ConstrainedFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const ConstrainedFilterParameter&); // Operator '=' Not Implemented
+    ConstrainedFilterParameter(const ConstrainedFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const ConstrainedFilterParameter&) = delete;             // Operator '=' Not Implemented
 };
 
 #endif /* _ConstrainedFilterParameter_H_ */

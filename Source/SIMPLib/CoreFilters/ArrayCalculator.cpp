@@ -73,9 +73,6 @@
 #include "util/SubtractionOperator.h"
 #include "util/TanOperator.h"
 
-// Include the MOC generated file for this class
-#include "moc_ArrayCalculator.cpp"
-
 #define CREATE_CALCULATOR_ARRAY(itemPtr, iDataArrayPtr)                                                                                                                                                \
   if(TemplateHelpers::CanDynamicCast<FloatArrayType>()(iDataArrayPtr))                                                                                                                                 \
   {                                                                                                                                                                                                    \
@@ -151,9 +148,7 @@ ArrayCalculator::ArrayCalculator()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ArrayCalculator::~ArrayCalculator()
-{
-}
+ArrayCalculator::~ArrayCalculator() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -977,6 +972,14 @@ const QString ArrayCalculator::getFilterVersion()
 const QString ArrayCalculator::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ArrayCalculator::getUuid()
+{
+  return QUuid("{7ff0ebb3-7b0d-5ff7-b9d8-5147031aca10}");
 }
 
 // -----------------------------------------------------------------------------

@@ -50,7 +50,7 @@ class SIMPLib_EXPORT LinkedChoicesFilterParameter : public ChoiceFilterParameter
   public:
     SIMPL_SHARED_POINTERS(LinkedChoicesFilterParameter)
     SIMPL_STATIC_NEW_MACRO(LinkedChoicesFilterParameter)
-    SIMPL_TYPE_MACRO_SUPER(LinkedChoicesFilterParameter, FilterParameter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(LinkedChoicesFilterParameter, FilterParameter)
 
     typedef std::function<void(int)> SetterCallbackType;
     typedef std::function<int(void)> GetterCallbackType;
@@ -125,8 +125,8 @@ class SIMPLib_EXPORT LinkedChoicesFilterParameter : public ChoiceFilterParameter
     LinkedChoicesFilterParameter();
 
   private:
-    LinkedChoicesFilterParameter(const LinkedChoicesFilterParameter&); // Copy Constructor Not Implemented
-    void operator=(const LinkedChoicesFilterParameter&); // Operator '=' Not Implemented
+    LinkedChoicesFilterParameter(const LinkedChoicesFilterParameter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const LinkedChoicesFilterParameter&) = delete;               // Operator '=' Not Implemented
 };
 
 #endif /* _LinkedChoicesFilterParameter_H_ */

@@ -34,9 +34,6 @@
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_FilterGroup05.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -50,9 +47,7 @@ FilterGroup05::FilterGroup05()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FilterGroup05::~FilterGroup05()
-{
-}
+FilterGroup05::~FilterGroup05() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -171,6 +166,14 @@ const QString FilterGroup05::getFilterVersion()
 const QString FilterGroup05::getGroupName()
 {
   return SIMPL::FilterGroups::ReconstructionFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid FilterGroup05::getUuid()
+{
+  return QUuid("{e1c8e9d8-8e74-5ff7-9e1c-afa7a94eae82}");
 }
 
 // -----------------------------------------------------------------------------

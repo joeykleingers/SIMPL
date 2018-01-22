@@ -52,9 +52,6 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_CreateDataArray.cpp"
-
 /**
 * @brief initializeArrayWithInts Initializes the array p with integers, either from the
 * manual value entered in the filter, or with a random number.  This function does not
@@ -261,9 +258,7 @@ CreateDataArray::CreateDataArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CreateDataArray::~CreateDataArray()
-{
-}
+CreateDataArray::~CreateDataArray() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -597,6 +592,14 @@ const QString CreateDataArray::getFilterVersion()
 const QString CreateDataArray::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid CreateDataArray::getUuid()
+{
+  return QUuid("{77f392fb-c1eb-57da-a1b1-e7acf9239fb8}");
 }
 
 // -----------------------------------------------------------------------------

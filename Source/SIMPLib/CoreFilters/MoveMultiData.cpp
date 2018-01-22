@@ -52,9 +52,6 @@ static const int32_t k_MoveAttributeMatrix = 0;
 static const int32_t k_MoveMultiDataArray = 1;
 }
 
-// Include the MOC generated file for this class
-#include "moc_MoveMultiData.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -72,9 +69,7 @@ MoveMultiData::MoveMultiData()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-MoveMultiData::~MoveMultiData()
-{
-}
+MoveMultiData::~MoveMultiData() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -311,6 +306,14 @@ const QString MoveMultiData::getFilterVersion()
 const QString MoveMultiData::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid MoveMultiData::getUuid()
+{
+  return QUuid("{e3702900-a6c1-59e1-9180-b57557a7b193}");
 }
 
 // -----------------------------------------------------------------------------

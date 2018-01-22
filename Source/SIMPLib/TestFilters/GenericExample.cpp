@@ -67,9 +67,6 @@
 #include "SIMPLib/FilterParameters/ShapeTypeSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_GenericExample.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -120,9 +117,7 @@ GenericExample::GenericExample()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenericExample::~GenericExample()
-{
-}
+GenericExample::~GenericExample() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -452,6 +447,14 @@ const QString GenericExample::getCompiledLibraryName()
 const QString GenericExample::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid GenericExample::getUuid()
+{
+  return QUuid("{b1b9da5c-4ad8-5b61-9615-2a3e17b38970}");
 }
 
 // -----------------------------------------------------------------------------

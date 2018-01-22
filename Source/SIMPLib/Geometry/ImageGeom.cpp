@@ -425,9 +425,7 @@ ImageGeom::ImageGeom()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImageGeom::~ImageGeom()
-{
-}
+ImageGeom::~ImageGeom() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -470,6 +468,65 @@ void ImageGeom::getBoundingBox(float boundingBox[6])
     boundingBox[5] = m_Origin[2] + (m_Dimensions[2] * m_Resolution[2]);
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ImageGeom::setDimensions(size_t dims[3])
+{
+  std::copy(dims, dims + 3, m_Dimensions); 
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ImageGeom::setDimensions(size_t xDim, size_t yDim, size_t zDim) 
+{
+  m_Dimensions[0] = xDim;
+  m_Dimensions[1] = yDim;
+  m_Dimensions[2] = zDim;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ImageGeom::getDimensions(size_t dims[3])
+{
+  std::copy(m_Dimensions, m_Dimensions + 3, dims);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ImageGeom::getDimensions(size_t& xDim, size_t& yDim, size_t& zDim) 
+{
+  xDim = m_Dimensions[0];
+  yDim = m_Dimensions[1];
+  zDim = m_Dimensions[2];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+size_t ImageGeom::getXPoints() 
+{
+  return m_Dimensions[0];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+size_t ImageGeom::getYPoints() 
+{ 
+  return m_Dimensions[1];
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+size_t ImageGeom::getZPoints() 
+{
+  return m_Dimensions[2];
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -857,7 +914,13 @@ void ImageGeom::findDerivatives(DoubleArrayType::Pointer field, DoubleArrayType:
 #endif
 
 #ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+
   size_t grain = dims[2] == 1 ? 1 : dims[2] / init.default_num_threads();
+
+  if(grain == 0) // This can happen if dims[2] > number of processors
+  {
+    grain = 1;
+  }
 
   if(doParallel == true)
   {

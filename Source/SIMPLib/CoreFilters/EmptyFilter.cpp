@@ -40,9 +40,6 @@
 #include "SIMPLib/FilterParameters/UnknownFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_EmptyFilter.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -56,9 +53,7 @@ EmptyFilter::EmptyFilter()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EmptyFilter::~EmptyFilter()
-{
-}
+EmptyFilter::~EmptyFilter() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -177,6 +172,14 @@ const QString EmptyFilter::getFilterVersion()
 const QString EmptyFilter::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid EmptyFilter::getUuid()
+{
+  return QUuid("{0af0e81f-1f98-5734-a38a-74cfccd6e6f8}");
 }
 
 // -----------------------------------------------------------------------------

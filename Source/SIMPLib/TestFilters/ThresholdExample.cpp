@@ -37,9 +37,6 @@
 
 #include "SIMPLib/FilterParameters/ComparisonSelectionFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_ThresholdExample.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -54,9 +51,7 @@ ThresholdExample::ThresholdExample()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ThresholdExample::~ThresholdExample()
-{
-}
+ThresholdExample::~ThresholdExample() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -229,6 +224,14 @@ const QString ThresholdExample::getCompiledLibraryName()
 const QString ThresholdExample::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ThresholdExample::getUuid()
+{
+  return QUuid("{bd013013-ba0f-52be-a7b7-187665c92a9e}");
 }
 
 // -----------------------------------------------------------------------------

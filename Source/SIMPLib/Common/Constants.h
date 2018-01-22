@@ -92,6 +92,7 @@ namespace SIMPL
     const QString UInt32("uint32_t");
     const QString Int64("int64_t");
     const QString UInt64("uint64_t");
+    const QString String("string");
     const QString StatsDataArray("StatsDataArray");
     const QString NeighborList("NeighborList<T>");
     const QString StringArray("StringDataArray");
@@ -514,6 +515,7 @@ namespace SIMPL
     const QString NumFilters("Number_Filters");
     const QString PipelineName("Name");
     const QString FilterName("Filter_Name");
+    const QString FilterUuid("Filter_Uuid");
     const QString FilterVersion("FilterVersion");
     const QString HumanLabel("Filter_Human_Label");
     const QString FilterEnabled("Filter_Enabled");
@@ -997,8 +999,8 @@ namespace Core
 namespace Test
 {
   const QString TestPluginFile("TestPlugin");
-  const QString TestPluginDisplayName("TestPlugin");
-  const QString TestBaseName("TestPlugin");
+  const QString TestPluginDisplayName("Test Plugin");
+  const QString TestBaseName("Test");
 }
 
 Q_DECLARE_METATYPE(SIMPL::NumericTypes::Type)
@@ -1009,15 +1011,15 @@ Q_DECLARE_METATYPE(SIMPL::ScalarTypes::Type)
 namespace Generic
 {
   const QString GenericPluginFile("GenericPlugin");
-  const QString GenericPluginDisplayName("GenericPlugin");
-  const QString GenericBaseName("GenericPlugin");
+  const QString GenericPluginDisplayName("Generic Plugin");
+  const QString GenericBaseName("Generic");
 }
 
 namespace IO
 {
   const QString IOPluginFile("IOPlugin");
-  const QString IOPluginDisplayName("IOPlugin");
-  const QString IOBaseName("IOPlugin");
+  const QString IOPluginDisplayName("IO Plugin");
+  const QString IOBaseName("IO");
 }
 #endif
 

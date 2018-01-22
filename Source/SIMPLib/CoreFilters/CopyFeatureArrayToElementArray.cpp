@@ -44,9 +44,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_CopyFeatureArrayToElementArray.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -56,7 +53,6 @@ CopyFeatureArrayToElementArray::CopyFeatureArrayToElementArray()
 , m_FeatureIdsArrayPath("", "", "")
 , m_CreatedArrayName("")
 , m_FeatureIds(nullptr)
-, m_InArray(nullptr)
 {
   setupFilterParameters();
 }
@@ -64,9 +60,7 @@ CopyFeatureArrayToElementArray::CopyFeatureArrayToElementArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CopyFeatureArrayToElementArray::~CopyFeatureArrayToElementArray()
-{
-}
+CopyFeatureArrayToElementArray::~CopyFeatureArrayToElementArray() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -359,6 +353,14 @@ const QString CopyFeatureArrayToElementArray::getFilterVersion()
 const QString CopyFeatureArrayToElementArray::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid CopyFeatureArrayToElementArray::getUuid()
+{
+  return QUuid("{99836b75-144b-5126-b261-b411133b5e8a}");
 }
 
 // -----------------------------------------------------------------------------

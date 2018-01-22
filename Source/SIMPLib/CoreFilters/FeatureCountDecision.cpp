@@ -44,8 +44,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 
-#include "moc_FeatureCountDecision.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -61,9 +59,7 @@ FeatureCountDecision::FeatureCountDecision()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FeatureCountDecision::~FeatureCountDecision()
-{
-}
+FeatureCountDecision::~FeatureCountDecision() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -220,6 +216,14 @@ const QString FeatureCountDecision::getCompiledLibraryName()
 const QString FeatureCountDecision::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid FeatureCountDecision::getUuid()
+{
+  return QUuid("{64d1df13-17a2-56a2-90a5-4dfda442b144}");
 }
 
 // -----------------------------------------------------------------------------

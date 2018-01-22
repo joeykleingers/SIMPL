@@ -66,7 +66,7 @@ class SIMPLib_EXPORT NumericTypeFilterParameter : public FilterParameter
 public:
   SIMPL_SHARED_POINTERS(NumericTypeFilterParameter)
   SIMPL_STATIC_NEW_MACRO(NumericTypeFilterParameter)
-  SIMPL_TYPE_MACRO_SUPER(NumericTypeFilterParameter, FilterParameter)
+   SIMPL_TYPE_MACRO_SUPER_OVERRIDE(NumericTypeFilterParameter, FilterParameter)
 
   typedef std::function<void(SIMPL::NumericTypes::Type)> SetterCallbackType;
   typedef std::function<SIMPL::NumericTypes::Type(void)> GetterCallbackType;
@@ -135,7 +135,7 @@ protected:
   NumericTypeFilterParameter();
 
 private:
-  NumericTypeFilterParameter(const NumericTypeFilterParameter&); // Copy Constructor Not Implemented
+  NumericTypeFilterParameter(const NumericTypeFilterParameter&) = delete; // Copy Constructor Not Implemented
   void operator=(const NumericTypeFilterParameter&);                    // Operator '=' Not Implemented
 };
 

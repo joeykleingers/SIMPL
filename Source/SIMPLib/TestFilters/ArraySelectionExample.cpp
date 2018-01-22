@@ -34,9 +34,6 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataContainerArrayProxyFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_ArraySelectionExample.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -51,9 +48,7 @@ ArraySelectionExample::ArraySelectionExample()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ArraySelectionExample::~ArraySelectionExample()
-{
-}
+ArraySelectionExample::~ArraySelectionExample() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -169,6 +164,14 @@ const QString ArraySelectionExample::getCompiledLibraryName()
 const QString ArraySelectionExample::getGroupName()
 {
   return SIMPL::FilterGroups::Generic;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid ArraySelectionExample::getUuid()
+{
+  return QUuid("{1a9b7e20-6f6f-50b8-bbfa-8117450919a5}");
 }
 
 // -----------------------------------------------------------------------------

@@ -47,7 +47,7 @@ class SIMPLib_EXPORT IGeometry2D : public IGeometry
 {
   public:
     SIMPL_SHARED_POINTERS(IGeometry2D)
-    SIMPL_TYPE_MACRO_SUPER(IGeometry2D, Observable)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(IGeometry2D, Observable)
 
     IGeometry2D();
     virtual ~IGeometry2D();
@@ -204,9 +204,8 @@ class SIMPLib_EXPORT IGeometry2D : public IGeometry
 
 
   private:
-
-    IGeometry2D(const IGeometry2D&); // Copy Constructor Not Implemented
-    void operator=(const IGeometry2D&); // Operator '=' Not Implemented
+    IGeometry2D(const IGeometry2D&) = delete;    // Copy Constructor Not Implemented
+    void operator=(const IGeometry2D&) = delete; // Operator '=' Not Implemented
 };
 
 #endif /* _IGeometry2D_H_ */

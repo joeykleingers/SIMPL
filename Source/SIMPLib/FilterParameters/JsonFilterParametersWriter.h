@@ -58,7 +58,7 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
   public:
     SIMPL_SHARED_POINTERS(JsonFilterParametersWriter)
     SIMPL_STATIC_NEW_MACRO(JsonFilterParametersWriter)
-    SIMPL_TYPE_MACRO_SUPER(JsonFilterParametersWriter, AbstractFilterParametersWriter)
+     SIMPL_TYPE_MACRO_SUPER_OVERRIDE(JsonFilterParametersWriter, AbstractFilterParametersWriter)
 
     SIMPL_INSTANCE_PROPERTY(QString, FileName)
     SIMPL_INSTANCE_PROPERTY(QString, PipelineName)
@@ -134,8 +134,8 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
      */
     QString generateIndexString(int currentIndex);
 
-    JsonFilterParametersWriter(const JsonFilterParametersWriter&); // Copy Constructor Not Implemented
-    void operator=(const JsonFilterParametersWriter&); // Operator '=' Not Implemented
+    JsonFilterParametersWriter(const JsonFilterParametersWriter&) = delete; // Copy Constructor Not Implemented
+    void operator=(const JsonFilterParametersWriter&) = delete;             // Operator '=' Not Implemented
 };
 
 #endif /* JsonFilterParametersWriter_H_ */

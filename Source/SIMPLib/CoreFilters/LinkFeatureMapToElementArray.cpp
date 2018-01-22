@@ -43,9 +43,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
-// Include the MOC generated file for this class
-#include "moc_LinkFeatureMapToElementArray.cpp"
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -63,9 +60,7 @@ LinkFeatureMapToElementArray::LinkFeatureMapToElementArray()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-LinkFeatureMapToElementArray::~LinkFeatureMapToElementArray()
-{
-}
+LinkFeatureMapToElementArray::~LinkFeatureMapToElementArray() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -258,6 +253,14 @@ const QString LinkFeatureMapToElementArray::getFilterVersion()
 const QString LinkFeatureMapToElementArray::getGroupName()
 {
   return SIMPL::FilterGroups::CoreFilters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+const QUuid LinkFeatureMapToElementArray::getUuid()
+{
+  return QUuid("{0e1c45f6-ed7a-5279-8a5c-a2d5cc6bfead}");
 }
 
 // -----------------------------------------------------------------------------

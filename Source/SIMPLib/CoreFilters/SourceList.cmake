@@ -1,7 +1,18 @@
 set(_filterGroupName CoreFilters)
 set(SUBDIR_NAME ${_filterGroupName})
 set(${_filterGroupName}_FILTERS_HDRS "")
+set(PLUGIN_NAME Core)
+get_filename_component(${PLUGIN_NAME}_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}" ABSOLUTE)
+set(${PLUGIN_NAME}_SOURCE_DIR ${${PLUGIN_NAME}_SOURCE_DIR} CACHE STRING "")
 
+# add_custom_target(${PLUGIN_NAME}_DOC_FOLDER_COPY ALL
+#   COMMAND ${CMAKE_COMMAND} -E copy_directory "${SIMPLib_SOURCE_DIR}/Documentation/SIMPLibFilters/${PLUGIN_NAME}Filters/"
+#   "${DREAM3DDocRoot}/ReferenceManual/Plugins/${PLUGIN_NAME}/"
+#   COMMENT "${PLUGIN_NAME}: Copying Documentation to build directory")
+# set_target_properties(${PLUGIN_NAME}_DOC_FOLDER_COPY PROPERTIES FOLDER ZZ_COPY_FILES)
+
+#--------
+# This macro must come first before we start adding any filters
 SIMPL_START_FILTER_GROUP(
   ALL_FILTERS_HEADERFILE ${AllFiltersHeaderFile}
   REGISTER_KNOWN_FILTERS_FILE ${RegisterKnownFiltersFile}
@@ -41,6 +52,7 @@ set(_PublicFilters
   MoveMultiData
   MultiThresholdObjects
   MultiThresholdObjects2
+  PipelineSummary
   PostSlackMessage
   RawBinaryReader
   ReadASCIIData
@@ -192,11 +204,15 @@ ADD_SIMPL_SUPPORT_SOURCE(${SIMPLib_SOURCE_DIR} ${_filterGroupName}/util CeilOper
 
 # -- Run MOC and UIC on the necessary files
 QT5_ADD_RESOURCES( SIMPLib_CoreFilters_Generated_RCS_SRCS "${SIMPLib_SOURCE_DIR}/CoreFilters/CoreResources.qrc"  )
+foreach(h ${SIMPLib_CoreFilters_Generated_RCS_SRCS})
+  set_property(SOURCE ${h} PROPERTY SKIP_AUTOMOC ON)
+endforeach()
+
 set(Project_SRCS ${Project_SRCS} ${SIMPLib_CoreFilters_Generated_RCS_SRCS})
 
 #-----------------
 # This makes sure some Filter Group meta data is written to build files that is needed later
-SIMPL_END_FILTER_GROUP(${FilterWidgetsLib_BINARY_DIR} "${_filterGroupName}" "Generic Filters")
+SIMPL_END_FILTER_GROUP(${FilterWidgetsLib_BINARY_DIR} "${_filterGroupName}" "Core Filters")
 
 
 #-------------------------------------------------------------------------------
