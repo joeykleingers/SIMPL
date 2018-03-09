@@ -4,7 +4,7 @@
 
 #include "GenerateColorTable.h"
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
@@ -129,7 +129,7 @@ public:
     }
   }
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   void operator()(const tbb::blocked_range<size_t>& r) const
   {
     convert(r.begin(), r.end());
@@ -187,11 +187,11 @@ void generateColorArray(typename DataArray<T>::Pointer arrayPtr, QJsonArray pres
   UInt8ArrayType::Pointer colorArray = dca->getPrereqArrayFromPath<UInt8ArrayType, AbstractFilter>(nullptr, tmpPath, QVector<size_t>(1, 3));
   if (colorArray.get() == nullptr) { return; }
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   bool doParallel = true;
 #endif
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   if(doParallel == true)
   {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, arrayPtr->getNumberOfTuples()), GenerateColorTableImpl<T>(arrayPtr, binPoints, controlPoints, numControlColors, colorArray),
@@ -368,7 +368,7 @@ void GenerateColorTable::execute()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer GenerateColorTable::newFilterInstance(bool copyFilterParameters)
+AbstractFilter::Pointer GenerateColorTable::newFilterInstance(bool copyFilterParameters) const
 {
   GenerateColorTable::Pointer filter = GenerateColorTable::New();
   if(true == copyFilterParameters)
@@ -381,13 +381,13 @@ AbstractFilter::Pointer GenerateColorTable::newFilterInstance(bool copyFilterPar
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString GenerateColorTable::getCompiledLibraryName()
+const QString GenerateColorTable::getCompiledLibraryName() const
 { return Core::CoreBaseName; }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString GenerateColorTable::getBrandingString()
+const QString GenerateColorTable::getBrandingString() const
 {
   return "SIMPLib Core Filter";
 }
@@ -395,7 +395,7 @@ const QString GenerateColorTable::getBrandingString()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString GenerateColorTable::getFilterVersion()
+const QString GenerateColorTable::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -406,7 +406,7 @@ const QString GenerateColorTable::getFilterVersion()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString GenerateColorTable::getGroupName()
+const QString GenerateColorTable::getGroupName() const
 { return SIMPL::FilterGroups::CoreFilters; }
 
 // -----------------------------------------------------------------------------
@@ -420,12 +420,12 @@ const QUuid GenerateColorTable::getUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString GenerateColorTable::getSubGroupName()
+const QString GenerateColorTable::getSubGroupName() const
 { return SIMPL::FilterSubGroups::ImageFilters; }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString GenerateColorTable::getHumanLabel()
+const QString GenerateColorTable::getHumanLabel() const
 { return "Generate Color Table"; }
 

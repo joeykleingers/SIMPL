@@ -36,6 +36,12 @@
 #include "SIMPLib/DataArrays/StringDataArray.hpp"
 #include "SIMPLib/DataArrays/StatsDataArray.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
+#include "SIMPLib/Common/Constants.h"
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SIMPLH5DataReaderRequirements::SIMPLH5DataReaderRequirements() = default;
 
 // -----------------------------------------------------------------------------
 //

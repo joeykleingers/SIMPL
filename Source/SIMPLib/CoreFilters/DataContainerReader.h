@@ -79,36 +79,36 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
      */
-    virtual const QString getCompiledLibraryName() override;
+    virtual const QString getCompiledLibraryName() const override;
 
     /**
      * @brief getBrandingString Returns the branding string for the filter, which is a tag
      * used to denote the filter's association with specific plugins
      * @return Branding string
      */
-    virtual const QString getBrandingString() override;
+    virtual const QString getBrandingString() const override;
 
     /**
      * @brief getFilterVersion Returns a version string for this filter. Default
      * value is an empty string.
      * @return
      */
-    virtual const QString getFilterVersion() override;
+    virtual const QString getFilterVersion() const override;
 
     /**
      * @brief newFilterInstance Reimplemented from @see AbstractFilter class
      */
-    virtual AbstractFilter::Pointer newFilterInstance(bool copyFilterParameters) override;
+    virtual AbstractFilter::Pointer newFilterInstance(bool copyFilterParameters) const override;
 
     /**
      * @brief getGroupName Reimplemented from @see AbstractFilter class
      */
-    virtual const QString getGroupName() override;
+    virtual const QString getGroupName() const override;
 
     /**
      * @brief getSubGroupName Reimplemented from @see AbstractFilter class
      */
-    virtual const QString getSubGroupName() override;
+    virtual const QString getSubGroupName() const override;
 
     /**
      * @brief getUuid Return the unique identifier for this filter.
@@ -119,7 +119,7 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
     /**
      * @brief getHumanLabel Reimplemented from @see AbstractFilter class
      */
-    virtual const QString getHumanLabel() override;
+    virtual const QString getHumanLabel() const override;
 
     /**
      * @brief setupFilterParameters Reimplemented from @see AbstractFilter class
@@ -131,22 +131,22 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
      * @param obj The json object to add the filter parameters into
      * @param rootObject The parent object of **obj**
      */
-    virtual void preWriteFilterParameters(QJsonObject &obj, QJsonObject &rootObject);
+    virtual void preWriteFilterParameters(QJsonObject& obj, QJsonObject& rootObject) override;
 
     /**
      * @brief writeFilterParameters Reimplemented from @see AbstractFilter class
      */
-    virtual void writeFilterParameters(QJsonObject &obj);
+    virtual void writeFilterParameters(QJsonObject& obj) override;
 
     /**
      * @brief readFilterParameters Reimplemented from @see AbstractFilter class
      */
-    virtual void readFilterParameters(AbstractFilterParametersReader* reader, int index);
+    virtual void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
     /**
      * @brief readFilterParameters Reimplemented from @see AbstractFilter class
      */
-    virtual void readFilterParameters(QJsonObject &obj);
+    virtual void readFilterParameters(QJsonObject& obj) override;
 
     /**
      * @brief execute Reimplemented from @see AbstractFilter class
@@ -235,7 +235,7 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
     /**
     * @brief Cleans up the filter after execution
     */
-    void cleanupFilter();
+    void cleanupFilter() override;
 
   private:
     FilterPipeline::Pointer                     m_PipelineFromFile;

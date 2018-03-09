@@ -49,6 +49,8 @@ class SIMPLib_EXPORT SIMPLH5DataReaderRequirements
   public:
     SIMPLH5DataReaderRequirements(size_t allowedCompDim);
 
+    SIMPLH5DataReaderRequirements();
+    
     virtual ~SIMPLH5DataReaderRequirements();
 
     // This enumeration is not a class enumeration because it is not possible to

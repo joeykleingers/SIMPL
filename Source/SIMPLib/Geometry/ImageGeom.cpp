@@ -45,7 +45,7 @@
 
 #include "SIMPLib/Geometry/ImageGeom.h"
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range3d.h>
 #include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
@@ -230,7 +230,7 @@ public:
     }
   }
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   void operator()(const tbb::blocked_range3d<size_t, size_t, size_t>& r) const
   {
     compute(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
@@ -468,41 +468,6 @@ void ImageGeom::getBoundingBox(float boundingBox[6])
     boundingBox[5] = m_Origin[2] + (m_Dimensions[2] * m_Resolution[2]);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImageGeom::setDimensions(size_t dims[3])
-{
-  std::copy(dims, dims + 3, m_Dimensions); 
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImageGeom::setDimensions(size_t xDim, size_t yDim, size_t zDim) 
-{
-  m_Dimensions[0] = xDim;
-  m_Dimensions[1] = yDim;
-  m_Dimensions[2] = zDim;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImageGeom::getDimensions(size_t dims[3])
-{
-  std::copy(m_Dimensions, m_Dimensions + 3, dims);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImageGeom::getDimensions(size_t& xDim, size_t& yDim, size_t& zDim) 
-{
-  xDim = m_Dimensions[0];
-  yDim = m_Dimensions[1];
-  zDim = m_Dimensions[2];
-}
 
 // -----------------------------------------------------------------------------
 //
@@ -908,12 +873,12 @@ void ImageGeom::findDerivatives(DoubleArrayType::Pointer field, DoubleArrayType:
     connect(this, SIGNAL(filterGeneratedMessage(const PipelineMessage&)), observable, SLOT(broadcastPipelineMessage(const PipelineMessage&)));
   }
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
 #endif
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 
   size_t grain = dims[2] == 1 ? 1 : dims[2] / init.default_num_threads();
 
@@ -944,7 +909,7 @@ int ImageGeom::writeGeometryToHDF5(hid_t parentId, bool SIMPL_NOT_USED(writeXdmf
   int64_t volDims[3] = {static_cast<int64_t>(getXPoints()), static_cast<int64_t>(getYPoints()), static_cast<int64_t>(getZPoints())};
   float spacing[3] = {getXRes(), getYRes(), getZRes()};
   float origin[3] = {0.0f, 0.0f, 0.0f};
-  getOrigin(origin);
+  std::tie(origin[0], origin[1], origin[2]) = getOrigin();
 
   int32_t rank = 1;
   hsize_t dims[1] = {3};
@@ -988,7 +953,7 @@ int ImageGeom::writeXdmf(QTextStream& out, QString dcName, QString hdfFileName)
   int64_t volDims[3] = {static_cast<int64_t>(getXPoints()), static_cast<int64_t>(getYPoints()), static_cast<int64_t>(getZPoints())};
   float spacing[3] = {getXRes(), getYRes(), getZRes()};
   float origin[3] = {0.0f, 0.0f, 0.0f};
-  getOrigin(origin);
+  std::tie(origin[0], origin[1], origin[2]) = getOrigin();
 
   out << "  <!-- *************** START OF " << dcName << " *************** -->"
       << "\n";
@@ -1027,7 +992,7 @@ QString ImageGeom::getInfoString(SIMPL::InfoStringFormat format)
   int64_t volDims[3] = {static_cast<int64_t>(getXPoints()), static_cast<int64_t>(getYPoints()), static_cast<int64_t>(getZPoints())};
   float spacing[3] = {getXRes(), getYRes(), getZRes()};
   float origin[3] = {0.0f, 0.0f, 0.0f};
-  getOrigin(origin);
+  std::tie(origin[0], origin[1], origin[2]) = getOrigin();
 
   if(format == SIMPL::HtmlFormat)
   {
@@ -1070,12 +1035,12 @@ IGeometry::Pointer ImageGeom::deepCopy(bool forceNoAllocate)
 {
   ImageGeom::Pointer imageCopy = ImageGeom::CreateGeometry(getName());
 
-  size_t volDims[3] = {0, 0, 0};
-  float spacing[3] = {1.0f, 1.0f, 1.0f};
-  float origin[3] = {0.0f, 0.0f, 0.0f};
-  getDimensions(volDims);
-  getResolution(spacing);
-  getOrigin(origin);
+  std::tuple<size_t, size_t, size_t> volDims = std::make_tuple(static_cast<size_t>(0), static_cast<size_t>(0), static_cast<size_t>(0));
+  std::tuple<float, float, float> spacing = std::make_tuple(1.0f, 1.0f, 1.0f);
+  std::tuple<float, float, float> origin = std::make_tuple(0.0f, 0.0f, 0.0f);
+  volDims = getDimensions();
+  spacing = getResolution();
+  origin = getOrigin();
   imageCopy->setDimensions(volDims);
   imageCopy->setResolution(spacing);
   imageCopy->setOrigin(origin);
@@ -1111,10 +1076,63 @@ int ImageGeom::gatherMetaData(hid_t parentId, size_t volDims[3], float spacing[3
   {
     return -1;
   }
-  setDimensions(volDims[0], volDims[1], volDims[2]);
+  setDimensions(volDims);
   setResolution(spacing);
   setOrigin(origin);
   setElementSizes(voxelSizes);
 
+  return err;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+ImageGeom::ErrorType ImageGeom::computeCellIndex(float coords[3], size_t index[3])
+{
+  ImageGeom::ErrorType err = ImageGeom::ErrorType::NoError;
+  for(size_t i = 0; i < 3; i++)
+  {
+    if(coords[i] < m_Origin[i])
+    {
+      return static_cast<ImageGeom::ErrorType>(i * 2);
+    }
+    if(coords[i] > (m_Origin[i] + m_Dimensions[i] * m_Resolution[i]))
+    {
+      return static_cast<ImageGeom::ErrorType>(i * 2 + 1);
+    }
+    index[i] = static_cast<size_t>((coords[i] - m_Origin[i]) / m_Resolution[i]);
+    if(index[i] > m_Dimensions[i])
+    {
+      return static_cast<ImageGeom::ErrorType>(i * 2 + 1);
+    }
+  }
+  return err;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+ImageGeom::ErrorType ImageGeom::computeCellIndex(float coords[3], size_t& index)
+{
+  ImageGeom::ErrorType err = ImageGeom::ErrorType::NoError;
+  size_t cell[3] = {0, 0, 0};
+  for(size_t i = 0; i < 3; i++)
+  {
+    if(coords[i] < m_Origin[i])
+    {
+      return static_cast<ImageGeom::ErrorType>(i * 2);
+    }
+    cell[i] = static_cast<size_t>((coords[i] - m_Origin[i]) / m_Resolution[i]);
+    if(cell[i] > m_Dimensions[i])
+    {
+      return static_cast<ImageGeom::ErrorType>(i * 2 + 1);
+    }
+  }
+
+  index = (m_Dimensions[0] * m_Dimensions[1] * cell[2]) + (m_Dimensions[0] * cell[1]) + cell[0];
+  if(index > getNumberOfElements())
+  {
+    err = ImageGeom::ErrorType::IndexOutOfBounds;
+  }
   return err;
 }

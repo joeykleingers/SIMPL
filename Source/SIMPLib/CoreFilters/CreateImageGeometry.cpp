@@ -143,9 +143,9 @@ void CreateImageGeometry::dataCheck()
   }
 
   ImageGeom::Pointer image = ImageGeom::CreateGeometry("ImageGeometry");
-  image->setDimensions(m_Dimensions.x, m_Dimensions.y, m_Dimensions.z);
-  image->setResolution(m_Resolution.x, m_Resolution.y, m_Resolution.z);
-  image->setOrigin(m_Origin.x, m_Origin.y, m_Origin.z);
+  image->setDimensions(std::make_tuple(m_Dimensions.x, m_Dimensions.y, m_Dimensions.z));
+  image->setResolution(std::make_tuple(m_Resolution.x, m_Resolution.y, m_Resolution.z));
+  image->setOrigin(std::make_tuple(m_Origin.x, m_Origin.y, m_Origin.z));
   m->setGeometry(image);
 }
 
@@ -196,7 +196,7 @@ QString CreateImageGeometry::getBoxDimensions()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer CreateImageGeometry::newFilterInstance(bool copyFilterParameters)
+AbstractFilter::Pointer CreateImageGeometry::newFilterInstance(bool copyFilterParameters) const
 {
   CreateImageGeometry::Pointer filter = CreateImageGeometry::New();
   if(true == copyFilterParameters)
@@ -209,7 +209,7 @@ AbstractFilter::Pointer CreateImageGeometry::newFilterInstance(bool copyFilterPa
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString CreateImageGeometry::getCompiledLibraryName()
+const QString CreateImageGeometry::getCompiledLibraryName() const
 {
   return Core::CoreBaseName;
 }
@@ -217,7 +217,7 @@ const QString CreateImageGeometry::getCompiledLibraryName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString CreateImageGeometry::getBrandingString()
+const QString CreateImageGeometry::getBrandingString() const
 {
   return "SIMPLib Core Filter";
 }
@@ -225,7 +225,7 @@ const QString CreateImageGeometry::getBrandingString()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString CreateImageGeometry::getFilterVersion()
+const QString CreateImageGeometry::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -236,7 +236,7 @@ const QString CreateImageGeometry::getFilterVersion()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString CreateImageGeometry::getGroupName()
+const QString CreateImageGeometry::getGroupName() const
 {
   return SIMPL::FilterGroups::CoreFilters;
 }
@@ -252,7 +252,7 @@ const QUuid CreateImageGeometry::getUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString CreateImageGeometry::getSubGroupName()
+const QString CreateImageGeometry::getSubGroupName() const
 {
   return SIMPL::FilterSubGroups::GenerationFilters;
 }
@@ -260,7 +260,7 @@ const QString CreateImageGeometry::getSubGroupName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString CreateImageGeometry::getHumanLabel()
+const QString CreateImageGeometry::getHumanLabel() const
 {
   return "Create Geometry (Image)";
 }

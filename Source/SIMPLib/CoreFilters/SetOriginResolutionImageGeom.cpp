@@ -35,7 +35,7 @@
 
 #include "SetOriginResolutionImageGeom.h"
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
@@ -82,7 +82,7 @@ public:
     }
   }
 
-#ifdef SIMPLib_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   void operator()(const tbb::blocked_range<size_t>& r) const
   {
     generate(r.begin(), r.end());
@@ -175,11 +175,11 @@ void SetOriginResolutionImageGeom::dataCheck()
   }
   if(getChangeOrigin())
   {
-    image->setOrigin(m_Origin.x, m_Origin.y, m_Origin.z);
+    image->setOrigin(std::make_tuple(m_Origin.x, m_Origin.y, m_Origin.z));
   }
   if(getChangeResolution())
   {
-    image->setResolution(m_Resolution.x, m_Resolution.y, m_Resolution.z);
+    image->setResolution(std::make_tuple(m_Resolution.x, m_Resolution.y, m_Resolution.z));
   }
 }
 
@@ -215,7 +215,7 @@ void SetOriginResolutionImageGeom::execute()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer SetOriginResolutionImageGeom::newFilterInstance(bool copyFilterParameters)
+AbstractFilter::Pointer SetOriginResolutionImageGeom::newFilterInstance(bool copyFilterParameters) const
 {
   SetOriginResolutionImageGeom::Pointer filter = SetOriginResolutionImageGeom::New();
   if(true == copyFilterParameters)
@@ -228,7 +228,7 @@ AbstractFilter::Pointer SetOriginResolutionImageGeom::newFilterInstance(bool cop
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString SetOriginResolutionImageGeom::getCompiledLibraryName()
+const QString SetOriginResolutionImageGeom::getCompiledLibraryName() const
 {
   return Core::CoreBaseName;
 }
@@ -236,7 +236,7 @@ const QString SetOriginResolutionImageGeom::getCompiledLibraryName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString SetOriginResolutionImageGeom::getBrandingString()
+const QString SetOriginResolutionImageGeom::getBrandingString() const
 {
   return "SIMPLib Core Filter";
 }
@@ -244,7 +244,7 @@ const QString SetOriginResolutionImageGeom::getBrandingString()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString SetOriginResolutionImageGeom::getFilterVersion()
+const QString SetOriginResolutionImageGeom::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -255,7 +255,7 @@ const QString SetOriginResolutionImageGeom::getFilterVersion()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString SetOriginResolutionImageGeom::getGroupName()
+const QString SetOriginResolutionImageGeom::getGroupName() const
 {
   return SIMPL::FilterGroups::CoreFilters;
 }
@@ -271,7 +271,7 @@ const QUuid SetOriginResolutionImageGeom::getUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString SetOriginResolutionImageGeom::getSubGroupName()
+const QString SetOriginResolutionImageGeom::getSubGroupName() const
 {
   return SIMPL::FilterSubGroups::SpatialFilters;
 }
@@ -279,7 +279,7 @@ const QString SetOriginResolutionImageGeom::getSubGroupName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString SetOriginResolutionImageGeom::getHumanLabel()
+const QString SetOriginResolutionImageGeom::getHumanLabel() const
 {
   return "Set Origin & Resolution (Image)";
 }

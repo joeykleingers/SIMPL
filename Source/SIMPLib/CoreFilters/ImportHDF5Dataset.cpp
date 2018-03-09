@@ -42,7 +42,7 @@
 
 #include "H5Support/H5Utilities.h"
 #include "H5Support/QH5Utilities.h"
-#include "H5Support/HDF5ScopedFileSentinel.h"
+#include "H5Support/H5ScopedSentinel.h"
 
 namespace Detail
 {
@@ -172,7 +172,7 @@ void ImportHDF5Dataset::dataCheck()
     std::cout << "Error Reading HDF5 file: " << m_HDF5FilePath.toStdString() << std::endl;
     return;
   }
-  HDF5ScopedFileSentinel sentinel(&fileId, true);
+  H5ScopedFileSentinel sentinel(&fileId, true);
 
   QString parentPath = QH5Utilities::getParentPath(m_DatasetPath);
   hid_t parentId;
@@ -518,7 +518,7 @@ QString ImportHDF5Dataset::getHDF5Dimensions()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer ImportHDF5Dataset::newFilterInstance(bool copyFilterParameters)
+AbstractFilter::Pointer ImportHDF5Dataset::newFilterInstance(bool copyFilterParameters) const
 {
   ImportHDF5Dataset::Pointer filter = ImportHDF5Dataset::New();
   if(true == copyFilterParameters)
@@ -535,7 +535,7 @@ AbstractFilter::Pointer ImportHDF5Dataset::newFilterInstance(bool copyFilterPara
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportHDF5Dataset::getCompiledLibraryName()
+const QString ImportHDF5Dataset::getCompiledLibraryName() const
 {
   return Core::CoreBaseName;
 }
@@ -543,7 +543,7 @@ const QString ImportHDF5Dataset::getCompiledLibraryName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportHDF5Dataset::getBrandingString()
+const QString ImportHDF5Dataset::getBrandingString() const
 {
   return "SIMPLib Core Filter";
 }
@@ -551,7 +551,7 @@ const QString ImportHDF5Dataset::getBrandingString()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportHDF5Dataset::getFilterVersion()
+const QString ImportHDF5Dataset::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -562,7 +562,7 @@ const QString ImportHDF5Dataset::getFilterVersion()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportHDF5Dataset::getGroupName()
+const QString ImportHDF5Dataset::getGroupName() const
 {
   return SIMPL::FilterGroups::CoreFilters;
 }
@@ -578,7 +578,7 @@ const QUuid ImportHDF5Dataset::getUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportHDF5Dataset::getSubGroupName()
+const QString ImportHDF5Dataset::getSubGroupName() const
 {
   return SIMPL::FilterSubGroups::InputFilters;
 }
@@ -586,7 +586,7 @@ const QString ImportHDF5Dataset::getSubGroupName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportHDF5Dataset::getHumanLabel()
+const QString ImportHDF5Dataset::getHumanLabel() const
 {
   return "Import HDF5 Dataset";
 }

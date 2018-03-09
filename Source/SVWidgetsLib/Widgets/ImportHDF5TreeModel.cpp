@@ -30,16 +30,15 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include <QIcon>
-#include <QPixmap>
-#include <QtGui>
+#include <QtGui/QIcon>
+#include <QtGui/QPixmap>
 
 #include "H5Support/H5Utilities.h"
 
 #include "ImportHDF5TreeModel.h"
 #include "ImportHDF5TreeModelItem.h"
 
-// Include the MOC generated CPP file which has all the QMetaObject methods/data
+
 
 // -----------------------------------------------------------------------------
 //

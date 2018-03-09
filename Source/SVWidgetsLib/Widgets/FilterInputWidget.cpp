@@ -56,7 +56,6 @@
 #include "SIMPLib/FilterParameters/LinkedDataContainerSelectionFilterParameter.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 
-#include "SVWidgetsLib/QtSupport/QtSHelpUrlGenerator.h"
 #include "SVWidgetsLib/QtSupport/QtSStyles.h"
 
 #include "SVWidgetsLib/FilterParameterWidgets/ChoiceWidget.h"
@@ -73,7 +72,7 @@
 #define QGroupBox ctkCollapsibleGroupBox
 #endif
 
-// Include the MOC generated CPP file which has all the QMetaObject methods/data
+
 
 // Initialize private static member variable
 QString FilterInputWidget::m_OpenDialogLastFilePath = "";

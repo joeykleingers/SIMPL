@@ -192,21 +192,21 @@ public:
   SIMPL_FILTER_PARAMETER(int, DistanceMetric)
   Q_PROPERTY(int DistanceMetric READ getDistanceMetric WRITE setDistanceMetric)
 
-  virtual const QString getCompiledLibraryName() override;
-  virtual AbstractFilter::Pointer newFilterInstance(bool copyFilterParameters) override;
-  virtual const QString getGroupName() override;
+  virtual const QString getCompiledLibraryName() const override;
+  virtual AbstractFilter::Pointer newFilterInstance(bool copyFilterParameters) const override;
+  virtual const QString getGroupName() const override;
 
   /**
   * @brief This returns a string that is displayed in the GUI. It should be readable
   * and understandable by humans.
   */
-  virtual const QString getHumanLabel() override;
+  virtual const QString getHumanLabel() const override;
 
   /**
   * @brief This returns a string that is displayed in the GUI and helps to sort the filters into
   * a subgroup. It should be readable and understandable by humans.
   */
-  virtual const QString getSubGroupName() override;
+  virtual const QString getSubGroupName() const override;
 
   /**
    * @brief getUuid Return the unique identifier for this filter.
@@ -224,7 +224,7 @@ public:
   * @brief This method will read the options from a file
   * @param reader The reader that is used to read the options from a file
   */
-  virtual void readFilterParameters(AbstractFilterParametersReader* reader, int index);
+  virtual void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
   /**
   * @brief readFilterParametersFromJson Reads the filter parameters from a file
