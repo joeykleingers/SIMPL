@@ -158,6 +158,8 @@ void SVPipelineView::setupGui()
   QClipboard* clipboard = QApplication::clipboard();
   connect(clipboard, SIGNAL(dataChanged()), this, SLOT(updatePasteAvailability()));
 
+  addPipelineMessageObserver(this);
+
   setContextMenuPolicy(Qt::CustomContextMenu);
   setFocusPolicy(Qt::StrongFocus);
   setDropIndicatorShown(false);
@@ -322,6 +324,7 @@ void SVPipelineView::preflightPipeline()
     return;
   }
 
+  m_CachedIssues.clear();
   emit clearIssuesTriggered();
 
   PipelineModel* model = getPipelineModel();
@@ -403,22 +406,23 @@ void SVPipelineView::executePipeline()
   m_WorkerThread = new QThread(); // Create a new Thread Resource
 
   // Clear out the Issues Table
+  m_CachedIssues.clear();
   emit clearIssuesTriggered();
 
   // Create a FilterPipeline Object
 //  m_PipelineInFlight = getCopyOfFilterPipeline();
   m_PipelineInFlight = getFilterPipeline();
 
-  emit stdOutMessage("<b>Preflight Pipeline.....</b>");
+  addStandardOutputMessage("<b>Preflight Pipeline.....</b>");
   // Give the pipeline one last chance to preflight and get all the latest values from the GUI
   int err = m_PipelineInFlight->preflightPipeline();
   if(err < 0)
   {
     m_PipelineInFlight = FilterPipeline::NullPointer();
-    emit displayIssuesTriggered();
+    emit displayIssuesTriggered(m_CachedIssues);
     return;
   }
-  emit stdOutMessage("    Preflight Results: 0 Errors");
+  addStandardOutputMessage("    Preflight Results: 0 Errors");
 
   // Save each of the DataContainerArrays from each of the filters for when the pipeline is complete
   m_PreflightDataContainerArrays.clear();
@@ -461,16 +465,8 @@ void SVPipelineView::executePipeline()
 
   toRunningState();
   m_WorkerThread->start();
-  stdOutMessage("");
-  stdOutMessage("<b>*************** PIPELINE STARTED ***************</b>");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::processPipelineMessage(const PipelineMessage& msg)
-{
-  emit pipelineHasMessage(msg);
+  addStandardOutputMessage("");
+  addStandardOutputMessage("<b>*************** PIPELINE STARTED ***************</b>");
 }
 
 // -----------------------------------------------------------------------------
@@ -516,13 +512,13 @@ void SVPipelineView::finishPipeline()
 {
   if(m_PipelineInFlight->getCancel() == true)
   {
-    stdOutMessage("<b>*************** PIPELINE CANCELED ***************</b>");
+    addStandardOutputMessage("<b>*************** PIPELINE CANCELED ***************</b>");
   }
   else
   {
-    stdOutMessage("<b>*************** PIPELINE FINISHED ***************</b>");
+    addStandardOutputMessage("<b>*************** PIPELINE FINISHED ***************</b>");
   }
-  stdOutMessage("");
+  addStandardOutputMessage("");
 
   // Put back the DataContainerArray for each filter at the conclusion of running
   // the pipeline. this keeps the data browser current and up to date.
@@ -538,8 +534,41 @@ void SVPipelineView::finishPipeline()
 
   toStoppedState();
 
-  emit displayIssuesTriggered();
+  emit displayIssuesTriggered(m_CachedIssues);
   emit pipelineFinished();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SVPipelineView::processPipelineMessage(const PipelineMessage& msg)
+{
+  if (msg.getType() == PipelineMessage::MessageType::Error || msg.getType() == PipelineMessage::MessageType::Warning)
+  {
+    m_CachedIssues.push_back(msg);
+  }
+  else if (msg.getType() == PipelineMessage::MessageType::StatusMessage && m_Active)
+  {
+    m_CachedStdOutput.append(msg.getText() + "\n");
+
+    if (m_Active)
+    {
+      addStatusBarMessage(msg.generateStatusString());
+    }
+  }
+  else if(msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue && m_Active)
+  {
+    addStatusBarMessage(msg.generateStatusString());
+  }
+  else if(msg.getType() == PipelineMessage::MessageType::StandardOutputMessage)
+  {
+    m_CachedStdOutput.append(msg.getText() + "\n");
+
+    if (m_Active)
+    {
+      addStandardOutputMessage(msg.getText());
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -625,18 +654,18 @@ int SVPipelineView::writePipeline(const QString &outputPath)
   }
   else
   {
-    emit statusMessage(tr("The pipeline was not written to file '%1'. '%2' is an unsupported file extension.").arg(fi.fileName()).arg(ext));
+    addStatusBarMessage(tr("The pipeline was not written to file '%1'. '%2' is an unsupported file extension.").arg(fi.fileName()).arg(ext));
     return -1;
   }
 
   if(err < 0)
   {
-    emit statusMessage(tr("There was an error while saving the pipeline to file '%1'.").arg(fi.fileName()));
+    addStatusBarMessage(tr("There was an error while saving the pipeline to file '%1'.").arg(fi.fileName()));
     return -1;
   }
   else
   {
-    emit statusMessage(tr("The pipeline has been saved successfully to '%1'.").arg(fi.fileName()));
+    addStatusBarMessage(tr("The pipeline has been saved successfully to '%1'.").arg(fi.fileName()));
   }
 
   return 0;
@@ -656,10 +685,12 @@ void SVPipelineView::updatePasteAvailability()
   if(text.isEmpty() || FilterPipeline::NullPointer() == pipeline)
   {
     m_ActionPaste->setDisabled(true);
+    emit pasteAvailabilityChanged(false);
   }
   else
   {
     m_ActionPaste->setEnabled(true);
+    emit pasteAvailabilityChanged(true);
   }
 }
 
@@ -1523,14 +1554,14 @@ int SVPipelineView::openPipeline(const QString& filePath, int insertIndex)
   // Check that a valid extension was read...
   if(pipeline == FilterPipeline::NullPointer())
   {
-    emit statusMessage(tr("The pipeline was not read correctly from file '%1'. '%2' is an unsupported file extension.").arg(name).arg(ext));
-    emit stdOutMessage(tr("The pipeline was not read correctly from file '%1'. '%2' is an unsupported file extension.").arg(name).arg(ext));
+    addStatusBarMessage(tr("The pipeline was not read correctly from file '%1'. '%2' is an unsupported file extension.").arg(name).arg(ext));
+    addStandardOutputMessage(tr("The pipeline was not read correctly from file '%1'. '%2' is an unsupported file extension.").arg(name).arg(ext));
     return -1;
   }
 
   // Notify user of successful read
-  emit statusMessage(tr("Opened \"%1\" Pipeline").arg(baseName));
-  emit stdOutMessage(tr("Opened \"%1\" Pipeline").arg(baseName));
+  addStatusBarMessage(tr("Opened \"%1\" Pipeline").arg(baseName));
+  addStandardOutputMessage(tr("Opened \"%1\" Pipeline").arg(baseName));
 
   QList<AbstractFilter::Pointer> pipelineFilters = pipeline->getFilterContainer();
   std::vector<AbstractFilter::Pointer> filters;
@@ -1590,6 +1621,8 @@ void SVPipelineView::mousePressEvent(QMouseEvent* event)
 
       emit filterInputWidgetNeedsCleared();
     }
+
+    emit pipelineActivated();
   }
 
   QListView::mousePressEvent(event);
@@ -1624,13 +1657,9 @@ void SVPipelineView::requestContextMenu(const QPoint& pos)
   {
     requestFilterItemContextMenu(mapped, index);
   }
-  else if (itemType == PipelineItem::ItemType::Pipeline)
-  {
-    requestPipelineItemContextMenu(mapped);
-  }
   else
   {
-    requestDefaultContextMenu(mapped);
+    requestPipelineItemContextMenu(mapped);
   }
 }
 
@@ -1777,31 +1806,14 @@ void SVPipelineView::requestPipelineItemContextMenu(const QPoint &pos)
   QMenu menu;
 
   menu.addAction(m_ActionPaste);
-
-  requestSinglePipelineContextMenu(menu);
-
-  menu.exec(pos);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::requestSinglePipelineContextMenu(QMenu &menu)
-{
-  menu.addSeparator();
-
-  menu.addAction(m_ActionClearPipeline);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::requestDefaultContextMenu(const QPoint &pos)
-{
-  QMenu menu;
-  menu.addAction(m_ActionPaste);
   menu.addSeparator();
   menu.addAction(m_ActionClearPipeline);
+  menu.addSeparator();
+
+  QAction* actionDeletePipeline = new QAction("Delete Pipeline");
+  connect(actionDeletePipeline, &QAction::triggered, this, &SVPipelineView::pipelineDeleting);
+
+  menu.addAction(actionDeletePipeline);
 
   menu.exec(pos);
 }
@@ -1838,7 +1850,9 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
 
   connect(selectionModel(), &QItemSelectionModel::selectionChanged, [=] (const QItemSelection &selected, const QItemSelection &deselected) {
     m_ActionCut->setEnabled(selected.size() > 0);
+    emit cutAvailabilityChanged(selected.size() > 0);
     m_ActionCopy->setEnabled(selected.size() > 0);
+    emit copyAvailabilityChanged(selected.size() > 0);
   });
 
   m_ActionClearPipeline->setEnabled(model->rowCount() > 0);
@@ -2136,4 +2150,45 @@ QPixmap SVPipelineView::setPixmapColor(QPixmap pixmap, QColor pixmapColor)
   }
 
   return QPixmap::fromImage(image);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SVPipelineView::setActive(bool active)
+{
+  m_Active = active;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVector<PipelineMessage> SVPipelineView::getCurrentIssues()
+{
+  return m_CachedIssues;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString SVPipelineView::getCurrentStandardOutput()
+{
+  return m_CachedStdOutput;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SVPipelineView::addStatusBarMessage(const QString & msg)
+{
+  emit statusMessage(msg);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SVPipelineView::addStandardOutputMessage(const QString &msg)
+{
+  m_CachedStdOutput.append(msg + "\n");
+  emit stdOutMessage(msg);
 }

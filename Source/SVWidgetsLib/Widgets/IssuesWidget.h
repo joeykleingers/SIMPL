@@ -73,10 +73,9 @@ class SVWidgetsLib_EXPORT IssuesWidget : public QWidget, public IObserver
     static const int ErrorCode = 3;
 
   public slots:
-    void processPipelineMessage(const PipelineMessage& msg);
     void clearIssues();
     void on_errorTableWidget_itemClicked( QTableWidgetItem* item );
-    void displayCachedMessages();
+    void displayCachedMessages(QVector<PipelineMessage> messages);
 
     void showFilterHelp(const QString &url);
 
@@ -93,7 +92,6 @@ class SVWidgetsLib_EXPORT IssuesWidget : public QWidget, public IObserver
 
   private:
     QSharedPointer<Ui::IssuesWidget> ui = nullptr;
-    QVector<PipelineMessage> m_CachedMessages;
 
     IssuesWidget(const IssuesWidget&) = delete;   // Copy Constructor Not Implemented
     void operator=(const IssuesWidget&) = delete; // Move assignment Not Implemented

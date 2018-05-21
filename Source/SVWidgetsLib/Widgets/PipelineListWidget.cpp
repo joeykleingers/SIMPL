@@ -58,6 +58,8 @@ void PipelineListWidget::setupGui()
 {
   startPipelineBtn->setStyleSheet(getStartPipelineIdleStyle());
   startPipelineBtn->setDisabled(true);
+
+  pipelineView->addPipelineMessageObserver(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -72,13 +74,6 @@ void PipelineListWidget::on_startPipelineBtn_clicked()
     emit pipelineCanceled(pipelineIndex);
 
     startPipelineBtn->setText("Canceling...");
-
-//    // Enable FilterListToolboxWidget signals - resume adding filters
-//    getFilterListToolboxWidget()->blockSignals(false);
-
-//    // Enable FilterLibraryToolboxWidget signals - resume adding filters
-//    getFilterLibraryToolboxWidget()->blockSignals(false);
-
     return;
   }
   else if(startPipelineBtn->text().compare("Canceling...") == 0)
@@ -198,6 +193,32 @@ QString PipelineListWidget::getStartPipelineInProgressStyle(float percent)
   ss << "}";
 
   return cssStr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineListWidget::processPipelineMessage(const PipelineMessage& msg)
+{
+  if(msg.getType() == PipelineMessage::MessageType::ProgressValue)
+  {
+    float progValue = static_cast<float>(msg.getProgressValue()) / 100;
+    setProgressValue(progValue);
+  }
+  else if(msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue)
+  {
+    float progValue = static_cast<float>(msg.getProgressValue()) / 100;
+    setProgressValue(progValue);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineListWidget::setActive(bool active)
+{
+  m_Active = active;
+  pipelineView->setActive(active);
 }
 
 // -----------------------------------------------------------------------------

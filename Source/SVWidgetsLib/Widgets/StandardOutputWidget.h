@@ -61,6 +61,17 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
      */
     void appendText(const QString &text);
 
+    /**
+     * @brief setText
+     * @param text
+     */
+    void setText(const QString &text);
+
+    /**
+     * @brief clear
+     */
+    void clear();
+
   protected:
     void setupGui();
 

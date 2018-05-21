@@ -127,7 +127,7 @@ void StandardOutputWidget::on_clearLogBtn_clicked()
 
   if (answer == QMessageBox::Yes)
   {
-    stdOutTextEdit->clear();
+    clear();
 
     clearLogBtn->setDisabled(true);
     saveLogBtn->setDisabled(true);
@@ -143,4 +143,25 @@ void StandardOutputWidget::appendText(const QString &text)
   stdOutTextEdit->ensureCursorVisible();
   clearLogBtn->setEnabled(true);
   saveLogBtn->setEnabled(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void StandardOutputWidget::setText(const QString &text)
+{
+  stdOutTextEdit->setText(text);
+  stdOutTextEdit->ensureCursorVisible();
+  clearLogBtn->setEnabled(true);
+  saveLogBtn->setEnabled(true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void StandardOutputWidget::clear()
+{
+  stdOutTextEdit->clear();
+  clearLogBtn->setDisabled(true);
+  saveLogBtn->setDisabled(true);
 }

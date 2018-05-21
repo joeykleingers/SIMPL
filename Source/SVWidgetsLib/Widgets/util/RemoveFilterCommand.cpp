@@ -126,8 +126,8 @@ void RemoveFilterCommand::undo()
     statusMessage = QObject::tr("Undo \"Removed '%1' filter at index %2\"").arg(m_Filters[0]->getHumanLabel()).arg(m_FilterRows[0] + 1);
   }
 
-  emit m_PipelineView->statusMessage(statusMessage);
-  emit m_PipelineView->stdOutMessage(statusMessage);
+  m_PipelineView->addStatusBarMessage(statusMessage);
+  m_PipelineView->addStandardOutputMessage(statusMessage);
 }
 
 // -----------------------------------------------------------------------------
@@ -178,8 +178,8 @@ void RemoveFilterCommand::redo()
 
   emit m_PipelineView->pipelineChanged();
 
-  emit m_PipelineView->statusMessage(statusMessage);
-  emit m_PipelineView->stdOutMessage(statusMessage);
+  m_PipelineView->addStatusBarMessage(statusMessage);
+  m_PipelineView->addStandardOutputMessage(statusMessage);
 }
 
 // -----------------------------------------------------------------------------
