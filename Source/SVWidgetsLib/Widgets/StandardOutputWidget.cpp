@@ -128,9 +128,6 @@ void StandardOutputWidget::on_clearLogBtn_clicked()
   if (answer == QMessageBox::Yes)
   {
     clear();
-
-    clearLogBtn->setDisabled(true);
-    saveLogBtn->setDisabled(true);
   }
 }
 
@@ -150,8 +147,8 @@ void StandardOutputWidget::appendText(const QString &text)
 // -----------------------------------------------------------------------------
 void StandardOutputWidget::setText(const QString &text)
 {
-  stdOutTextEdit->setText(text);
-  stdOutTextEdit->ensureCursorVisible();
+  stdOutTextEdit->setHtml(text);
+  stdOutTextEdit->moveCursor(QTextCursor::End);
   clearLogBtn->setEnabled(true);
   saveLogBtn->setEnabled(true);
 }

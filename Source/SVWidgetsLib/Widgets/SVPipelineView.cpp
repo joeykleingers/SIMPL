@@ -518,7 +518,6 @@ void SVPipelineView::finishPipeline()
   {
     addStandardOutputMessage("<b>*************** PIPELINE FINISHED ***************</b>");
   }
-  addStandardOutputMessage("");
 
   // Put back the DataContainerArray for each filter at the conclusion of running
   // the pipeline. this keeps the data browser current and up to date.
@@ -547,27 +546,10 @@ void SVPipelineView::processPipelineMessage(const PipelineMessage& msg)
   {
     m_CachedIssues.push_back(msg);
   }
-  else if (msg.getType() == PipelineMessage::MessageType::StatusMessage && m_Active)
-  {
-    m_CachedStdOutput.append(msg.getText() + "\n");
-
-    if (m_Active)
-    {
-      addStatusBarMessage(msg.generateStatusString());
-    }
-  }
-  else if(msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue && m_Active)
+  else if (msg.getType() == PipelineMessage::MessageType::StatusMessage || msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue)
   {
     addStatusBarMessage(msg.generateStatusString());
-  }
-  else if(msg.getType() == PipelineMessage::MessageType::StandardOutputMessage)
-  {
-    m_CachedStdOutput.append(msg.getText() + "\n");
-
-    if (m_Active)
-    {
-      addStandardOutputMessage(msg.getText());
-    }
+    addStandardOutputMessage(msg.getText());
   }
 }
 
@@ -2171,7 +2153,7 @@ QVector<PipelineMessage> SVPipelineView::getCurrentIssues()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString SVPipelineView::getCurrentStandardOutput()
+QStringList SVPipelineView::getCurrentStandardOutput()
 {
   return m_CachedStdOutput;
 }
@@ -2181,7 +2163,10 @@ QString SVPipelineView::getCurrentStandardOutput()
 // -----------------------------------------------------------------------------
 void SVPipelineView::addStatusBarMessage(const QString & msg)
 {
-  emit statusMessage(msg);
+  if (m_Active)
+  {
+    emit statusMessage(msg);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -2189,6 +2174,10 @@ void SVPipelineView::addStatusBarMessage(const QString & msg)
 // -----------------------------------------------------------------------------
 void SVPipelineView::addStandardOutputMessage(const QString &msg)
 {
-  m_CachedStdOutput.append(msg + "\n");
-  emit stdOutMessage(msg);
+  m_CachedStdOutput.push_back(msg);
+
+  if (m_Active)
+  {
+    emit stdOutMessage(msg);
+  }
 }

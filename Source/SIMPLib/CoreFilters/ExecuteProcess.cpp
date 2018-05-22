@@ -311,7 +311,7 @@ void ExecuteProcess::sendErrorOutput()
     {
       error.chop(1);
     }
-    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
+    notifyStatusMessage(getHumanLabel(), error);
     m_WaitCondition.wakeAll();
   }
 }
@@ -323,7 +323,7 @@ void ExecuteProcess::sendStandardOutput()
 {
   if(m_ProcessPtr.data() != nullptr)
   {
-    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
+    notifyStatusMessage(getHumanLabel(), m_ProcessPtr->readAllStandardOutput());
     m_WaitCondition.wakeAll();
   }
 }

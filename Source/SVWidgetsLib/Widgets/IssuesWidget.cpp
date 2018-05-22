@@ -126,7 +126,6 @@ void IssuesWidget::displayCachedMessages(QVector<PipelineMessage> messages)
       warnCount++;
       break;
     case PipelineMessage::MessageType::StatusMessage:
-    case PipelineMessage::MessageType::StandardOutputMessage:
     case PipelineMessage::MessageType::ProgressValue:
     case PipelineMessage::MessageType::StatusMessageAndProgressValue:
     case PipelineMessage::MessageType::UnknownMessageType:
@@ -168,7 +167,6 @@ void IssuesWidget::displayCachedMessages(QVector<PipelineMessage> messages)
       updateRow = true;
       break;
     case PipelineMessage::MessageType::StatusMessage:
-    case PipelineMessage::MessageType::StandardOutputMessage:
     case PipelineMessage::MessageType::ProgressValue:
     case PipelineMessage::MessageType::StatusMessageAndProgressValue:
     case PipelineMessage::MessageType::UnknownMessageType:

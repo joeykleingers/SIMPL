@@ -138,9 +138,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     void pipelineDataChanged(const QModelIndex &pipelineIndex);
 
-    void statusMessageGenerated(const QString &msg);
-    void standardOutputMessageGenerated(const QString &msg);
-
   private:
     PipelineItem*                       m_RootItem;
 

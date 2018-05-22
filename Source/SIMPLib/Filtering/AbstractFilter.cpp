@@ -654,16 +654,6 @@ void AbstractFilter::notifyStatusMessage(const QString& prefix, const QString& h
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AbstractFilter::notifyStandardOutputMessage(const QString& humanLabel, int pipelineIndex, const QString& str)
-{
-  PipelineMessage pm = PipelineMessage::CreateStandardOutputMessage(humanLabel, pipelineIndex, str);
-  pm.setPipelineIndex(getPipelineIndex());
-  emit filterGeneratedMessage(pm);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void AbstractFilter::notifyWarningMessage(const QString& humanLabel, const QString& str, int code)
 {
   PipelineMessage pm = PipelineMessage::CreateWarningMessage(getNameOfClass(), humanLabel, str, code);

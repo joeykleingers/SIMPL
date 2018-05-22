@@ -238,7 +238,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      * @brief getCurrentStandardOutput
      * @return
      */
-    QString getCurrentStandardOutput();
+    QStringList getCurrentStandardOutput();
 
   public slots:
     /**
@@ -456,7 +456,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
   private:
     QThread*                                          m_WorkerThread = nullptr;
     QVector<PipelineMessage>                          m_CachedIssues;
-    QString                                           m_CachedStdOutput;
+    QStringList                                       m_CachedStdOutput;
     FilterPipeline::Pointer                           m_PipelineInFlight;
     QVector<DataContainerArray::Pointer>              m_PreflightDataContainerArrays;
     QList<QObject*>                                   m_PipelineMessageObservers;
