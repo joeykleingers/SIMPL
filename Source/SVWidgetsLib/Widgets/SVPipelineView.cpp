@@ -446,9 +446,6 @@ void SVPipelineView::executePipeline()
   // Move the FilterPipeline object into the thread that we just created.
   m_PipelineInFlight->moveToThread(m_WorkerThread);
 
-  // Allow the GUI to receive messages - We are only interested in the progress messages
-  m_PipelineInFlight->addMessageReceiver(this);
-
   /* Connect the signal 'started()' from the QThread to the 'run' slot of the
    * PipelineBuilder object. Since the PipelineBuilder object has been moved to another
    * thread of execution and the actual QThread lives in *this* thread then the
