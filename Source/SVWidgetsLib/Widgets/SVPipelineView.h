@@ -381,6 +381,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void cutAvailabilityChanged(bool enabled);
     void copyAvailabilityChanged(bool enabled);
     void pasteAvailabilityChanged(bool enabled);
+    void clearPipelineAvailabilityChanged(bool enabled);
 
     void statusMessage(const QString& message);
 

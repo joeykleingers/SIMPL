@@ -1462,6 +1462,8 @@ void SVPipelineView::toRunningState()
   }
 
   m_ActionClearPipeline->setDisabled(true);
+  emit clearPipelineAvailabilityChanged(true);
+
   getActionUndo()->setDisabled(true);
   getActionRedo()->setDisabled(true);
 }
@@ -1491,6 +1493,7 @@ void SVPipelineView::toStoppedState()
   }
 
   m_ActionClearPipeline->setEnabled(model->rowCount() > 0);
+  emit clearPipelineAvailabilityChanged(model->rowCount() > 0);
 
   getActionUndo()->setEnabled(true);
   getActionRedo()->setEnabled(true);
@@ -1820,14 +1823,17 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
   {
     connect(pipelineModel, &PipelineModel::rowsInserted, this, [=] {
       m_ActionClearPipeline->setEnabled(true);
+      emit clearPipelineAvailabilityChanged(true);
     });
 
     connect(pipelineModel, &PipelineModel::rowsRemoved, this, [=] {
       m_ActionClearPipeline->setEnabled(model->rowCount() > 0);
+      emit clearPipelineAvailabilityChanged(model->rowCount() > 0);
     });
 
     connect(pipelineModel, &PipelineModel::rowsMoved, this, [=] {
       m_ActionClearPipeline->setEnabled(model->rowCount() > 0);
+      emit clearPipelineAvailabilityChanged(model->rowCount() > 0);
     });
   }
 
@@ -1839,6 +1845,7 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
   });
 
   m_ActionClearPipeline->setEnabled(model->rowCount() > 0);
+  emit clearPipelineAvailabilityChanged(model->rowCount() > 0);
 }
 
 // -----------------------------------------------------------------------------
