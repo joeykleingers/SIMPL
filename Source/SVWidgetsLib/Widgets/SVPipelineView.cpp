@@ -129,6 +129,10 @@ SVPipelineView::~SVPipelineView()
 // -----------------------------------------------------------------------------
 void SVPipelineView::setupGui()
 {
+  m_StdOutputTextEdit = new QTextEdit(this);
+  m_StdOutputTextEdit->setReadOnly(true);
+  m_StdOutputTextEdit->hide();
+
   // Delete action if it exists
   if(m_ActionEnableFilter)
   {
@@ -850,7 +854,7 @@ QPixmap SVPipelineView::getDraggingPixmap(QModelIndexList indexes)
 // -----------------------------------------------------------------------------
 void SVPipelineView::mouseMoveEvent(QMouseEvent* event)
 {
-  if((event->buttons() & Qt::LeftButton) && (event->pos() - m_DragStartPosition).manhattanLength() >= 2 && dragEnabled() == true)
+  if((event->buttons() & Qt::LeftButton) && (event->pos() - m_DragStartPosition).manhattanLength() >= QApplication::startDragDistance() && dragEnabled() == true)
   {
     beginDrag(event);
   }
@@ -2150,9 +2154,9 @@ QVector<PipelineMessage> SVPipelineView::getCurrentIssues()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QStringList SVPipelineView::getCurrentStandardOutput()
+QTextEdit* SVPipelineView::getStdOutputTextEdit()
 {
-  return m_CachedStdOutput;
+  return m_StdOutputTextEdit;
 }
 
 // -----------------------------------------------------------------------------
@@ -2171,10 +2175,5 @@ void SVPipelineView::addStatusBarMessage(const QString & msg)
 // -----------------------------------------------------------------------------
 void SVPipelineView::addStandardOutputMessage(const QString &msg)
 {
-  m_CachedStdOutput.push_back(msg);
-
-  if (m_Active)
-  {
-    emit stdOutMessage(msg);
-  }
+  m_StdOutputTextEdit->append(msg);
 }

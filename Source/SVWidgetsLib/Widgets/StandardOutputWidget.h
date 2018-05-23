@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _StandardOutputWidget_h_
-#define _StandardOutputWidget_h_
+#pragma once
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QWidget>
@@ -46,6 +45,7 @@
 #include "ui_StandardOutputWidget.h"
 
 class QtSSettings;
+class QTextEdit;
 
 class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserver, private Ui::StandardOutputWidget
 {
@@ -56,16 +56,10 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
     virtual ~StandardOutputWidget();
 
     /**
-     * @brief appendText
-     * @param text
+     * @brief setStdOutputTextEdit
+     * @param textEdit
      */
-    void appendText(const QString &text);
-
-    /**
-     * @brief setText
-     * @param text
-     */
-    void setText(const QString &text);
+    void setStdOutputTextEdit(QTextEdit* textEdit);
 
     /**
      * @brief clear
@@ -87,10 +81,10 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
     void on_clearLogBtn_clicked();
 
   private:
-    QString             m_LastPathOpened = "";
+    QString m_LastPathOpened = "";
+    QTextEdit* m_BlankStdOutputTextEdit = nullptr;
+    QTextEdit* m_CurrentStdOutputTextEdit = nullptr;
 
     StandardOutputWidget(const StandardOutputWidget&) = delete; // Copy Constructor Not Implemented
     void operator=(const StandardOutputWidget&) = delete;       // Move assignment Not Implemented
 };
-
-#endif // _StandardOutputWidget_h_

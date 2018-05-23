@@ -235,10 +235,10 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     QVector<PipelineMessage> getCurrentIssues();
 
     /**
-     * @brief getCurrentStandardOutput
+     * @brief getStdOutputTextEdit
      * @return
      */
-    QStringList getCurrentStandardOutput();
+    QTextEdit* getStdOutputTextEdit();
 
   public slots:
     /**
@@ -383,7 +383,6 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void pasteAvailabilityChanged(bool enabled);
 
     void statusMessage(const QString& message);
-    void stdOutMessage(const QString& message);
 
   protected:
     void setupGui();
@@ -456,7 +455,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
   private:
     QThread*                                          m_WorkerThread = nullptr;
     QVector<PipelineMessage>                          m_CachedIssues;
-    QStringList                                       m_CachedStdOutput;
+    QTextEdit*                                        m_StdOutputTextEdit = nullptr;
     FilterPipeline::Pointer                           m_PipelineInFlight;
     QVector<DataContainerArray::Pointer>              m_PreflightDataContainerArrays;
     QList<QObject*>                                   m_PipelineMessageObservers;

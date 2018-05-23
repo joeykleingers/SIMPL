@@ -37,6 +37,7 @@
 
 #include <iostream>
 
+#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFileDialog>
@@ -65,8 +66,9 @@ StandardOutputWidget::~StandardOutputWidget() = default;
 // -----------------------------------------------------------------------------
 void StandardOutputWidget::setupGui()
 {  
-  clearLogBtn->setDisabled(true);
-  saveLogBtn->setDisabled(true);
+  m_BlankStdOutputTextEdit = new QTextEdit(this);
+  m_BlankStdOutputTextEdit->setReadOnly(true);
+  setStdOutputTextEdit(m_BlankStdOutputTextEdit);
 }
 
 // -----------------------------------------------------------------------------
@@ -87,7 +89,7 @@ void StandardOutputWidget::on_saveLogBtn_clicked()
   QFile file(filePath);
   if (file.open(QFile::WriteOnly))
   {
-    file.write(stdOutTextEdit->toPlainText().toStdString().c_str());
+    file.write(m_CurrentStdOutputTextEdit->toPlainText().toStdString().c_str());
     file.close();
   }
 }
@@ -134,23 +136,31 @@ void StandardOutputWidget::on_clearLogBtn_clicked()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void StandardOutputWidget::appendText(const QString &text)
+void StandardOutputWidget::setStdOutputTextEdit(QTextEdit* textEdit)
 {
-  stdOutTextEdit->append(text);
-  stdOutTextEdit->ensureCursorVisible();
-  clearLogBtn->setEnabled(true);
-  saveLogBtn->setEnabled(true);
-}
+  if (m_CurrentStdOutputTextEdit)
+  {
+    verticalLayout->removeWidget(m_CurrentStdOutputTextEdit);
+    m_CurrentStdOutputTextEdit->hide();
+  }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void StandardOutputWidget::setText(const QString &text)
-{
-  stdOutTextEdit->setHtml(text);
-  stdOutTextEdit->moveCursor(QTextCursor::End);
-  clearLogBtn->setEnabled(true);
-  saveLogBtn->setEnabled(true);
+  QTextEdit* newTextEdit = textEdit;
+  if (newTextEdit == nullptr)
+  {
+    newTextEdit = m_BlankStdOutputTextEdit;
+  }
+
+  connect(newTextEdit, &QTextEdit::textChanged, [=] {
+    clearLogBtn->setDisabled(newTextEdit->toPlainText().isEmpty());
+    saveLogBtn->setDisabled(newTextEdit->toPlainText().isEmpty());
+  });
+
+  clearLogBtn->setDisabled(newTextEdit->toPlainText().isEmpty());
+  saveLogBtn->setDisabled(newTextEdit->toPlainText().isEmpty());
+
+  verticalLayout->insertWidget(0, newTextEdit);
+  newTextEdit->show();
+  m_CurrentStdOutputTextEdit = newTextEdit;
 }
 
 // -----------------------------------------------------------------------------
@@ -158,7 +168,5 @@ void StandardOutputWidget::setText(const QString &text)
 // -----------------------------------------------------------------------------
 void StandardOutputWidget::clear()
 {
-  stdOutTextEdit->clear();
-  clearLogBtn->setDisabled(true);
-  saveLogBtn->setDisabled(true);
+  m_CurrentStdOutputTextEdit->clear();
 }
