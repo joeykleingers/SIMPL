@@ -168,17 +168,20 @@ void PipelineItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         break;
     }
 
-    switch(eState)
+    if (wState == PipelineItem::WidgetState::Ready)
     {
-      case PipelineItem::ErrorState::Ok:
+      switch(eState)
+      {
+        case PipelineItem::ErrorState::Ok:
 
-        break;
-      case PipelineItem::ErrorState::Error:
-        indexBackgroundColor = QColor(179, 2, 5);
-        break;
-      case PipelineItem::ErrorState::Warning:
-        indexBackgroundColor = QColor(232, 189, 0);
-        break;
+          break;
+        case PipelineItem::ErrorState::Error:
+          indexBackgroundColor = QColor(179, 2, 5);
+          break;
+        case PipelineItem::ErrorState::Warning:
+          indexBackgroundColor = QColor(232, 189, 0);
+          break;
+      }
     }
   }
 

@@ -138,15 +138,6 @@ PipelineMessage PipelineMessage::CreateWarningMessage(const QString className, c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineMessage PipelineMessage::CreateStandardOutputMessage(const QString humanLabel, int pipelineIndex, const QString msg)
-{
-  PipelineMessage em(humanLabel, pipelineIndex, msg, MessageType::StandardOutputMessage);
-  return em;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 PipelineMessage::~PipelineMessage() = default;
 
 // -----------------------------------------------------------------------------

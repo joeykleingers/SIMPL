@@ -180,8 +180,8 @@ void MoveFilterCommand::redo()
   emit m_PipelineView->preflightPipeline();
   emit model->pipelineDataChanged(QModelIndex());
 
-  emit model->statusMessageGenerated(statusMessage);
-  emit model->standardOutputMessageGenerated(statusMessage);
+  m_PipelineView->addStatusBarMessage(statusMessage);
+  m_PipelineView->addStandardOutputMessage(statusMessage);
 }
 
 // -----------------------------------------------------------------------------

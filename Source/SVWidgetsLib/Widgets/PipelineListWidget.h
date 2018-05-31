@@ -56,6 +56,12 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
      */
     void setProgressValue(float percent);
 
+    /**
+     * @brief setActive
+     * @param active
+     */
+    void setActive(bool active);
+
   public slots:
     /**
      * @brief on_startPipelineBtn_clicked
@@ -79,10 +85,18 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
      */
     void setupGui();
 
+  protected slots:
+    /**
+     * @brief processPipelineMessage
+     * @param msg
+     */
+    void processPipelineMessage(const PipelineMessage& msg);
+
   signals:
     void pipelineCanceled(const QModelIndex &pipelineIndex);
 
   private:
+    bool m_Active = false;
 
     /**
      * @brief getStartPipelineIdleStyle

@@ -58,7 +58,6 @@ class SIMPLib_EXPORT PipelineMessage
       Error = 0,
       Warning = 1,
       StatusMessage = 2,
-      StandardOutputMessage = 3,
       ProgressValue = 4,
       StatusMessageAndProgressValue = 5,
       UnknownMessageType = 6
@@ -80,9 +79,6 @@ class SIMPLib_EXPORT PipelineMessage
     static PipelineMessage CreateStatusMessage(const QString className, const QString humanLabel, const QString msg);
 
     static PipelineMessage CreateWarningMessage(const QString className, const QString humanLabel, const QString msg, int code);
-
-    static PipelineMessage CreateStandardOutputMessage(const QString humanLabel, int pipelineIndex, const QString msg);
-
 
     SIMPL_TYPE_MACRO(PipelineMessage)
 

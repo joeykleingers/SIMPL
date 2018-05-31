@@ -101,29 +101,20 @@ void IssuesWidget::clearIssues()
 {
   ui->errorTableWidget->clearContents();
   ui->errorTableWidget->setRowCount(0);
-  m_CachedMessages.clear();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void IssuesWidget::processPipelineMessage(const PipelineMessage& msg)
-{
-  m_CachedMessages.push_back(msg);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void IssuesWidget::displayCachedMessages()
+void IssuesWidget::displayCachedMessages(QVector<PipelineMessage> messages)
 {
   // Figure out how many error and warning messages that we have. We ignore the rest
   int count = 0;
   int warnCount = 0;
   int errCount = 0;
-  for(int i = 0; i < m_CachedMessages.size(); i++)
+  for(int i = 0; i < messages.size(); i++)
   {
-    PipelineMessage msg = m_CachedMessages[i];
+    PipelineMessage msg = messages[i];
     switch(msg.getType())
     {
     case PipelineMessage::MessageType::Error:
@@ -135,7 +126,6 @@ void IssuesWidget::displayCachedMessages()
       warnCount++;
       break;
     case PipelineMessage::MessageType::StatusMessage:
-    case PipelineMessage::MessageType::StandardOutputMessage:
     case PipelineMessage::MessageType::ProgressValue:
     case PipelineMessage::MessageType::StatusMessageAndProgressValue:
     case PipelineMessage::MessageType::UnknownMessageType:
@@ -161,9 +151,9 @@ void IssuesWidget::displayCachedMessages()
   QLabel* hyperlinkLabel = nullptr;
 
   // Add in the content for the cells of the table.
-  for(int j = 0; j < m_CachedMessages.size(); j++)
+  for(int j = 0; j < messages.size(); j++)
   {
-    PipelineMessage msg = m_CachedMessages[j];
+    PipelineMessage msg = messages[j];
     // Create error hyperlink
     updateRow = false;
     switch(msg.getType())
@@ -177,7 +167,6 @@ void IssuesWidget::displayCachedMessages()
       updateRow = true;
       break;
     case PipelineMessage::MessageType::StatusMessage:
-    case PipelineMessage::MessageType::StandardOutputMessage:
     case PipelineMessage::MessageType::ProgressValue:
     case PipelineMessage::MessageType::StatusMessageAndProgressValue:
     case PipelineMessage::MessageType::UnknownMessageType:

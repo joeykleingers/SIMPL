@@ -143,8 +143,8 @@ void AddFilterCommand::undo()
 
   emit m_PipelineView->pipelineChanged();
 
-  emit m_PipelineView->statusMessage(statusMessage);
-  emit m_PipelineView->stdOutMessage(statusMessage);
+  m_PipelineView->addStatusBarMessage(statusMessage);
+  m_PipelineView->addStandardOutputMessage(statusMessage);
 }
 
 // -----------------------------------------------------------------------------
@@ -156,8 +156,6 @@ void AddFilterCommand::redo()
   {
     return;
   }
-
-  PipelineModel* model = m_PipelineView->getPipelineModel();
 
   for(size_t i = 0; i < m_Filters.size(); i++)
   {
@@ -187,8 +185,8 @@ void AddFilterCommand::redo()
     m_FirstRun = false;
   }
 
-  emit model->statusMessageGenerated(statusMessage);
-  emit model->standardOutputMessageGenerated(statusMessage);
+  m_PipelineView->addStatusBarMessage(statusMessage);
+  m_PipelineView->addStandardOutputMessage(statusMessage);
 }
 
 // -----------------------------------------------------------------------------

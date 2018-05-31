@@ -99,6 +99,18 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void addPipelineMessageObserver(QObject* pipelineMessageObserver);
 
     /**
+     * @brief addStatusBarMessage
+     * @param msg
+     */
+    void addStatusBarMessage(const QString & msg);
+
+    /**
+     * @brief addStandardOutputMessage
+     * @param msg
+     */
+    void addStandardOutputMessage(const QString &msg);
+
+    /**
      * @brief filterCount
      * @return
      */
@@ -210,6 +222,24 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      */
     QPixmap getHighDPIDeleteBtnHoveredPixmap(bool highlighted = false);
 
+    /**
+     * @brief setActive
+     * @param active
+     */
+    void setActive(bool active);
+
+    /**
+     * @brief getCurrentIssues
+     * @return
+     */
+    QVector<PipelineMessage> getCurrentIssues();
+
+    /**
+     * @brief getStdOutputTextEdit
+     * @return
+     */
+    QTextEdit* getStdOutputTextEdit();
+
   public slots:
     /**
      * @brief Adds a filter with the specified filterClassName to the current model
@@ -317,7 +347,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void toStoppedState();
 
   signals:
-    void displayIssuesTriggered();
+    void displayIssuesTriggered(QVector<PipelineMessage> messages);
     void clearIssuesTriggered();
     void clearDataStructureWidgetTriggered();
 
@@ -330,10 +360,12 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 
     void filterParametersChanged(AbstractFilter::Pointer filter);
 
+    void pipelineActivated();
+    void pipelineDeleting();
+
     void pipelineStarted();
     void pipelineFinished();
 
-    void pipelineHasMessage(const PipelineMessage &msg);
     void pipelineFilePathUpdated(const QString &name);
     void pipelineChanged();
     void filePathOpened(const QString &filePath);
@@ -346,8 +378,12 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 
     void deleteKeyPressed();
 
+    void cutAvailabilityChanged(bool enabled);
+    void copyAvailabilityChanged(bool enabled);
+    void pasteAvailabilityChanged(bool enabled);
+    void clearPipelineAvailabilityChanged(bool enabled);
+
     void statusMessage(const QString& message);
-    void stdOutMessage(const QString& message);
 
   protected:
     void setupGui();
@@ -372,6 +408,16 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void setSelectedFiltersEnabled(bool enabled);
 
   protected slots:
+    /**
+     * @brief processPipelineMessage
+     * @param msg
+     */
+    void processPipelineMessage(const PipelineMessage& msg);
+
+    /**
+     * @brief requestContextMenu
+     * @param pos
+     */
     void requestContextMenu(const QPoint& pos);
 
     /**
@@ -407,17 +453,14 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      */
     void finishPipeline();
 
-    /**
-     * @brief processPipelineMessage
-     * @param msg
-     */
-    void processPipelineMessage(const PipelineMessage& msg);
-
   private:
     QThread*                                          m_WorkerThread = nullptr;
+    QVector<PipelineMessage>                          m_CachedIssues;
+    QTextEdit*                                        m_StdOutputTextEdit = nullptr;
     FilterPipeline::Pointer                           m_PipelineInFlight;
     QVector<DataContainerArray::Pointer>              m_PreflightDataContainerArrays;
     QList<QObject*>                                   m_PipelineMessageObservers;
+    bool                                              m_Active = false;
 
     bool                                              m_PipelineRunning = false;
 
@@ -486,18 +529,6 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      * @param pos
      */
     void requestPipelineItemContextMenu(const QPoint &pos);
-
-    /**
-     * @brief requestSinglePipelineContextMenu
-     * @param menu
-     */
-    void requestSinglePipelineContextMenu(QMenu &menu);
-
-    /**
-     * @brief requestDefaultContextMenu
-     * @param pos
-     */
-    void requestDefaultContextMenu(const QPoint &pos);
 
     /**
      * @brief addDropIndicator

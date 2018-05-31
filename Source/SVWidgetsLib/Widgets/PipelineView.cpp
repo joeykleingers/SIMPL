@@ -50,7 +50,12 @@ PipelineView::PipelineView()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineView::~PipelineView() = default;
+PipelineView::~PipelineView()
+{
+  // These signals need to be blocked so that the "changed" signal isn't fired when these actions are deleted.
+  m_ActionUndo->blockSignals(true);
+  m_ActionRedo->blockSignals(true);
+}
 
 // -----------------------------------------------------------------------------
 //

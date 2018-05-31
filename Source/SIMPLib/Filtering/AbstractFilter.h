@@ -327,14 +327,6 @@ public:
   void notifyStatusMessage(const QString& humanLabel, const QString& ss) override;
 
   /**
-   * @brief notifyStandardOutputMessage
-   * @param humanLabel
-   * @param pipelineIndex
-   * @param ss
-   */
-  void notifyStandardOutputMessage(const QString& humanLabel, int pipelineIndex, const QString& ss) override;
-
-  /**
    * @brief notifyStatusMessage
    * @param prefix
    * @param humanLabel

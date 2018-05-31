@@ -69,10 +69,6 @@ void IObserver::processPipelineMessage(const PipelineMessage& pm)
   {
     ss << msg.generateStatusString();
   }
-  else if(msg.getType() == PipelineMessage::MessageType::StandardOutputMessage)
-  {
-    ss << msg.generateStandardOutputString();
-  }
   else if(msg.getType() == PipelineMessage::MessageType::ProgressValue)
   {
     ss << msg.getProgressValue() << "%";
