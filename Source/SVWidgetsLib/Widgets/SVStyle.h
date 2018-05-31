@@ -113,7 +113,13 @@ class SVWidgetsLib_EXPORT SVStyle : public QObject
     Q_PROPERTY(QColor QDockWidgetTitle_background_color READ getQDockWidgetTitle_background_color WRITE setQDockWidgetTitle_background_color)    
     
     SIMPL_INSTANCE_PROPERTY(QColor, QDockWidgetTitle_color)    
-    Q_PROPERTY(QColor QDockWidgetTitle_color READ getQDockWidgetTitle_color WRITE setQDockWidgetTitle_color)    
+    Q_PROPERTY(QColor QDockWidgetTitle_color READ getQDockWidgetTitle_color WRITE setQDockWidgetTitle_color)
+
+    SIMPL_INSTANCE_PROPERTY(QColor, SIMPLViewPipelineDockWidgetTitle_inactive_background_color)
+    Q_PROPERTY(QColor SIMPLViewPipelineDockWidgetTitle_inactive_background_color READ getSIMPLViewPipelineDockWidgetTitle_inactive_background_color WRITE setSIMPLViewPipelineDockWidgetTitle_inactive_background_color)
+
+    SIMPL_INSTANCE_PROPERTY(QColor, SIMPLViewPipelineDockWidgetTitle_inactive_text_color)
+    Q_PROPERTY(QColor SIMPLViewPipelineDockWidgetTitle_inactive_text_color READ getSIMPLViewPipelineDockWidgetTitle_inactive_text_color WRITE setSIMPLViewPipelineDockWidgetTitle_inactive_text_color)
     
     SIMPL_INSTANCE_PROPERTY(QColor, QListView_background_color)    
     Q_PROPERTY(QColor QListView_background_color READ getQListView_background_color WRITE setQListView_background_color)    
