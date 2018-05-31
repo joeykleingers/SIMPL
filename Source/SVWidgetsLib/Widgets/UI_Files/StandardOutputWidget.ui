@@ -62,7 +62,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../icons/images/Icons.qrc">
-         <normaloff>:/ban.png</normaloff>:/ban.png</iconset>
+         <normaloff>:/SIMPL/icons/images/ban.png</normaloff>:/ban.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -110,7 +110,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../icons/images/Icons.qrc">
-         <normaloff>:/data-transfer-download.png</normaloff>:/data-transfer-download.png</iconset>
+         <normaloff>:/SIMPL/icons/images/data-transfer-download.png</normaloff>:/data-transfer-download.png</iconset>
        </property>
        <property name="iconSize">
         <size>
