@@ -51,7 +51,7 @@ FilterPipeline::FilterPipeline()
 , m_ErrorCondition(0)
 , m_Cancel(false)
 , m_PipelineName("")
-, m_Dca(nullptr)
+, m_Dca(DataContainerArray::New())
 {
 }
 
@@ -308,6 +308,7 @@ DataContainerArray::Pointer FilterPipeline::run()
 {
   m_Dca = execute();
 
+  emit pipelineOutput(m_Dca);
   emit pipelineFinished();
 
   return m_Dca;
@@ -656,12 +657,21 @@ DataContainerArray::Pointer FilterPipeline::execute()
     emit filt->filterCompleted(filt.get());
   }
 
+  // Emit the DataContainerArray only if no errors have occured
+  emit pipelineOutput(m_Dca);
+
   emit pipelineFinished();
 
   disconnectSignalsSlots();
 
   PipelineMessage completeMessage("", "Pipeline Complete", 0, PipelineMessage::MessageType::StatusMessage, -1);
   emit pipelineGeneratedMessage(completeMessage);
+
+  // Connect this object to anything that wants to know about PipelineMessages
+  for(int i = 0; i < m_MessageReceivers.size(); i++)
+  {
+    disconnect(this, SIGNAL(pipelineGeneratedMessage(const PipelineMessage&)), m_MessageReceivers.at(i), SLOT(processPipelineMessage(const PipelineMessage&)));
+  }
 
   return m_Dca;
 }
@@ -709,4 +719,12 @@ void FilterPipeline::disconnectSignalsSlots()
 DataContainerArray::Pointer FilterPipeline::getDataContainerArray()
 {
   return m_Dca;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void FilterPipeline::clearDataContainerArray()
+{
+  m_Dca = DataContainerArray::NullPointer();
 }

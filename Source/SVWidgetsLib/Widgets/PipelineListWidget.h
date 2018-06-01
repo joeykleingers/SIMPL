@@ -94,6 +94,7 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
 
   signals:
     void pipelineCanceled(const QModelIndex &pipelineIndex);
+    void pipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
   private:
     bool m_Active = false;

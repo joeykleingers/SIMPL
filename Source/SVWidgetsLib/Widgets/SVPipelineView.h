@@ -142,11 +142,24 @@ public:
   PipelineModel* getPipelineModel();
 
   /**
-   * @brief getFilterPipeline
-   * @param pipelineIndex
+   * @brief Returns a new FilterPipeline with deep copies of the current filters.
    * @return
    */
-  FilterPipeline::Pointer getFilterPipeline();
+  FilterPipeline::Pointer getFilterPipelineCopy();
+
+  /**
+  * @brief Returns the saved FilterPipeline being operated on by the view.  
+  * This pipeline is updated on Save, Save As, and when opeining bookmarks.
+  * This pipeline does not keep track of changes made between those times.
+  * @return
+  */
+  FilterPipeline::Pointer getSavedFilterPipeline();
+
+  /**
+   * @brief Returns the pipeline name
+   * @return
+   */
+  QString getPipelineName();
 
   /**
    * @brief writePipeline
@@ -240,6 +253,8 @@ public:
   QTextEdit* getStdOutputTextEdit();
 
 public slots:
+  void setPipelineName(QString name);
+
   /**
    * @brief Adds a filter with the specified filterClassName to the current model
    * @param filterClassName
@@ -365,6 +380,8 @@ signals:
   void pipelineStarted();
   void pipelineFinished();
 
+  void pipelineHasMessage(const PipelineMessage& msg);
+
   void pipelineFilePathUpdated(const QString& name);
   void pipelineChanged();
   void filePathOpened(const QString& filePath);
@@ -383,12 +400,17 @@ signals:
   void clearPipelineAvailabilityChanged(bool enabled);
 
   void statusMessage(const QString& message);
+    
+  void pipelineOutput(FilterPipeline::Pointer pipeline, DataContainerArray::Pointer dca);
 
 protected:
   void setupGui();
 
   void connectSignalsSlots();
 
+  void updatePipelineFromView(FilterPipeline::Pointer pipeline);
+  void updateLocalTempPipeline();
+    
   /**
    * @brief beginDrag
    * @param event
@@ -407,12 +429,6 @@ protected:
   void setSelectedFiltersEnabled(bool enabled);
 
 protected slots:
-  /**
-   * @brief processPipelineMessage
-   * @param msg
-   */
-  void processPipelineMessage(const PipelineMessage& msg);
-
   /**
    * @brief requestContextMenu
    * @param pos
@@ -451,17 +467,31 @@ private slots:
    * @param pipelineIndex
    */
   void finishPipeline();
+    
+  /**
+   * @brief endPipelineThread
+   */
+  void endPipelineThread();
+
+  /**
+   * @brief processPipelineMessage
+   * @param msg
+   */
+  void processPipelineMessage(const PipelineMessage& msg);
 
 private:
   QThread* m_WorkerThread = nullptr;
   QVector<PipelineMessage> m_CachedIssues;
   QTextEdit* m_StdOutputTextEdit = nullptr;
+  QMetaObject::Connection m_PipelineConnection;
   FilterPipeline::Pointer m_PipelineInFlight;
   QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
   QList<QObject*> m_PipelineMessageObservers;
+    
   bool m_Active = false;
-
   bool m_PipelineRunning = false;
+
+  QString m_CurrentPath;
 
   QUndoCommand* m_MoveCommand = nullptr;
   QPoint m_DragStartPosition;
@@ -474,6 +504,9 @@ private:
   QAction* m_ActionCopy = nullptr;
   QAction* m_ActionPaste = nullptr;
   QAction* m_ActionClearPipeline = new QAction("Clear Pipeline", this);
+
+  FilterPipeline::Pointer m_SavedPipeline = nullptr;
+  FilterPipeline::Pointer m_TempPipeline = nullptr;
 
   QPixmap m_DisableBtnPixmap;
   QPixmap m_DisableHighlightedPixmap;

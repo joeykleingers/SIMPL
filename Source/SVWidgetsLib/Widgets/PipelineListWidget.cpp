@@ -60,6 +60,8 @@ void PipelineListWidget::setupGui()
   startPipelineBtn->setDisabled(true);
 
   pipelineView->addPipelineMessageObserver(this);
+
+  connect(pipelineView, &SVPipelineView::pipelineOutput, this, &PipelineListWidget::pipelineOutput);
 }
 
 // -----------------------------------------------------------------------------
