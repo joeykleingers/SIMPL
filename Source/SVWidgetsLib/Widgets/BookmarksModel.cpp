@@ -798,7 +798,6 @@ void BookmarksModel::readPrebuiltPipelines()
   QDir pipelinesDir = findPipelinesDirectory();
   QString pPath = pipelinesDir.absolutePath();
 
-  FilterLibraryTreeWidget::ItemType itemType = FilterLibraryTreeWidget::Leaf_Item_Type;
   QString iconFileName(":/SIMPL/icons/images/bookmark.png");
   bool allowEditing = false;
   QStringList fileExtension;
@@ -811,7 +810,7 @@ void BookmarksModel::readPrebuiltPipelines()
   bool expanded = prebuiltsObject["Expanded"].toBool();
   QModelIndex index = addTreeItem(QModelIndex(), dirName, QIcon(":/SIMPL/icons/images/folder_blue.png"), pPath, 0, BookmarksItem::ItemType::Folder, expanded);
 
-  addPipelinesRecursively(pipelinesDir, index, prebuiltsObject, iconFileName, allowEditing, fileExtension, itemType);
+  addPipelinesRecursively(pipelinesDir, index, prebuiltsObject, iconFileName, allowEditing, fileExtension);
 }
 
 // -----------------------------------------------------------------------------
@@ -868,7 +867,7 @@ QDir BookmarksModel::findPipelinesDirectory()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void BookmarksModel::addPipelinesRecursively(QDir currentDir, QModelIndex parent, QJsonObject prebuiltsObj, QString iconFileName, bool allowEditing, QStringList filters, FilterLibraryTreeWidget::ItemType itemType)
+void BookmarksModel::addPipelinesRecursively(QDir currentDir, QModelIndex parent, QJsonObject prebuiltsObj, QString iconFileName, bool allowEditing, QStringList filters)
 {
   QModelIndex nextIndex;
 
@@ -890,7 +889,7 @@ void BookmarksModel::addPipelinesRecursively(QDir currentDir, QModelIndex parent
       bool expanded = folderPrefsObj["Expanded"].toBool();
       nextIndex = addTreeItem(parent, baseName, QIcon(":/SIMPL/icons/images/folder_blue.png"), fi.absoluteFilePath(), row, BookmarksItem::ItemType::Folder, expanded);
 
-      addPipelinesRecursively(QDir(fi.absoluteFilePath()), nextIndex, folderPrefsObj, iconFileName, allowEditing, filters, itemType); // Recursive call
+      addPipelinesRecursively(QDir(fi.absoluteFilePath()), nextIndex, folderPrefsObj, iconFileName, allowEditing, filters); // Recursive call
     }
   }
 

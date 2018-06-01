@@ -163,7 +163,7 @@ class SVWidgetsLib_EXPORT BookmarksModel : public QAbstractItemModel
     QDir findPipelinesDirectory();
 
     void addPipelinesRecursively(QDir currentDir, QModelIndex parent, QJsonObject prebuiltsObj, QString iconFileName,
-                                 bool allowEditing, QStringList filters, FilterLibraryTreeWidget::ItemType itemType);
+                                 bool allowEditing, QStringList filters);
 
   protected slots:
     void updateRowState(const QString& path);
