@@ -91,13 +91,10 @@
 #include "SVWidgetsLib/Widgets/PipelineItemDelegate.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/ProgressDialog.h"
+#include "SVWidgetsLib/Widgets/SVStyle.h"
 #include "SVWidgetsLib/Widgets/util/AddFilterCommand.h"
 #include "SVWidgetsLib/Widgets/util/MoveFilterCommand.h"
 #include "SVWidgetsLib/Widgets/util/RemoveFilterCommand.h"
-#include "SVWidgetsLib/Widgets/DataStructureWidget.h"
-#include "SVWidgetsLib/Widgets/ProgressDialog.h"
-#include "SVWidgetsLib/Widgets/SVStyle.h"
-#include "SVWidgetsLib/QtSupport/QtSRecentFileList.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -557,11 +554,11 @@ void SVPipelineView::finishPipeline()
 // -----------------------------------------------------------------------------
 void SVPipelineView::processPipelineMessage(const PipelineMessage& msg)
 {
-  if (msg.getType() == PipelineMessage::MessageType::Error || msg.getType() == PipelineMessage::MessageType::Warning)
+  if(msg.getType() == PipelineMessage::MessageType::Error || msg.getType() == PipelineMessage::MessageType::Warning)
   {
     m_CachedIssues.push_back(msg);
   }
-  else if (msg.getType() == PipelineMessage::MessageType::StatusMessage || msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue)
+  else if(msg.getType() == PipelineMessage::MessageType::StatusMessage || msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue)
   {
     addStatusBarMessage(msg.generateStatusString());
     addStandardOutputMessage(msg.getText());
@@ -1453,7 +1450,7 @@ void SVPipelineView::toReadyState()
   for(int i = 0; i < model->rowCount(); i++)
   {
     QModelIndex index = model->index(i, PipelineItem::Contents);
-    
+
     // Do not set state to Completed if the filter is disabled
     PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(model->data(index, PipelineModel::WidgetStateRole).toInt());
     if(wState != PipelineItem::WidgetState::Disabled)
@@ -1816,11 +1813,11 @@ void SVPipelineView::requestPipelineItemContextMenu(const QPoint& pos)
   menu.addSeparator();
   menu.addAction(m_ActionClearPipeline);
   menu.addSeparator();
-    
+
   QAction* actionDeletePipeline = new QAction("Delete Pipeline");
   connect(actionDeletePipeline, &QAction::triggered, this, &SVPipelineView::pipelineDeleting);
   menu.addAction(actionDeletePipeline);
-    
+
   menu.exec(pos);
 }
 
@@ -2154,7 +2151,7 @@ QPixmap SVPipelineView::setPixmapColor(QPixmap pixmap, QColor pixmapColor)
 
       color.setAlpha(alpha);
 
-      if (color.isValid())
+      if(color.isValid())
       {
         image.setPixelColor(x, y, color);
       }
@@ -2191,9 +2188,9 @@ QTextEdit* SVPipelineView::getStdOutputTextEdit()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineView::addStatusBarMessage(const QString & msg)
+void SVPipelineView::addStatusBarMessage(const QString& msg)
 {
-  if (m_Active)
+  if(m_Active)
   {
     emit statusMessage(msg);
   }
@@ -2202,7 +2199,7 @@ void SVPipelineView::addStatusBarMessage(const QString & msg)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineView::addStandardOutputMessage(const QString &msg)
+void SVPipelineView::addStandardOutputMessage(const QString& msg)
 {
   m_StdOutputTextEdit->append(msg);
 }
