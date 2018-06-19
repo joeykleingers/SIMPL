@@ -117,7 +117,7 @@ class SVWidgetsLib_EXPORT FilterListToolboxWidget : public QWidget, private Ui::
     void setupSearchField();
 
   signals:
-    void filterItemDoubleClicked(const QString& filterName, int insertIndex = -1, bool useAnimationOnFirstRun = true);
+    void filterItemDoubleClicked(const QString& filterName, int insertIndex = -1);
 
   private:
     QMenu* m_ContextMenu;

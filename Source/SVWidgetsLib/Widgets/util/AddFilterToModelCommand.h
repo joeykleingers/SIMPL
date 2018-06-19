@@ -33,52 +33,55 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _removefiltercommand_h_
-#define _removefiltercommand_h_
+#pragma once
 
 #include <QtCore/QModelIndex>
-#include <QtCore/QUuid>
-#include <QtCore/QVariant>
 
 #include <QtWidgets/QUndoCommand>
 
-#include "SIMPLib/Filtering/AbstractFilter.h"
+#include <SIMPLib/Filtering/AbstractFilter.h>
+#include <SIMPLib/Filtering/FilterPipeline.h>
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
+class PipelineFilterObject;
 class PipelineModel;
-class SVPipelineView;
+class QPushButton;
 
-class SVWidgetsLib_EXPORT RemoveFilterCommand : public QUndoCommand
+class SVWidgetsLib_EXPORT AddFilterToModelCommand : public QUndoCommand
 {
 public:
-  RemoveFilterCommand(AbstractFilter::Pointer filter, SVPipelineView* view, QString actionText, bool useAnimationOnFirstRun = true, QUndoCommand* parent = 0);
-  RemoveFilterCommand(std::vector<AbstractFilter::Pointer> filters, SVPipelineView* view, QString actionText, bool useAnimationOnFirstRun = true, QUndoCommand* parent = 0);
-  virtual ~RemoveFilterCommand();
+  AddFilterToModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, int insertIndex, QModelIndex pipelineIndex, QString actionText, QUndoCommand* parent = nullptr);
 
-  virtual void undo();
+  AddFilterToModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, int insertIndex, QModelIndex pipelineIndex, QString actionText, QUndoCommand* parent = nullptr);
 
-  virtual void redo();
+  ~AddFilterToModelCommand() override;
+
+  void undo() override;
+
+  void redo() override;
 
 private:
-  SVPipelineView* m_PipelineView = nullptr;
   std::vector<AbstractFilter::Pointer> m_Filters;
+  QString m_ActionText;
+  PipelineModel* m_PipelineModel = nullptr;
+  QModelIndex m_PipelineIndex;
   std::vector<int> m_FilterRows;
   bool m_FirstRun = true;
-  bool m_UseAnimationOnFirstRun = true;
 
   /**
    * @brief addFilter
    * @param filter
-   * @param insertionIndex
+   * @param parentIndex
    */
   void addFilter(AbstractFilter::Pointer filter, int insertionIndex = -1);
 
   /**
    * @brief removeFilter
-   * @param row
+   * @param filterIndex
+   * @param pipelineIndex
    */
-  void removeFilter(AbstractFilter::Pointer filter);
+  void removeFilter(const QPersistentModelIndex& index);
 
   /**
    * @brief connectFilterSignalsSlots
@@ -92,8 +95,6 @@ private:
    */
   void disconnectFilterSignalsSlots(AbstractFilter::Pointer filter);
 
-  RemoveFilterCommand(const RemoveFilterCommand&) = delete; // Copy Constructor Not Implemented
-  void operator=(const RemoveFilterCommand&) = delete;      // Move assignment Not Implemented
+  AddFilterToModelCommand(const AddFilterToModelCommand&) = delete; // Copy Constructor Not Implemented
+  void operator=(const AddFilterToModelCommand&) = delete;   // Move assignment Not Implemented
 };
-
-#endif /* _removefiltercommand_h_ */

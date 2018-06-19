@@ -35,73 +35,15 @@
 
 #include "PipelineView.h"
 
-#include <QtWidgets/QUndoStack>
-#include <QtWidgets/QUndoCommand>
-#include <QtWidgets/QWidget>
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 PipelineView::PipelineView()
 {
-  setupUndoStack();
+
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 PipelineView::~PipelineView() = default;
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineView::addUndoCommand(QUndoCommand* cmd)
-{
-  m_UndoStack->push(cmd);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineView::setupUndoStack()
-{
-  m_UndoStack = QSharedPointer<QUndoStack>(new QUndoStack());
-  m_UndoStack->setUndoLimit(10);
-
-  m_ActionUndo = m_UndoStack->createUndoAction(m_UndoStack.data());
-  m_ActionRedo = m_UndoStack->createRedoAction(m_UndoStack.data());
-  m_ActionUndo->setShortcut(QKeySequence::Undo);
-  m_ActionRedo->setShortcut(QKeySequence::Redo);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineView::undo()
-{
-  m_UndoStack->undo();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineView::redo()
-{
-  m_UndoStack->redo();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QAction* PipelineView::getActionUndo()
-{
-  return m_ActionUndo;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QAction* PipelineView::getActionRedo()
-{
-  return m_ActionRedo;
-}

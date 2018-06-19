@@ -44,6 +44,13 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
     PipelineListWidget(QWidget* parent = 0);
     virtual ~PipelineListWidget();
 
+    enum class StartButtonState : unsigned int
+    {
+      Idle,
+      Running,
+      Canceling
+    };
+
     /**
      * @brief getPipelineView
      * @return
@@ -68,9 +75,10 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
     void preflightFinished(FilterPipeline::Pointer pipeline, int err);
 
     /**
-     * @brief pipelineFinished
+     * @brief updateStartButtonState
+     * @param state
      */
-    void pipelineFinished();
+    void updateStartButtonState(StartButtonState state);
 
   protected:
 
@@ -81,6 +89,13 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
 
   signals:
     void pipelineCanceled(const QModelIndex &pipelineIndex);
+
+  private slots:
+    /**
+     * @brief processPipelineMessage
+     * @param msg
+     */
+    void processPipelineMessage(const PipelineMessage& msg);
 
   private:
 

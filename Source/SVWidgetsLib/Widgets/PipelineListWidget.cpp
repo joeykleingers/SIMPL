@@ -58,6 +58,31 @@ void PipelineListWidget::setupGui()
 {
   startPipelineBtn->setStyleSheet(getStartPipelineIdleStyle());
   startPipelineBtn->setDisabled(true);
+
+  pipelineView->addPipelineMessageObserver(this);
+
+  connect(pipelineView, &SVPipelineView::preflightFinished, this, &PipelineListWidget::preflightFinished);
+
+  connect(pipelineView, &SVPipelineView::pipelineFinished, [=] { updateStartButtonState(StartButtonState::Idle); });
+
+  connect(this, &PipelineListWidget::pipelineCanceled, [=] { pipelineView->cancelPipeline(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineListWidget::processPipelineMessage(const PipelineMessage& msg)
+{
+  if(msg.getType() == PipelineMessage::MessageType::ProgressValue)
+  {
+    float progValue = static_cast<float>(msg.getProgressValue()) / 100;
+    setProgressValue(progValue);
+  }
+  else if(msg.getType() == PipelineMessage::MessageType::StatusMessageAndProgressValue)
+  {
+    float progValue = static_cast<float>(msg.getProgressValue()) / 100;
+    setProgressValue(progValue);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -68,17 +93,9 @@ void PipelineListWidget::on_startPipelineBtn_clicked()
   PipelineModel* model = pipelineView->getPipelineModel();
   if(startPipelineBtn->text().compare("Cancel Pipeline") == 0)
   {
-    QModelIndex pipelineIndex = model->index(0, PipelineItem::Contents);
-    emit pipelineCanceled(pipelineIndex);
+    emit pipelineCanceled(QModelIndex());
 
-    startPipelineBtn->setText("Canceling...");
-
-//    // Enable FilterListToolboxWidget signals - resume adding filters
-//    getFilterListToolboxWidget()->blockSignals(false);
-
-//    // Enable FilterLibraryToolboxWidget signals - resume adding filters
-//    getFilterLibraryToolboxWidget()->blockSignals(false);
-
+    updateStartButtonState(StartButtonState::Canceling);
     return;
   }
   else if(startPipelineBtn->text().compare("Canceling...") == 0)
@@ -88,10 +105,8 @@ void PipelineListWidget::on_startPipelineBtn_clicked()
 
   if (model->rowCount() > 0)
   {
-    pipelineView->executePipeline();
-    startPipelineBtn->setText("Cancel Pipeline");
-    startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_stop_white.png"));
-    update();
+    pipelineView->executePipeline(QModelIndex());
+    updateStartButtonState(StartButtonState::Running);
   }
 }
 
@@ -113,11 +128,26 @@ void PipelineListWidget::preflightFinished(FilterPipeline::Pointer pipeline, int
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineListWidget::pipelineFinished()
+void PipelineListWidget::updateStartButtonState(StartButtonState state)
 {
-  startPipelineBtn->setText("Start Pipeline");
-  startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_play_white.png"));
-  startPipelineBtn->setStyleSheet(getStartPipelineIdleStyle());
+  if (state == StartButtonState::Idle)
+  {
+    startPipelineBtn->setText("Start Pipeline");
+    startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_play_white.png"));
+    startPipelineBtn->setStyleSheet(getStartPipelineIdleStyle());
+  }
+  else if (state == StartButtonState::Canceling)
+  {
+    startPipelineBtn->setText("Canceling...");
+    startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_stop_white.png"));
+  }
+  else
+  {
+    startPipelineBtn->setText("Cancel Pipeline");
+    startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_stop_white.png"));
+    startPipelineBtn->setStyleSheet(getStartPipelineInProgressStyle(0.0f));
+  }
+  update();
 }
 
 // -----------------------------------------------------------------------------

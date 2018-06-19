@@ -131,7 +131,7 @@ class SVWidgetsLib_EXPORT FilterListView : public QTreeView
     void mouseMoveEvent(QMouseEvent* event) override;
 
   signals:
-    void filterItemDoubleClicked(const QString& filterName, int insertIndex = -1, bool useAnimationOnFirstRun = true);
+    void filterItemDoubleClicked(const QString& filterName, int insertIndex = -1);
 
   private slots:
     /**

@@ -491,7 +491,15 @@ bool PipelineItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
             model->setData(index, static_cast<int>(PipelineItem::WidgetState::Ready), PipelineModel::WidgetStateRole);
           }
 
-          m_View->preflightPipeline();
+          PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt());
+          if (itemType == PipelineItem::ItemType::Filter || itemType == PipelineItem::ItemType::DropIndicator)
+          {
+            m_View->preflightPipeline(index.parent());
+          }
+          else if (itemType == PipelineItem::ItemType::Pipeline)
+          {
+            m_View->preflightPipeline(index);
+          }
           return true;
         }
       }

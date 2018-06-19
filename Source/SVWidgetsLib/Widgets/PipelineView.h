@@ -33,66 +33,24 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 #pragma once
 
-#include <QtCore/QSharedPointer>
-
-#include <QtWidgets/QAction>
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
-class QWidget;
-class QUndoCommand;
-class QUndoStack;
-
-/*
- *
+/**
+ * @brief The PipelineView class
  */
 class SVWidgetsLib_EXPORT PipelineView
 {
   public:
-
-    PipelineView();
     virtual ~PipelineView();
 
-    /**
-     * @brief addUndoCommand
-     * @param cmd
-     */
-    void addUndoCommand(QUndoCommand* cmd);
-
-    /**
-     * @brief undo
-     */
-    void undo();
-
-    /**
-     * @brief redo
-     */
-    void redo();
-
-    /**
-     * @brief getActionUndo
-     * @return
-     */
-    QAction* getActionUndo();
-
-    /**
-     * @brief getActionRedo
-     * @return
-     */
-    QAction* getActionRedo();
+  protected:
+    PipelineView();
 
   private:
-    QSharedPointer<QUndoStack> m_UndoStack;
-    QAction* m_ActionUndo = nullptr;
-    QAction* m_ActionRedo = nullptr;
-
-    /**
-     * @brief setupUndoStack
-     */
-    void setupUndoStack();
 
     PipelineView(const PipelineView&) = delete;   // Copy Constructor Not Implemented
     void operator=(const PipelineView&) = delete; // Move assignment Not Implemented

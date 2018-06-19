@@ -34,6 +34,7 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListWidget.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItemDelegate.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineView.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.h
@@ -88,6 +89,7 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItem.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineView.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarIssuesButton.cpp
@@ -117,15 +119,13 @@ set(SVWidgetsLib_Widgets_UIS
   )
 
 SET(SVWidgetsLib_Widgets_Util_HDRS
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/MoveFilterCommand.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterCommand.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToModelCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterFromModelCommand.h
 )
 
 SET(SVWidgetsLib_Widgets_Util_SRCS
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/MoveFilterCommand.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterCommand.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToModelCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterFromModelCommand.cpp
   )
 
 #-- Only include this widget if we are compiling against QtWebEngine

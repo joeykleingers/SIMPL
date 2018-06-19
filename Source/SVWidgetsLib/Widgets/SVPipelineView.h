@@ -41,23 +41,23 @@
 
 #include <QtCore/QSharedPointer>
 
+#include <QtGui/QPainter>
+
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QListView>
-#include <QtGui/QPainter>
+#include <QtWidgets/QUndoCommand>
 
 #include "SIMPLib/Common/PipelineMessage.h"
 #include "SIMPLib/CoreFilters/DataContainerReader.h"
 #include "SIMPLib/FilterParameters/H5FilterParametersReader.h"
 #include "SIMPLib/FilterParameters/H5FilterParametersWriter.h"
-#include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 #include "SVWidgetsLib/Widgets/PipelineView.h"
-
 #include "SVWidgetsLib/QtSupport/QtSFileDragMessageBox.h"
 
 class QScrollArea;
@@ -70,6 +70,7 @@ class PipelineFilterObject;
 class DataStructureWidget;
 class PipelineModel;
 class QSignalMapper;
+class PipelineViewController;
 
 /*
  *
@@ -79,15 +80,12 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     Q_OBJECT
 
   public:
-    typedef std::pair<int, PipelineFilterObject*> IndexedFilterObject;
-
     SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
 
     SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
     SIMPL_GET_PROPERTY(QAction*, ActionCut)
     SIMPL_GET_PROPERTY(QAction*, ActionCopy)
     SIMPL_GET_PROPERTY(QAction*, ActionPaste)
-    SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
 
     SVPipelineView(QWidget* parent = 0);
     virtual ~SVPipelineView();
@@ -112,13 +110,6 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     int openPipeline(const QString& filePath, int insertIndex = -1);
 
     /**
-     * @brief readPipelineFromFile
-     * @param filePath
-     * @return FilterPipeline::Pointer
-     */
-    FilterPipeline::Pointer readPipelineFromFile(const QString& filePath);
-
-    /**
      * @brief setModel
      * @param model
      */
@@ -129,20 +120,6 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      * @return
      */
     PipelineModel* getPipelineModel();
-
-    /**
-     * @brief getFilterPipeline
-     * @param pipelineIndex
-     * @return
-     */
-    FilterPipeline::Pointer getFilterPipeline();
-
-    /**
-     * @brief writePipeline
-     * @param outputPath
-     * @return
-     */
-    int writePipeline(const QString &outputPath);
 
     /**
      * @brief isPipelineCurrentlyRunning
@@ -215,45 +192,45 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      * @brief Adds a filter with the specified filterClassName to the current model
      * @param filterClassName
      */
-    void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1, bool useAnimationOnFirstRun = true);
+    void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1);
 
     /**
      * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
      * the filter gets appended to the end of the model
      * @param filter
      */
-    void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1, bool useAnimationOnFirstRun = true);
+    void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1);
 
     /**
      * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
      * the filters get appended to the end of the model
      * @param filters
      */
-    void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1, bool useAnimationOnFirstRun = true);
+    void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1);
 
     /**
      * @brief Removes filter from the current model
      * @param filter
      */
-    void removeFilter(AbstractFilter::Pointer filter, bool useAnimationOnFirstRun = true);
+    void removeFilter(AbstractFilter::Pointer filter);
 
     /**
      * @brief Removes multiple filters from the current model
      * @param filters
      */
-    void removeFilters(std::vector<AbstractFilter::Pointer> filters, bool useAnimationOnFirstRun = true);
+    void removeFilters(std::vector<AbstractFilter::Pointer> filters);
 
     /**
      * @brief Cuts filter from the current model
      * @param filter
      */
-    void cutFilter(AbstractFilter::Pointer filter, bool useAnimationOnFirstRun = true);
+    void cutFilter(AbstractFilter::Pointer filter);
 
     /**
      * @brief Cuts multiple filters from the current model
      * @param filters
      */
-    void cutFilters(std::vector<AbstractFilter::Pointer> filters, bool useAnimationOnFirstRun = true);
+    void cutFilters(std::vector<AbstractFilter::Pointer> filters);
 
     /**
      * @brief Copies the currently selected filters from the current model into the system clipboard
@@ -264,20 +241,19 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      * @brief Pastes multiple filters from the system clipboard to the current model
      * @param insertIndex
      */
-    void pasteFilters(int insertIndex = -1, bool useAnimationOnFirstRun = true);
+    void pasteFilters(int insertIndex = -1);
 
     /**
      * @brief preflightPipeline
-     * @param pipelineIndex
+     * @param pipelineRootIndex
      */
-    void preflightPipeline();
+    void preflightPipeline(const QModelIndex &pipelineRootIndex);
 
     /**
-     * @brief runPipeline
-     * @param pipelineIndex
-     * @param model
+     * @brief executePipeline
+     * @param pipelineRootIndex
      */
-    void executePipeline();
+    void executePipeline(const QModelIndex &pipelineRootIndex);
 
     /**
      * @brief cancelPipeline
@@ -286,56 +262,20 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void cancelPipeline();
 
     /**
-     * @brief Update the indices of all FilterInputWidgets
+     * @brief clearPipeline
+     * @param pipelineRootIndex
      */
-    void updateFilterInputWidgetIndices();
-
-    /**
-     * @brief Should be block this class from either emitting a preflight signal or otherwise running a preflight.
-     * @param b
-     */
-    void blockPreflightSignals(bool b);
-
-    /**
-    * @brief clearPipeline
-    */
-    void clearPipeline();
-
-    /**
-     * @brief toReadyState
-     */
-    void toReadyState();
-
-    /**
-     * @brief toRunningState
-     */
-    void toRunningState();
-
-    /**
-     * @brief toStoppedState
-     */
-    void toStoppedState();
+    void clearPipeline(const QModelIndex &pipelineRootIndex);
 
   signals:
-    void displayIssuesTriggered();
-    void clearIssuesTriggered();
     void clearDataStructureWidgetTriggered();
-
-    void writeSIMPLViewSettingsTriggered();
 
     void addPlaceHolderFilter(QPoint p);
     void removePlaceHolderFilter();
 
     void preflightFinished(FilterPipeline::Pointer pipeline, int err);
-
-    void filterParametersChanged(AbstractFilter::Pointer filter);
-
-    void pipelineStarted();
     void pipelineFinished();
 
-    void pipelineHasMessage(const PipelineMessage &msg);
-    void pipelineFilePathUpdated(const QString &name);
-    void pipelineChanged();
     void filePathOpened(const QString &filePath);
 
     void filterInputWidgetNeedsCleared();
@@ -345,9 +285,6 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void filterEnabledStateChanged();
 
     void deleteKeyPressed();
-
-    void statusMessage(const QString& message);
-    void stdOutMessage(const QString& message);
 
   protected:
     void setupGui();
@@ -372,12 +309,16 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void setSelectedFiltersEnabled(bool enabled);
 
   protected slots:
-    void requestContextMenu(const QPoint& pos);
-
     /**
      * @brief updatePasteAvailability
      */
     void updatePasteAvailability();
+
+    /**
+     * @brief requestContextMenu
+     * @param pos
+     */
+    void requestContextMenu(const QPoint& pos);
 
     /**
      * @brief Slot that executes when the delete key gets pressed
@@ -401,37 +342,23 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      */
     void listenFilterCompleted(AbstractFilter *filter);
 
-    /**
-     * @brief finishPipeline
-     * @param pipelineIndex
-     */
-    void finishPipeline();
-
-    /**
-     * @brief processPipelineMessage
-     * @param msg
-     */
-    void processPipelineMessage(const PipelineMessage& msg);
-
   private:
-    QThread*                                          m_WorkerThread = nullptr;
-    FilterPipeline::Pointer                           m_PipelineInFlight;
-    QVector<DataContainerArray::Pointer>              m_PreflightDataContainerArrays;
-    QList<QObject*>                                   m_PipelineMessageObservers;
+    PipelineViewController* m_PipelineViewController = nullptr;
 
-    bool                                              m_PipelineRunning = false;
+    QUndoCommand* m_MoveCommand = nullptr;
 
-    QUndoCommand*                                     m_MoveCommand = nullptr;
-    QPoint                                            m_DragStartPosition;
-    QModelIndex                                       m_DropIndicatorIndex;
-    bool                                              m_BlockPreflight = false;
-    std::stack<bool>                                  m_BlockPreflightStack;
+    QAction* m_ActionEnableFilter = nullptr;
+    QAction* m_ActionCut = nullptr;
+    QAction* m_ActionCopy = nullptr;
+    QAction* m_ActionPaste = nullptr;
+    QAction* m_ActionClearPipeline = nullptr;
 
-    QAction*                                          m_ActionEnableFilter = nullptr;
-    QAction*                                          m_ActionCut = nullptr;
-    QAction*                                          m_ActionCopy = nullptr;
-    QAction*                                          m_ActionPaste = nullptr;
-    QAction*                                          m_ActionClearPipeline = new QAction("Clear Pipeline", this);
+    bool m_PipelineRunning = false;
+
+    QString m_CurrentPipelineFilePath;
+
+    QPoint m_DragStartPosition;
+    QModelIndex m_DropIndicatorIndex;
 
     QPixmap m_DisableBtnPixmap;
     QPixmap m_DisableHighlightedPixmap;
