@@ -48,14 +48,21 @@ class SVWidgetsLib_EXPORT PipelineExecutionController : public QObject
     Q_OBJECT
 
   public:
-    PipelineExecutionController(QObject* parent = nullptr);
+    SIMPL_SHARED_POINTERS(PipelineExecutionController)
+    SIMPL_TYPE_MACRO(PipelineExecutionController)
+    SIMPL_STATIC_NEW_MACRO(PipelineExecutionController)
+
     virtual ~PipelineExecutionController();
 
     SIMPL_INSTANCE_PROPERTY(QThread*, WorkerThread)
     SIMPL_INSTANCE_PROPERTY(FilterPipeline::Pointer, Pipeline)
-    SIMPL_INSTANCE_PROPERTY(QVector<DataContainerArray::Pointer>, PreflightDataContainerArrays)
+
+    SIMPL_GET_PROPERTY(QVector<DataContainerArray::Pointer>, PreflightDataContainerArrays)
 
     void execute();
+
+  protected:
+    PipelineExecutionController();
 
   signals:
     void pipelineHasMessage(const PipelineMessage &msg);
@@ -70,6 +77,7 @@ class SVWidgetsLib_EXPORT PipelineExecutionController : public QObject
     void processPipelineMessage(const PipelineMessage& msg);
 
   private:
+    QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
 
     PipelineExecutionController(const PipelineExecutionController&); // Copy Constructor Not Implemented
     void operator=(const PipelineExecutionController&); // Move assignment Not Implemented

@@ -29,8 +29,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _pipelinetreeitem_h_
-#define _pipelinetreeitem_h_
+#pragma once
 
 #include <QtCore/QList>
 #include <QtCore/QVariant>
@@ -40,6 +39,7 @@
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
@@ -51,6 +51,8 @@ class SVWidgetsLib_EXPORT PipelineItem
     PipelineItem(const QVector<QVariant>& data, PipelineItem* parent = 0);
     virtual ~PipelineItem();
 
+    SIMPL_INSTANCE_PROPERTY(FilterPipeline::Pointer, SavedPipeline)
+    SIMPL_INSTANCE_PROPERTY(FilterPipeline::Pointer, TempPipeline)
     SIMPL_INSTANCE_PROPERTY(FilterInputWidget*, FilterInputWidget)
     SIMPL_INSTANCE_PROPERTY(bool, FilterEnabled)
     SIMPL_BOOL_PROPERTY(ActivePipeline)
@@ -59,23 +61,7 @@ class SVWidgetsLib_EXPORT PipelineItem
     SIMPL_INSTANCE_PROPERTY(bool, Expanded)
     SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)
     SIMPL_INSTANCE_PROPERTY(QString, DropIndicatorText)
-    SIMPL_INSTANCE_PROPERTY(int, BorderSize)
-    SIMPL_INSTANCE_PROPERTY(QSize, Size)
-    SIMPL_INSTANCE_PROPERTY(int, Height)
-    SIMPL_INSTANCE_PROPERTY(int, Width)
-    SIMPL_INSTANCE_PROPERTY(int, XOffset)
-    SIMPL_INSTANCE_PROPERTY(int, YOffset)
-
-    static const int MaxHeight = 28;
-
-    enum AnimationType
-    {
-      None,
-      Add,
-      Remove
-    };
-
-    SIMPL_INSTANCE_PROPERTY(AnimationType, CurrentAnimationType)
+    SIMPL_INSTANCE_PROPERTY(QString, PipelineFilePath)
 
     enum PipelineItemData
     {
@@ -111,7 +97,7 @@ class SVWidgetsLib_EXPORT PipelineItem
 
     enum class ItemType : EnumType
     {
-      Pipeline,
+      PipelineRoot,
       Filter,
       DropIndicator,
       Unknown
@@ -155,5 +141,3 @@ class SVWidgetsLib_EXPORT PipelineItem
     PipelineItem(const PipelineItem&);    // Copy Constructor Not Implemented
     void operator=(const PipelineItem&);  // Operator '=' Not Implemented
 };
-
-#endif // _pipelinetreeitem_h_

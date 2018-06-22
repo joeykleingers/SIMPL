@@ -59,24 +59,24 @@ PipelineItemHeightAnimation::PipelineItemHeightAnimation(PipelineModel* model, Q
 // -----------------------------------------------------------------------------
 void PipelineItemHeightAnimation::listenValueChanged(const QVariant & value)
 {
-  if(m_PipelineModel)
-  {
-    int width = m_PipelineModel->data(m_Index, PipelineModel::Roles::WidthRole).toInt();
-    if (m_Direction == AnimationDirection::Open)
-    {
-      int height = PipelineItem::MaxHeight * currentValue().toInt() * 0.1;
-      QSize size(width, height);
-      m_PipelineModel->setData(m_Index, size, Qt::SizeHintRole);
-    }
-    else if (m_Direction == AnimationDirection::Close)
-    {
-      int height = PipelineItem::MaxHeight - (PipelineItem::MaxHeight * currentValue().toInt() * 0.1);
-      QSize size(width, height);
-      m_PipelineModel->setData(m_Index, size, Qt::SizeHintRole);
-    }
-  }
-  else
-  {
-    stop();
-  }
+//  if(m_PipelineModel)
+//  {
+//    int width = m_PipelineModel->data(m_Index, PipelineModel::Roles::WidthRole).toInt();
+//    if (m_Direction == AnimationDirection::Open)
+//    {
+//      int height = PipelineItem::MaxHeight * currentValue().toInt() * 0.1;
+//      QSize size(width, height);
+//      m_PipelineModel->setData(m_Index, size, Qt::SizeHintRole);
+//    }
+//    else if (m_Direction == AnimationDirection::Close)
+//    {
+//      int height = PipelineItem::MaxHeight - (PipelineItem::MaxHeight * currentValue().toInt() * 0.1);
+//      QSize size(width, height);
+//      m_PipelineModel->setData(m_Index, size, Qt::SizeHintRole);
+//    }
+//  }
+//  else
+//  {
+//    stop();
+//  }
 }

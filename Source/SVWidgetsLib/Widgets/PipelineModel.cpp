@@ -41,6 +41,7 @@
 #include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
 #include "SVWidgetsLib/Widgets/PipelineItem.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
+#include "SVWidgetsLib/Widgets/FilterInputWidget.h"
 #include "SVWidgetsLib/QtSupport/QtSSettings.h"
 
 // -----------------------------------------------------------------------------
@@ -77,7 +78,7 @@ void PipelineModel::updateActivePipeline(const QModelIndex &pipelineIdx)
 
   if (m_ActivePipelineIndex.isValid() == true)
   {
-    emit preflightTriggered(m_ActivePipelineIndex, this);
+    emit preflightTriggered(m_ActivePipelineIndex);
   }
 }
 
@@ -117,41 +118,36 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   {
     return static_cast<int>(item->getItemType());
   }
-  else if (role == PipelineModel::Roles::BorderSizeRole)
-  {
-    return item->getBorderSize();
-  }
-  else if (role == PipelineModel::Roles::HeightRole)
-  {
-    return item->getHeight();
-  }
-  else if (role == PipelineModel::Roles::WidthRole)
-  {
-    return item->getWidth();
-  }
-  else if (role == PipelineModel::Roles::XOffsetRole)
-  {
-    return item->getXOffset();
-  }
-  else if (role == PipelineModel::Roles::YOffsetRole)
-  {
-    return item->getYOffset();
-  }
   else if (role == PipelineModel::Roles::ExpandedRole)
   {
     return item->getExpanded();
   }
-  else if (role == PipelineModel::Roles::AnimationTypeRole)
+  else if(role == Qt::DisplayRole && m_UseModelDisplayText)
   {
-    return item->getCurrentAnimationType();
-  }
-  else if(role == Qt::DisplayRole)
-  {
+    if (item->getItemType() == PipelineItem::ItemType::PipelineRoot)
+    {
+      FilterPipeline::Pointer pipeline = item->getTempPipeline();
+      return pipeline->getName();
+    }
+    else if (item->getItemType() == PipelineItem::ItemType::Filter)
+    {
+      PipelineItem* parentItem = item->parent();
+      if (parentItem)
+      {
+        FilterPipeline::Pointer pipeline = parentItem->getTempPipeline();
+        FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+        if (index.row() < container.size())
+        {
+          return container[index.row()]->getHumanLabel();
+        }
+      }
+    }
+
     return item->data(index.column());
   }
-  else if(role == Qt::SizeHintRole)
+  else if(role == PipelineModel::Roles::PipelinePathRole)
   {
-    return item->getSize();
+    return item->getPipelineFilePath();
   }
   else if (role == Qt::FontRole)
   {
@@ -195,41 +191,111 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer PipelineModel::filter(const QModelIndex &index) const
+FilterPipeline::Pointer PipelineModel::tempPipeline(const QModelIndex &index) const
 {
-  if(!index.isValid())
-  {
-    return AbstractFilter::NullPointer();
-  }
-
   PipelineItem* item = getItem(index);
-  if (item == nullptr)
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
   {
-    return AbstractFilter::NullPointer();
+    return FilterPipeline::NullPointer();
   }
 
-  return item->getFilter();
+  return item->getTempPipeline();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineModel::setFilter(const QModelIndex &index, AbstractFilter::Pointer filter)
+FilterPipeline::Pointer PipelineModel::savedPipeline(const QModelIndex &index) const
 {
-  if(!index.isValid())
-  {
-    return;
-  }
-
   PipelineItem* item = getItem(index);
-  if (item == nullptr)
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
   {
-    return;
+    return FilterPipeline::NullPointer();
   }
 
-  item->setFilter(filter);
+  return item->getSavedPipeline();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline)
+{
+  QModelIndex pipelineRootIndex = index;
+  PipelineItem* pipelineRootItem = getItem(pipelineRootIndex);
+  if (pipelineRootItem == nullptr || pipelineRootItem->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return false;
+  }
+
+  if (this->savedPipeline(pipelineRootIndex).get() != nullptr)
+  {
+    for (int i = 0; i < rowCount(pipelineRootIndex); i++)
+    {
+      QModelIndex oldFilterIndex = this->index(i, PipelineItem::Contents, pipelineRootIndex);
+      FilterInputWidget* fiw = filterInputWidget(oldFilterIndex);
+
+      disconnect(fiw, &FilterInputWidget::filterParametersChanged, 0, 0);
+    }
+
+    bool success = removeRows(0, rowCount(pipelineRootIndex), pipelineRootIndex);
+    if (!success)
+    {
+      return false;
+    }
+  }
+
+  if (pipelineRootItem->getTempPipeline().get() != nullptr)
+  {
+    FilterPipeline::Pointer oldTempPipeline = pipelineRootItem->getTempPipeline();
+    FilterPipeline::FilterContainerType oldTempContainer = oldTempPipeline->getFilterContainer();
+    for (int i = 0; i < oldTempContainer.size(); i++)
+    {
+      AbstractFilter::Pointer oldFilter = oldTempContainer[i];
+
+      disconnect(oldFilter.get(), SIGNAL(filterCompleted(AbstractFilter*)), this, SLOT(listenFilterCompleted(AbstractFilter*)));
+
+      disconnect(oldFilter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
+    }
+  }
+
+  bool success = insertRows(0, pipeline->size(), pipelineRootIndex);
+  if (!success)
+  {
+    return false;
+  }
+
+  pipelineRootItem->setTempPipeline(pipeline);
+  pipelineRootItem->setSavedPipeline(pipeline->deepCopy());
+
+  FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+  for (int i = 0; i < rowCount(pipelineRootIndex); i++)
+  {
+    AbstractFilter::Pointer filter = container[i];
+
+    QModelIndex filterIndex = this->index(i, PipelineItem::Contents, pipelineRootIndex);
+    setData(filterIndex, static_cast<int>(PipelineItem::ItemType::Filter), Roles::ItemTypeRole);
+
+    if(filter->getEnabled() == false)
+    {
+      setData(filterIndex, static_cast<int>(PipelineItem::WidgetState::Disabled), PipelineModel::WidgetStateRole);
+    }
+
+    connect(filter.get(), SIGNAL(filterCompleted(AbstractFilter*)), this, SLOT(listenFilterCompleted(AbstractFilter*)));
+
+    connect(filter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
+
+    FilterInputWidget* fiw = filterInputWidget(filterIndex);
+
+    connect(fiw, &FilterInputWidget::filterParametersChanged, [=] {
+      emit preflightTriggered(pipelineRootIndex);
+      emit filterParametersChanged(filter);
+    });
+  }
 
   emit dataChanged(index, index);
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -573,72 +639,9 @@ bool PipelineModel::setData(const QModelIndex& index, const QVariant& value, int
     PipelineItem::ItemType value = static_cast<PipelineItem::ItemType>(intValue);
     item->setItemType(value);
   }
-  else if (role == PipelineModel::Roles::BorderSizeRole)
+  else if (role == PipelineModel::Roles::PipelinePathRole)
   {
-    bool ok = false;
-    int borderSize = value.toInt(&ok);
-    if (ok == false)
-    {
-      return false;
-    }
-
-    item->setBorderSize(borderSize);
-  }
-  else if (role == PipelineModel::Roles::HeightRole)
-  {
-    bool ok = false;
-    int height = value.toInt(&ok);
-    if (ok == false)
-    {
-      return false;
-    }
-
-    item->setHeight(height);
-  }
-  else if (role == PipelineModel::Roles::WidthRole)
-  {
-    bool ok = false;
-    int width = value.toInt(&ok);
-    if (ok == false)
-    {
-      return false;
-    }
-
-    item->setWidth(width);
-  }
-  else if (role == PipelineModel::Roles::XOffsetRole)
-  {
-    bool ok = false;
-    int offset = value.toInt(&ok);
-    if (ok == false)
-    {
-      return false;
-    }
-
-    item->setXOffset(offset);
-  }
-  else if (role == PipelineModel::Roles::YOffsetRole)
-  {
-    bool ok = false;
-    int offset = value.toInt(&ok);
-    if (ok == false)
-    {
-      return false;
-    }
-
-    item->setYOffset(offset);
-  }
-  else if (role == PipelineModel::Roles::AnimationTypeRole)
-  {
-    bool ok = false;
-    int animationInt = value.toInt(&ok);
-    if (ok == false)
-    {
-      return false;
-    }
-
-    PipelineItem::AnimationType animationType = static_cast<PipelineItem::AnimationType>(animationInt);
-    item->setCurrentAnimationType(animationType);
+    item->setPipelineFilePath(value.toString());
   }
   else if (role == PipelineModel::Roles::ExpandedRole)
   {
@@ -656,10 +659,6 @@ bool PipelineModel::setData(const QModelIndex& index, const QVariant& value, int
   else if (role == Qt::DisplayRole)
   {
     item->setData(index.column(), value);
-  }
-  else if (role == Qt::SizeHintRole)
-  {
-    item->setSize(value.toSize());
   }
   else
   {
@@ -712,6 +711,44 @@ int PipelineModel::getMaxFilterCount() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void PipelineModel::listenFilterInProgress(AbstractFilter* filter)
+{
+  QModelIndex index = indexOfFilter(filter);
+
+  // Do not set state to Executing if the filter is disabled
+  PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(data(index, PipelineModel::WidgetStateRole).toInt());
+  if(wState != PipelineItem::WidgetState::Disabled)
+  {
+    setData(index, static_cast<int>(PipelineItem::WidgetState::Executing), PipelineModel::WidgetStateRole);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::listenFilterCompleted(AbstractFilter* filter)
+{
+  QModelIndex index = indexOfFilter(filter);
+
+  // Do not set state to Completed if the filter is disabled
+  PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(data(index, PipelineModel::WidgetStateRole).toInt());
+  if(wState != PipelineItem::WidgetState::Disabled)
+  {
+    setData(index, static_cast<int>(PipelineItem::WidgetState::Completed), PipelineModel::WidgetStateRole);
+  }
+  if(filter->getWarningCondition() < 0)
+  {
+    setData(index, static_cast<int>(PipelineItem::ErrorState::Warning), PipelineModel::ErrorStateRole);
+  }
+  if(filter->getErrorCondition() < 0)
+  {
+    setData(index, static_cast<int>(PipelineItem::ErrorState::Error), PipelineModel::ErrorStateRole);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool PipelineModel::pipelineSaved(const QModelIndex &index)
 {
   PipelineItem* item = getItem(index);
@@ -756,6 +793,30 @@ bool PipelineModel::isEmpty()
     return true;
   }
   return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineModel::isPipelineRootItem(const QModelIndex &index)
+{
+  return static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::PipelineRoot;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineModel::isFilterItem(const QModelIndex &index)
+{
+  return static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::Filter;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineModel::isDropIndicatorItem(const QModelIndex &index)
+{
+  return static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::DropIndicator;
 }
 
 // -----------------------------------------------------------------------------

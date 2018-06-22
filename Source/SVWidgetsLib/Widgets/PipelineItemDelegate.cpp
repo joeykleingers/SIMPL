@@ -227,15 +227,16 @@ void PipelineItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
   const int textMargin = 6;
   const int indexBoxWidth = 35;
-  int xOffset = model->data(index, PipelineModel::Roles::XOffsetRole).toInt();
-  int yOffset = model->data(index, PipelineModel::Roles::YOffsetRole).toInt();
+//  int xOffset = model->data(index, PipelineModel::Roles::XOffsetRole).toInt();
+//  int yOffset = model->data(index, PipelineModel::Roles::YOffsetRole).toInt();
+  int xOffset = 0;
+  int yOffset = 0;
 
   // Draw the Index area
   QRect rect = option.rect;
   QRect indexRect = option.rect;
   indexRect.setX(indexRect.x() + xOffset);
   indexRect.setY(indexRect.y() + yOffset);
-  indexRect.setHeight(model->data(index, PipelineModel::Roles::HeightRole).toInt());
   indexRect.setWidth(2 * textMargin + indexFontWidth);
 
   // If the width hint is less than the index area, draw only part of the index area
@@ -492,14 +493,7 @@ bool PipelineItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
           }
 
           PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt());
-          if (itemType == PipelineItem::ItemType::Filter || itemType == PipelineItem::ItemType::DropIndicator)
-          {
-            m_View->preflightPipeline(index.parent());
-          }
-          else if (itemType == PipelineItem::ItemType::Pipeline)
-          {
-            m_View->preflightPipeline(index);
-          }
+          m_View->preflightPipeline();
           return true;
         }
       }
@@ -507,6 +501,15 @@ bool PipelineItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
   }
 
   return QStyledItemDelegate::editorEvent(event, model, option, index);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QSize PipelineItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+  QSize size = QStyledItemDelegate::sizeHint(option, index);
+  return QSize(size.width(), 28);
 }
 
 // -----------------------------------------------------------------------------

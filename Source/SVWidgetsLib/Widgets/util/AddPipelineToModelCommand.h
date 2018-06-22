@@ -36,47 +36,49 @@
 #pragma once
 
 #include <QtCore/QModelIndex>
-#include <QtCore/QUuid>
-#include <QtCore/QVariant>
 
 #include <QtWidgets/QUndoCommand>
 
-#include "SIMPLib/Filtering/AbstractFilter.h"
+#include <SIMPLib/Filtering/AbstractFilter.h>
+#include <SIMPLib/Filtering/FilterPipeline.h>
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
+class PipelineFilterObject;
 class PipelineModel;
+class QPushButton;
 
-class SVWidgetsLib_EXPORT RemoveFilterFromModelCommand : public QUndoCommand
+class SVWidgetsLib_EXPORT AddPipelineToModelCommand : public QUndoCommand
 {
-public:
-  RemoveFilterFromModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent = 0);
-  RemoveFilterFromModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent = 0);
-  virtual ~RemoveFilterFromModelCommand();
+public:    
+  AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, int insertIndex, QString actionText, QUndoCommand* parent = nullptr);
 
-  virtual void undo();
+  ~AddPipelineToModelCommand() override;
 
-  virtual void redo();
+  void undo() override;
+
+  void redo() override;
 
 private:
-  PipelineModel* m_PipelineModel = nullptr;
-  QModelIndex m_PipelineRootIndex;
-  std::vector<AbstractFilter::Pointer> m_Filters;
-  std::vector<int> m_FilterRows;
+  FilterPipeline::Pointer m_Pipeline;
+  QString m_ActionText;
+  int m_InsertIndex = 0;
+  PipelineModel* m_ViewModel = nullptr;
   bool m_FirstRun = true;
 
   /**
    * @brief addFilter
    * @param filter
-   * @param insertionIndex
+   * @param parentIndex
    */
   void addFilter(AbstractFilter::Pointer filter, int insertionIndex = -1);
 
   /**
    * @brief removeFilter
-   * @param row
+   * @param filterIndex
+   * @param pipelineIndex
    */
-  void removeFilter(AbstractFilter::Pointer filter);
+  void removeFilter(const QPersistentModelIndex& index);
 
   /**
    * @brief connectFilterSignalsSlots
@@ -90,6 +92,6 @@ private:
    */
   void disconnectFilterSignalsSlots(AbstractFilter::Pointer filter);
 
-  RemoveFilterFromModelCommand(const RemoveFilterFromModelCommand&) = delete; // Copy Constructor Not Implemented
-  void operator=(const RemoveFilterFromModelCommand&) = delete;      // Move assignment Not Implemented
+  AddPipelineToModelCommand(const AddPipelineToModelCommand&) = delete; // Copy Constructor Not Implemented
+  void operator=(const AddPipelineToModelCommand&) = delete;   // Move assignment Not Implemented
 };

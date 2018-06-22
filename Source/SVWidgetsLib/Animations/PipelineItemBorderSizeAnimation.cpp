@@ -54,12 +54,12 @@ PipelineItemBorderSizeAnimation::PipelineItemBorderSizeAnimation(PipelineModel* 
 // -----------------------------------------------------------------------------
 void PipelineItemBorderSizeAnimation::listenValueChanged(const QVariant & value)
 {
-  if(m_PipelineModel)
-  {
-    m_PipelineModel->setData(m_Index, value, PipelineModel::Roles::BorderSizeRole);
-  }
-  else
-  {
-    stop();
-  }
+//  if(m_PipelineModel)
+//  {
+//    m_PipelineModel->setData(m_Index, value, PipelineModel::Roles::BorderSizeRole);
+//  }
+//  else
+//  {
+//    stop();
+//  }
 }

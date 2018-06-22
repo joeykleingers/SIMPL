@@ -81,11 +81,11 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 
   public:
     SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
-
     SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
     SIMPL_GET_PROPERTY(QAction*, ActionCut)
     SIMPL_GET_PROPERTY(QAction*, ActionCopy)
     SIMPL_GET_PROPERTY(QAction*, ActionPaste)
+    SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
 
     SVPipelineView(QWidget* parent = 0);
     virtual ~SVPipelineView();
@@ -187,100 +187,112 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
      */
     QPixmap getHighDPIDeleteBtnHoveredPixmap(bool highlighted = false);
 
+    /**
+     * @brief writePipeline
+     * @param outputPath
+     * @return
+     */
+    int writePipeline(const QModelIndex &pipelineRootIndex, const QString &outputPath);
+
   public slots:
+    /**
+     * @brief addPipeline
+     * @param pipeline
+     * @param insertIndex
+     */
+    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
+
     /**
      * @brief Adds a filter with the specified filterClassName to the current model
      * @param filterClassName
      */
-    void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1);
+    void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1) override;
 
     /**
      * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
      * the filter gets appended to the end of the model
      * @param filter
      */
-    void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1);
+    void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1) override;
 
     /**
      * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
      * the filters get appended to the end of the model
      * @param filters
      */
-    void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1);
+    void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1) override;
+
+    /**
+     * @brief removePipeline
+     * @param pipeline
+     */
+    void removePipeline(FilterPipeline::Pointer pipeline);
 
     /**
      * @brief Removes filter from the current model
      * @param filter
      */
-    void removeFilter(AbstractFilter::Pointer filter);
+    void removeFilter(AbstractFilter::Pointer filter) override;
 
     /**
      * @brief Removes multiple filters from the current model
      * @param filters
      */
-    void removeFilters(std::vector<AbstractFilter::Pointer> filters);
+    void removeFilters(std::vector<AbstractFilter::Pointer> filters) override;
 
     /**
      * @brief Cuts filter from the current model
      * @param filter
      */
-    void cutFilter(AbstractFilter::Pointer filter);
+    void cutFilter(AbstractFilter::Pointer filter) override;
 
     /**
      * @brief Cuts multiple filters from the current model
      * @param filters
      */
-    void cutFilters(std::vector<AbstractFilter::Pointer> filters);
-
-    /**
-     * @brief Copies the currently selected filters from the current model into the system clipboard
-     */
-    void copySelectedFilters();
+    void cutFilters(std::vector<AbstractFilter::Pointer> filters) override;
 
     /**
      * @brief Pastes multiple filters from the system clipboard to the current model
      * @param insertIndex
      */
-    void pasteFilters(int insertIndex = -1);
+    void pasteFilters(int insertIndex = -1) override;
 
     /**
      * @brief preflightPipeline
      * @param pipelineRootIndex
      */
-    void preflightPipeline(const QModelIndex &pipelineRootIndex);
+    void preflightPipeline() override;
 
     /**
      * @brief executePipeline
      * @param pipelineRootIndex
      */
-    void executePipeline(const QModelIndex &pipelineRootIndex);
+    void executePipeline() override;
 
     /**
      * @brief cancelPipeline
      * @param pipelineIndex
      */
-    void cancelPipeline();
+    void cancelPipeline() override;
 
     /**
      * @brief clearPipeline
      * @param pipelineRootIndex
      */
-    void clearPipeline(const QModelIndex &pipelineRootIndex);
+    void clearPipeline() override;
 
-  signals:
-    void clearDataStructureWidgetTriggered();
-
-    void addPlaceHolderFilter(QPoint p);
-    void removePlaceHolderFilter();
-
+  signals:    
     void preflightFinished(FilterPipeline::Pointer pipeline, int err);
     void pipelineFinished();
+
+    void pipelineDataChanged();
+
+    void currentFilterUpdated(AbstractFilter::Pointer filter);
 
     void filePathOpened(const QString &filePath);
 
     void filterInputWidgetNeedsCleared();
-
-    void filterInputWidgetEdited();
 
     void filterEnabledStateChanged();
 
@@ -330,21 +342,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     void listenPasteTriggered();
     void listenClearPipelineTriggered();
 
-  private slots:
-    /**
-     * @brief listenFilterInProgress
-     * @param filter
-     */
-    void listenFilterInProgress(AbstractFilter *filter);
-
-    /**
-     * @brief listenFilterCompleted
-     */
-    void listenFilterCompleted(AbstractFilter *filter);
-
   private:
-    PipelineViewController* m_PipelineViewController = nullptr;
-
     QUndoCommand* m_MoveCommand = nullptr;
 
     QAction* m_ActionEnableFilter = nullptr;
@@ -352,8 +350,6 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
     QAction* m_ActionCopy = nullptr;
     QAction* m_ActionPaste = nullptr;
     QAction* m_ActionClearPipeline = nullptr;
-
-    bool m_PipelineRunning = false;
 
     QString m_CurrentPipelineFilePath;
 

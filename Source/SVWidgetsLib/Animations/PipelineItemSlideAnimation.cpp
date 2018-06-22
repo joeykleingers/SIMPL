@@ -43,28 +43,28 @@ PipelineItemSlideAnimation::PipelineItemSlideAnimation(PipelineModel* model, QPe
     m_Direction(direction),
     m_NumberOfPixels(numberOfPixels)
 {
-  setStartValue(0);
-  setEndValue(200);
+//  setStartValue(0);
+//  setEndValue(200);
 
-  setDuration(150);
+//  setDuration(150);
 
-  if (m_Direction == AnimationDirection::EnterLeft)
-  {
-    m_PipelineModel->setData(m_Index, -m_NumberOfPixels, PipelineModel::Roles::XOffsetRole);
-  }
-  else if (m_Direction == AnimationDirection::EnterRight)
-  {
-    m_PipelineModel->setData(m_Index, m_NumberOfPixels, PipelineModel::Roles::XOffsetRole);
-  }
-  else if (m_Direction == AnimationDirection::ExitLeft || m_Direction == AnimationDirection::ExitRight)
-  {
-    m_PipelineModel->setData(m_Index, 0, PipelineModel::Roles::XOffsetRole);
-  }
+//  if (m_Direction == AnimationDirection::EnterLeft)
+//  {
+//    m_PipelineModel->setData(m_Index, -m_NumberOfPixels, PipelineModel::Roles::XOffsetRole);
+//  }
+//  else if (m_Direction == AnimationDirection::EnterRight)
+//  {
+//    m_PipelineModel->setData(m_Index, m_NumberOfPixels, PipelineModel::Roles::XOffsetRole);
+//  }
+//  else if (m_Direction == AnimationDirection::ExitLeft || m_Direction == AnimationDirection::ExitRight)
+//  {
+//    m_PipelineModel->setData(m_Index, 0, PipelineModel::Roles::XOffsetRole);
+//  }
 
-  QSize size = m_PipelineModel->data(m_Index, Qt::SizeHintRole).toSize();
-  m_PipelineModel->setData(m_Index, size.height(), PipelineModel::Roles::HeightRole);
+//  QSize size = m_PipelineModel->data(m_Index, Qt::SizeHintRole).toSize();
+//  m_PipelineModel->setData(m_Index, size.height(), PipelineModel::Roles::HeightRole);
 
-  connect(this, &PipelineItemSlideAnimation::valueChanged, this, &PipelineItemSlideAnimation::listenValueChanged);
+//  connect(this, &PipelineItemSlideAnimation::valueChanged, this, &PipelineItemSlideAnimation::listenValueChanged);
 }
 
 // -----------------------------------------------------------------------------
@@ -72,27 +72,27 @@ PipelineItemSlideAnimation::PipelineItemSlideAnimation(PipelineModel* model, QPe
 // -----------------------------------------------------------------------------
 void PipelineItemSlideAnimation::listenValueChanged(const QVariant & value)
 {
-  if(m_PipelineModel)
-  {
-    if (m_Direction == AnimationDirection::EnterLeft)
-    {
-      m_PipelineModel->setData(m_Index, -m_NumberOfPixels + (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
-    }
-    else if (m_Direction == AnimationDirection::EnterRight)
-    {
-      m_PipelineModel->setData(m_Index, m_NumberOfPixels - (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
-    }
-    if (m_Direction == AnimationDirection::ExitLeft)
-    {
-      m_PipelineModel->setData(m_Index, 0 - (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
-    }
-    else if (m_Direction == AnimationDirection::ExitRight)
-    {
-      m_PipelineModel->setData(m_Index, 0 + (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
-    }
-  }
-  else
-  {
-    stop();
-  }
+//  if(m_PipelineModel)
+//  {
+//    if (m_Direction == AnimationDirection::EnterLeft)
+//    {
+//      m_PipelineModel->setData(m_Index, -m_NumberOfPixels + (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
+//    }
+//    else if (m_Direction == AnimationDirection::EnterRight)
+//    {
+//      m_PipelineModel->setData(m_Index, m_NumberOfPixels - (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
+//    }
+//    if (m_Direction == AnimationDirection::ExitLeft)
+//    {
+//      m_PipelineModel->setData(m_Index, 0 - (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
+//    }
+//    else if (m_Direction == AnimationDirection::ExitRight)
+//    {
+//      m_PipelineModel->setData(m_Index, 0 + (m_NumberOfPixels * currentValue().toInt() * 0.005), PipelineModel::Roles::XOffsetRole);
+//    }
+//  }
+//  else
+//  {
+//    stop();
+//  }
 }

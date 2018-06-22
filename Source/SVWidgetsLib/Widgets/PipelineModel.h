@@ -66,15 +66,11 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
       PipelineStateRole,
       ItemTypeRole,
       ExpandedRole,
-      BorderSizeRole,
-      HeightRole,
-      WidthRole,
-      XOffsetRole,
-      YOffsetRole,
-      AnimationTypeRole
+      PipelinePathRole
     };
 
     SIMPL_INSTANCE_PROPERTY(int, MaxNumberOfPipelines)
+    SIMPL_SET_PROPERTY(bool, UseModelDisplayText)
 
     /**
      * @brief updateActivePipeline
@@ -82,11 +78,34 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
      */
     void updateActivePipeline(const QModelIndex &pipelineIdx);
 
+    /**
+     * @brief isPipelineRootItem
+     * @param index
+     * @return
+     */
+    bool isPipelineRootItem(const QModelIndex &index);
+
+    /**
+     * @brief isFilterItem
+     * @param index
+     * @return
+     */
+    bool isFilterItem(const QModelIndex &index);
+
+    /**
+     * @brief isDropIndicatorItem
+     * @param index
+     * @return
+     */
+    bool isDropIndicatorItem(const QModelIndex &index);
+
     QVariant data(const QModelIndex& index, int role) const override;
 //    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
-    AbstractFilter::Pointer filter(const QModelIndex &index) const;
-    void setFilter(const QModelIndex &index, AbstractFilter::Pointer filter);
+    FilterPipeline::Pointer tempPipeline(const QModelIndex &index) const;
+    FilterPipeline::Pointer savedPipeline(const QModelIndex &index) const;
+
+    bool setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline);
 
     QString dropIndicatorText(const QModelIndex &index) const;
     void setDropIndicatorText(const QModelIndex &index, const QString &text);
@@ -134,17 +153,28 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
   signals:
     void clearIssuesTriggered();
 
-    void preflightTriggered(const QModelIndex &pipelineIndex, PipelineModel* model);
-
-    void pipelineDataChanged(const QModelIndex &pipelineIndex);
+    void preflightTriggered(const QModelIndex &pipelineRootIndex);
 
     void filterParametersChanged(AbstractFilter::Pointer filter);
 
     void statusMessageGenerated(const QString &msg);
     void standardOutputMessageGenerated(const QString &msg);
 
+  private slots:
+    /**
+     * @brief listenFilterInProgress
+     * @param filter
+     */
+    void listenFilterInProgress(AbstractFilter *filter);
+
+    /**
+     * @brief listenFilterCompleted
+     */
+    void listenFilterCompleted(AbstractFilter *filter);
+
   private:
-    PipelineItem*                       m_RootItem;
+    PipelineItem*                       m_RootItem = nullptr;
+    bool                                m_UseModelDisplayText = true;
 
     QPersistentModelIndex               m_ActivePipelineIndex;
 

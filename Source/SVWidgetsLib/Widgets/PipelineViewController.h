@@ -46,6 +46,7 @@
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
+#include "SVWidgetsLib/Widgets/PipelineExecutionController.h"
 
 class QUndoCommand;
 class QUndoStack;
@@ -59,6 +60,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     Q_OBJECT
 
   public:
+    PipelineViewController(QObject* parent = nullptr);
     PipelineViewController(PipelineModel* model, QObject* parent = nullptr);
     virtual ~PipelineViewController();
 
@@ -115,6 +117,12 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      */
     int writePipeline(const QModelIndex &pipelineRootIndex, const QString &outputPath);
 
+    /**
+     * @brief setPipelineModel
+     * @param model
+     */
+    void setPipelineModel(PipelineModel* model);
+
   public slots:
     /**
      * @brief Adds a filter with the specified filterClassName to the current model
@@ -147,6 +155,19 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param filters
      */
     void removeFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex = QModelIndex());
+
+    /**
+     * @brief addPipeline
+     * @param pipeline
+     * @param insertIndex
+     */
+    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
+
+    /**
+     * @brief removePipeline
+     * @param pipeline
+     */
+    void removePipeline(FilterPipeline::Pointer pipeline);
 
     /**
      * @brief Cuts filter from the current model
@@ -202,22 +223,11 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      */
     void cancelPipeline(const QModelIndex &pipelineRootIndex);
 
-    /**
-     * @brief Copies the currently selected filters from the current model into the system clipboard
-     */
-    void copySelectedFilters();
-
   protected:
-    PipelineViewController();
-
     /**
      * @brief initialize
      */
     void initialize();
-
-  protected slots:
-    void listenCutTriggered();
-    void listenCopyTriggered();
 
   signals:
     void clearIssuesTriggered();
@@ -237,12 +247,6 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
 
   private slots:
     /**
-     * @brief processPipelineMessage
-     * @param msg
-     */
-    void processPipelineMessage(const PipelineMessage& msg);
-
-    /**
      * @brief finishPipeline
      * @param pipeline
      * @param pipelineRootIndex
@@ -253,7 +257,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     PipelineModel* m_PipelineModel = nullptr;
     QList<QObject*> m_PipelineMessageObservers;
 
-    std::vector<AbstractFilter::Pointer> m_SelectedFilters;
+    QMap<QModelIndex, PipelineExecutionController::Pointer> m_RunningPipelines;
 
     QSharedPointer<QUndoStack> m_UndoStack;
     QAction* m_ActionUndo = nullptr;
@@ -261,8 +265,6 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
 
     bool m_BlockPreflight = false;
     std::stack<bool> m_BlockPreflightStack;
-
-    QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
 
     /**
      * @brief setupUndoStack

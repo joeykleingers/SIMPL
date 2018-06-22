@@ -105,7 +105,7 @@ void PipelineListWidget::on_startPipelineBtn_clicked()
 
   if (model->rowCount() > 0)
   {
-    pipelineView->executePipeline(QModelIndex());
+    pipelineView->executePipeline();
     updateStartButtonState(StartButtonState::Running);
   }
 }

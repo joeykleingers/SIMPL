@@ -37,8 +37,8 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineExecutionController::PipelineExecutionController(QObject* parent) :
-  QObject(parent)
+PipelineExecutionController::PipelineExecutionController() :
+  QObject()
 {
 
 }
@@ -53,6 +53,13 @@ PipelineExecutionController::~PipelineExecutionController() = default;
 // -----------------------------------------------------------------------------
 void PipelineExecutionController::execute()
 {
+  // Save each of the DataContainerArrays from each of the filters for when the pipeline is complete
+  FilterPipeline::FilterContainerType filters = m_Pipeline->getFilterContainer();
+  for(FilterPipeline::FilterContainerType::size_type i = 0; i < filters.size(); i++)
+  {
+    m_PreflightDataContainerArrays.push_back(filters[i]->getDataContainerArray()->deepCopy(true));
+  }
+
   m_WorkerThread = new QThread();
 
   // Move the FilterPipeline object into the thread that we just created.
@@ -68,6 +75,9 @@ void PipelineExecutionController::execute()
    */
   // When the thread starts its event loop, start the PipelineBuilder going
   connect(m_WorkerThread, SIGNAL(started()), m_Pipeline.get(), SLOT(run()));
+
+  // When the PipelineBuilder ends then tell the QThread to stop its event loop
+  connect(m_Pipeline.get(), SIGNAL(pipelineCanceled()), m_WorkerThread, SLOT(quit()));
 
   // When the PipelineBuilder ends then tell the QThread to stop its event loop
   connect(m_Pipeline.get(), SIGNAL(pipelineFinished()), m_WorkerThread, SLOT(quit()));

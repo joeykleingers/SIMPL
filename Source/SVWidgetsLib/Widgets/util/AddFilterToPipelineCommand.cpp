@@ -52,11 +52,11 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddFilterToModelCommand::AddFilterToModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, int insertIndex, QModelIndex pipelineIndex, QString actionText, QUndoCommand* parent)
+AddFilterToModelCommand::AddFilterToModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, int insertIndex, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_ActionText(actionText)
 , m_PipelineModel(model)
-, m_PipelineIndex(pipelineIndex)
+, m_PipelineRootIndex(pipelineRootIndex)
 {
   if(insertIndex < 0)
   {
@@ -73,12 +73,12 @@ AddFilterToModelCommand::AddFilterToModelCommand(AbstractFilter::Pointer filter,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddFilterToModelCommand::AddFilterToModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, int insertIndex, QModelIndex pipelineIndex, QString actionText, QUndoCommand* parent)
+AddFilterToModelCommand::AddFilterToModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, int insertIndex, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Filters(filters)
 , m_ActionText(actionText)
 , m_PipelineModel(model)
-, m_PipelineIndex(pipelineIndex)
+, m_PipelineRootIndex(pipelineRootIndex)
 {
   if(insertIndex < 0)
   {
@@ -132,8 +132,8 @@ void AddFilterToModelCommand::undo()
     statusMessage = QObject::tr("Undo \"Added '%1' filter at index %2\"").arg(m_Filters[0]->getHumanLabel()).arg(m_FilterRows[0] + 1);
   }
 
-  emit m_PipelineModel->pipelineDataChanged(m_PipelineIndex);
-
+  emit m_PipelineModel->clearIssuesTriggered();
+  emit m_PipelineModel->preflightTriggered(m_PipelineRootIndex);
   emit m_PipelineModel->statusMessageGenerated(statusMessage);
   emit m_PipelineModel->standardOutputMessageGenerated(statusMessage);
 }
@@ -152,8 +152,6 @@ void AddFilterToModelCommand::redo()
   {
     addFilter(m_Filters[i], m_FilterRows[i]);
   }
-
-  emit m_PipelineModel->pipelineDataChanged(m_PipelineIndex);
 
   QString statusMessage;
   if(m_Filters.size() > 1)
@@ -175,6 +173,8 @@ void AddFilterToModelCommand::redo()
     m_FirstRun = false;
   }
 
+  emit m_PipelineModel->clearIssuesTriggered();
+  emit m_PipelineModel->preflightTriggered(m_PipelineRootIndex);
   emit m_PipelineModel->statusMessageGenerated(statusMessage);
   emit m_PipelineModel->standardOutputMessageGenerated(statusMessage);
 }
@@ -184,10 +184,10 @@ void AddFilterToModelCommand::redo()
 // -----------------------------------------------------------------------------
 void AddFilterToModelCommand::addFilter(AbstractFilter::Pointer filter, int insertionIndex)
 {
-  m_PipelineModel->insertRow(insertionIndex);
+  m_PipelineModel->insertRow(insertionIndex, m_PipelineRootIndex);
 
-  QModelIndex filterIndex = m_PipelineModel->index(insertionIndex, PipelineItem::Contents);
-  //  model->setData(filterIndex, filter->getHumanLabel(), Qt::DisplayRole);
+  QModelIndex filterIndex = m_PipelineModel->index(insertionIndex, PipelineItem::Contents, m_PipelineRootIndex);
+  m_PipelineModel->setData(filterIndex, filter->getHumanLabel(), Qt::DisplayRole);
   m_PipelineModel->setData(filterIndex, static_cast<int>(PipelineItem::ItemType::Filter), PipelineModel::ItemTypeRole);
   m_PipelineModel->setFilter(filterIndex, filter);
 
@@ -196,12 +196,6 @@ void AddFilterToModelCommand::addFilter(AbstractFilter::Pointer filter, int inse
   if(filter->getEnabled() == false)
   {
     m_PipelineModel->setData(filterIndex, static_cast<int>(PipelineItem::WidgetState::Disabled), PipelineModel::WidgetStateRole);
-  }
-
-  if(m_FirstRun == true)
-  {
-    QSize size = m_PipelineModel->data(filterIndex, Qt::SizeHintRole).toSize();
-    m_PipelineModel->setData(filterIndex, size.height(), PipelineModel::Roles::HeightRole);
   }
 }
 
@@ -214,7 +208,7 @@ void AddFilterToModelCommand::removeFilter(const QPersistentModelIndex& index)
 
   disconnectFilterSignalsSlots(filter);
 
-  m_PipelineModel->removeRow(index.row());
+  m_PipelineModel->removeRow(index.row(), m_PipelineRootIndex);
 }
 
 // -----------------------------------------------------------------------------
@@ -231,7 +225,7 @@ void AddFilterToModelCommand::connectFilterSignalsSlots(AbstractFilter::Pointer 
   FilterInputWidget* fiw = m_PipelineModel->filterInputWidget(index);
 
   QObject::connect(fiw, &FilterInputWidget::filterParametersChanged, [=] {
-    emit m_PipelineModel->preflightTriggered(m_PipelineIndex, m_PipelineModel);
+    emit m_PipelineModel->preflightTriggered(m_PipelineRootIndex);
     emit m_PipelineModel->filterParametersChanged(filter);
   });
 }

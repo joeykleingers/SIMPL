@@ -34,6 +34,7 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListWidget.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItemDelegate.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineView.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.h
@@ -89,6 +90,7 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItem.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineView.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.cpp
@@ -119,12 +121,14 @@ set(SVWidgetsLib_Widgets_UIS
   )
 
 SET(SVWidgetsLib_Widgets_Util_HDRS
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToModelCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddPipelineToModelCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToPipelineCommand.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterFromModelCommand.h
 )
 
 SET(SVWidgetsLib_Widgets_Util_SRCS
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToModelCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddPipelineToModelCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToPipelineCommand.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterFromModelCommand.cpp
   )
 

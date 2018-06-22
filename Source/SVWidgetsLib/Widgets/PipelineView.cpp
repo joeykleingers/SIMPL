@@ -35,10 +35,19 @@
 
 #include "PipelineView.h"
 
+#include <QtGui/QClipboard>
+
+#include <QtWidgets/QApplication>
+
+#include "SIMPLib/FilterParameters/JsonFilterParametersWriter.h"
+
+#include "SVWidgetsLib/Widgets/PipelineViewController.h"
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineView::PipelineView()
+PipelineView::PipelineView() :
+  m_PipelineViewController(new PipelineViewController())
 {
 
 }
@@ -47,3 +56,46 @@ PipelineView::PipelineView()
 //
 // -----------------------------------------------------------------------------
 PipelineView::~PipelineView() = default;
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::copySelectedFilters()
+{
+  FilterPipeline::Pointer pipeline = FilterPipeline::New();
+  std::vector<AbstractFilter::Pointer> filters = getSelectedFilters();
+  for(int i = 0; i < filters.size(); i++)
+  {
+    pipeline->pushBack(filters[i]);
+  }
+
+  JsonFilterParametersWriter::Pointer jsonWriter = JsonFilterParametersWriter::New();
+  QString jsonString = jsonWriter->writePipelineToString(pipeline, "Pipeline");
+
+  QClipboard* clipboard = QApplication::clipboard();
+  clipboard->setText(jsonString);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QAction* PipelineView::getActionUndo()
+{
+  if (m_PipelineViewController)
+  {
+    return m_PipelineViewController->getActionUndo();
+  }
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QAction* PipelineView::getActionRedo()
+{
+  if (m_PipelineViewController)
+  {
+    return m_PipelineViewController->getActionRedo();
+  }
+  return nullptr;
+}

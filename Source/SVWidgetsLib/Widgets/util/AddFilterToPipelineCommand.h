@@ -50,10 +50,10 @@ class QPushButton;
 
 class SVWidgetsLib_EXPORT AddFilterToModelCommand : public QUndoCommand
 {
-public:
-  AddFilterToModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, int insertIndex, QModelIndex pipelineIndex, QString actionText, QUndoCommand* parent = nullptr);
+public:    
+  AddFilterToModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, int insertIndex, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent = nullptr);
 
-  AddFilterToModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, int insertIndex, QModelIndex pipelineIndex, QString actionText, QUndoCommand* parent = nullptr);
+  AddFilterToModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, int insertIndex, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent = nullptr);
 
   ~AddFilterToModelCommand() override;
 
@@ -65,7 +65,7 @@ private:
   std::vector<AbstractFilter::Pointer> m_Filters;
   QString m_ActionText;
   PipelineModel* m_PipelineModel = nullptr;
-  QModelIndex m_PipelineIndex;
+  QModelIndex m_PipelineRootIndex;
   std::vector<int> m_FilterRows;
   bool m_FirstRun = true;
 
