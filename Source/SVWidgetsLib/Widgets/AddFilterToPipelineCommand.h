@@ -36,60 +36,54 @@
 #pragma once
 
 #include <QtCore/QModelIndex>
-#include <QtCore/QUuid>
-#include <QtCore/QVariant>
 
 #include <QtWidgets/QUndoCommand>
 
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
-class PipelineModel;
-
-class SVWidgetsLib_EXPORT RemoveFilterFromModelCommand : public QUndoCommand
+class SVWidgetsLib_EXPORT AddFilterToPipelineCommand : public QObject, public QUndoCommand
 {
+    Q_OBJECT
+
 public:
-  RemoveFilterFromModelCommand(AbstractFilter::Pointer filter, PipelineModel* model, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent = 0);
-  RemoveFilterFromModelCommand(std::vector<AbstractFilter::Pointer> filters, PipelineModel* model, QModelIndex pipelineRootIndex, QString actionText, QUndoCommand* parent = 0);
-  virtual ~RemoveFilterFromModelCommand();
+  AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, QString actionText, QUndoCommand* parent = nullptr);
 
-  virtual void undo();
+  AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, QString actionText, QUndoCommand* parent = nullptr);
 
-  virtual void redo();
+  ~AddFilterToPipelineCommand() override;
+
+  SIMPL_GET_BOOL_PROPERTY(ValidCommand)
+
+  void undo() override;
+
+  void redo() override;
+
+signals:
+  void statusMessageGenerated(const QString &msg);
+  void standardOutputMessageGenerated(const QString &msg);
 
 private:
-  PipelineModel* m_PipelineModel = nullptr;
-  QModelIndex m_PipelineRootIndex;
   std::vector<AbstractFilter::Pointer> m_Filters;
+  QString m_ActionText;
+  FilterPipeline::Pointer m_Pipeline;
   std::vector<int> m_FilterRows;
+  int m_InsertIndex = -1;
   bool m_FirstRun = true;
+  bool m_ValidCommand = true;
+
+  const QString m_MultipleFiltersStatusMessage = "Added %1 filters starting at index %2 to pipeline '%3'";
+  const QString m_SingleFilterStatusMessage = "Added '%1' filter at index %2 to pipeline '%3'";
 
   /**
-   * @brief addFilter
-   * @param filter
-   * @param insertionIndex
+   * @brief getStatusMessage
+   * @return
    */
-  void addFilter(AbstractFilter::Pointer filter, int insertionIndex = -1);
+  QString getStatusMessage();
 
-  /**
-   * @brief removeFilter
-   * @param row
-   */
-  void removeFilter(AbstractFilter::Pointer filter);
-
-  /**
-   * @brief connectFilterSignalsSlots
-   * @param filter
-   */
-  void connectFilterSignalsSlots(AbstractFilter::Pointer filter);
-
-  /**
-   * @brief disconnectFilterSignalsSlots
-   * @param filter
-   */
-  void disconnectFilterSignalsSlots(AbstractFilter::Pointer filter);
-
-  RemoveFilterFromModelCommand(const RemoveFilterFromModelCommand&) = delete; // Copy Constructor Not Implemented
-  void operator=(const RemoveFilterFromModelCommand&) = delete;      // Move assignment Not Implemented
+  AddFilterToPipelineCommand(const AddFilterToPipelineCommand&) = delete; // Copy Constructor Not Implemented
+  void operator=(const AddFilterToPipelineCommand&) = delete;   // Move assignment Not Implemented
 };

@@ -33,7 +33,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "AddPipelineToModelCommand.h"
+#include "AddFilterToPipelineCommand.h"
 
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
@@ -52,36 +52,90 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, int insertIndex, QString actionText, QUndoCommand* parent)
+AddFilterToPipelineCommand::AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, QString actionText, QUndoCommand* parent)
 : QUndoCommand(parent)
-, m_Pipeline(pipeline)
 , m_ActionText(actionText)
-, m_ViewModel(model)
+, m_Pipeline(pipeline)
 {
-  if(insertIndex < 0)
+  if (filter.get() == nullptr || pipeline.get() == nullptr)
   {
-    insertIndex = model->rowCount();
+    m_ValidCommand = false;
+    return;
+  }
+
+  if(insertIndex < 0 || insertIndex > pipeline->size())
+  {
+    insertIndex = pipeline->size();
   }
   m_InsertIndex = insertIndex;
 
-  setText(QObject::tr("\"%1 '%2' Pipeline\"").arg(actionText).arg(pipeline->getName()));
+  setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg(actionText).arg(filter->getHumanLabel()).arg(pipeline->getName()));
+
+  m_Filters.push_back(filter);
+
+  m_FilterRows.push_back(insertIndex);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddPipelineToModelCommand::~AddPipelineToModelCommand() = default;
+AddFilterToPipelineCommand::AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, QString actionText, QUndoCommand* parent)
+: QUndoCommand(parent)
+, m_Filters(filters)
+, m_ActionText(actionText)
+, m_Pipeline(pipeline)
+{
+  if (pipeline.get() == nullptr || filters.size() <= 0)
+  {
+    m_ValidCommand = false;
+    return;
+  }
+
+  for(size_t i = 0; i < m_Filters.size(); i++)
+  {
+    if (m_Filters[i].get() == nullptr)
+    {
+      m_ValidCommand = false;
+      return;
+    }
+
+    m_FilterRows.push_back(insertIndex + i);
+  }
+
+  if(insertIndex < 0 || insertIndex > pipeline->size())
+  {
+    insertIndex = pipeline->size();
+  }
+  m_InsertIndex = insertIndex;
+
+  if(filters.size() == 1)
+  {
+    setText(QObject::tr("\"%1 '%2'\"").arg(actionText).arg(filters[0]->getHumanLabel()));
+  }
+  else
+  {
+    setText(QObject::tr("\"%1 %2 Filters\"").arg(actionText).arg(filters.size()));
+  }
+}
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AddPipelineToModelCommand::redo()
-{
-  m_ViewModel->insertRow(m_InsertIndex);
-  QModelIndex pipelineRootIndex = m_ViewModel->index(m_InsertIndex, PipelineItem::Contents);
-  m_ViewModel->setPipeline(pipelineRootIndex, m_Pipeline);
+AddFilterToPipelineCommand::~AddFilterToPipelineCommand() = default;
 
-  QString statusMessage = QObject::tr("Added '%1' pipeline at root index %2").arg(m_Pipeline->getName()).arg(m_InsertIndex);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void AddFilterToPipelineCommand::redo()
+{
+  if(m_Filters.size() <= 0 || m_Pipeline.get() == nullptr)
+  {
+    return;
+  }
+
+  m_Pipeline->insert(m_InsertIndex, m_Filters);
+
+  QString statusMessage = getStatusMessage();
 
   if(m_FirstRun == false)
   {
@@ -93,80 +147,49 @@ void AddPipelineToModelCommand::redo()
     m_FirstRun = false;
   }
 
-  emit m_ViewModel->clearIssuesTriggered();
-  emit m_ViewModel->preflightTriggered(pipelineRootIndex);
-  emit m_ViewModel->statusMessageGenerated(statusMessage);
-  emit m_ViewModel->standardOutputMessageGenerated(statusMessage);
+  emit statusMessageGenerated(statusMessage);
+  emit standardOutputMessageGenerated(statusMessage);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void AddPipelineToModelCommand::addFilter(AbstractFilter::Pointer filter, int insertionIndex)
+void AddFilterToPipelineCommand::undo()
 {
-  connectFilterSignalsSlots(filter);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void AddPipelineToModelCommand::undo()
-{
-  for(int i = 0; i < m_Filters.size(); i++)
+  if(m_Filters.size() <= 0 || m_Pipeline.get() == nullptr)
   {
-    QPersistentModelIndex filterIndex = m_ViewModel->indexOfFilter(m_Filters[i].get());
-
-    removeFilter(filterIndex);
+    return;
   }
 
+  int count = m_Filters.size();
+  while (count > 0)
+  {
+    m_Pipeline->erase(m_InsertIndex);
+    count--;
+  }
+
+  QString statusMessage = getStatusMessage();
+
+  statusMessage.prepend("Undo \"");
+  statusMessage.append('\"');
+
+  emit statusMessageGenerated(statusMessage);
+  emit standardOutputMessageGenerated(statusMessage);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString AddFilterToPipelineCommand::getStatusMessage()
+{
   QString statusMessage;
   if(m_Filters.size() > 1)
   {
-    statusMessage = QObject::tr("Undo \"Added %1 filters starting at index %2\"").arg(m_Filters.size()).arg(m_FilterRows[0] + 1);
+    statusMessage = QObject::tr(m_MultipleFiltersStatusMessage.toStdString().c_str()).arg(m_Filters.size()).arg(m_FilterRows[0] + 1).arg(m_Pipeline->getName());
   }
   else
   {
-    statusMessage = QObject::tr("Undo \"Added '%1' filter at index %2\"").arg(m_Filters[0]->getHumanLabel()).arg(m_FilterRows[0] + 1);
+    statusMessage = QObject::tr(m_SingleFilterStatusMessage.toStdString().c_str()).arg(m_Filters[0]->getHumanLabel()).arg(m_FilterRows[0] + 1).arg(m_Pipeline->getName());
   }
-
-  emit m_ViewModel->clearIssuesTriggered();
-  emit m_ViewModel->preflightTriggered(m_PipelineRootIndex);
-  emit m_ViewModel->statusMessageGenerated(statusMessage);
-  emit m_ViewModel->standardOutputMessageGenerated(statusMessage);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void AddPipelineToModelCommand::removeFilter(const QPersistentModelIndex& index)
-{
-  AbstractFilter::Pointer filter = m_ViewModel->filter(index);
-
-  disconnectFilterSignalsSlots(filter);
-
-  m_ViewModel->removeRow(index.row(), m_PipelineRootIndex);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void AddPipelineToModelCommand::connectFilterSignalsSlots(AbstractFilter::Pointer filter)
-{
-  QModelIndex index = m_ViewModel->indexOfFilter(filter.get());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void AddPipelineToModelCommand::disconnectFilterSignalsSlots(AbstractFilter::Pointer filter)
-{
-  QModelIndex index = m_ViewModel->indexOfFilter(filter.get());
-
-  QObject::disconnect(filter.get(), &AbstractFilter::filterCompleted, 0, 0);
-
-  QObject::disconnect(filter.get(), &AbstractFilter::filterInProgress, 0, 0);
-
-  FilterInputWidget* fiw = m_ViewModel->filterInputWidget(index);
-
-  QObject::disconnect(fiw, &FilterInputWidget::filterParametersChanged, 0, 0);
+  return statusMessage;
 }

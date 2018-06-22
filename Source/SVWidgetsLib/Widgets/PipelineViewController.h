@@ -94,7 +94,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param filePath
      * @return
      */
-    int openPipeline(const QString& filePath, int insertIndex = -1, const QModelIndex &pipelineRootIndex = QModelIndex());
+    int openPipeline(const QString& filePath, int insertIndex = -1, QModelIndex pipelineRootIndex = QModelIndex());
 
     /**
      * @brief readPipelineFromFile
@@ -168,6 +168,12 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param pipeline
      */
     void removePipeline(FilterPipeline::Pointer pipeline);
+
+    /**
+     * @brief removePipeline
+     * @param pipelineRootIndex
+     */
+    void removePipeline(const QModelIndex &pipelineRootIndex);
 
     /**
      * @brief Cuts filter from the current model

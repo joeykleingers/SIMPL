@@ -248,6 +248,12 @@ public:     \
   type get##prpty() const { return m_##prpty; }
 
 /**
+* @brief Creates a "getter" method to retrieve the value of the boolean property.
+*/
+#define SIMPL_GET_BOOL_PROPERTY(prpty)\
+  bool is##prpty() const { return m_##prpty; }
+
+/**
 * @brief
 */
 #define SIMPL_SET_FILTER_PARAMETER(type, prpty)\

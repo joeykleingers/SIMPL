@@ -35,29 +35,32 @@
 
 #pragma once
 
-#include <QtCore/QModelIndex>
-
 #include <QtWidgets/QUndoCommand>
 
-#include <SIMPLib/Filtering/AbstractFilter.h>
 #include <SIMPLib/Filtering/FilterPipeline.h>
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
-class PipelineFilterObject;
 class PipelineModel;
-class QPushButton;
 
-class SVWidgetsLib_EXPORT AddPipelineToModelCommand : public QUndoCommand
+class SVWidgetsLib_EXPORT AddPipelineToModelCommand : public QObject, public QUndoCommand
 {
-public:    
+    Q_OBJECT
+
+public:
   AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, int insertIndex, QString actionText, QUndoCommand* parent = nullptr);
 
   ~AddPipelineToModelCommand() override;
 
+  SIMPL_GET_BOOL_PROPERTY(ValidCommand)
+
   void undo() override;
 
   void redo() override;
+
+signals:
+  void statusMessageGenerated(const QString &msg);
+  void standardOutputMessageGenerated(const QString &msg);
 
 private:
   FilterPipeline::Pointer m_Pipeline;
@@ -65,32 +68,15 @@ private:
   int m_InsertIndex = 0;
   PipelineModel* m_ViewModel = nullptr;
   bool m_FirstRun = true;
+  bool m_ValidCommand = true;
+
+  const QString m_StatusMessage = "Added '%1' pipeline at root index %2";
 
   /**
-   * @brief addFilter
-   * @param filter
-   * @param parentIndex
+   * @brief getStatusMessage
+   * @return
    */
-  void addFilter(AbstractFilter::Pointer filter, int insertionIndex = -1);
-
-  /**
-   * @brief removeFilter
-   * @param filterIndex
-   * @param pipelineIndex
-   */
-  void removeFilter(const QPersistentModelIndex& index);
-
-  /**
-   * @brief connectFilterSignalsSlots
-   * @param filter
-   */
-  void connectFilterSignalsSlots(AbstractFilter::Pointer filter);
-
-  /**
-   * @brief disconnectFilterSignalsSlots
-   * @param filter
-   */
-  void disconnectFilterSignalsSlots(AbstractFilter::Pointer filter);
+  QString getStatusMessage();
 
   AddPipelineToModelCommand(const AddPipelineToModelCommand&) = delete; // Copy Constructor Not Implemented
   void operator=(const AddPipelineToModelCommand&) = delete;   // Move assignment Not Implemented

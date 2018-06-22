@@ -74,11 +74,15 @@ PipelineItemDelegate::~PipelineItemDelegate() = default;
 // -----------------------------------------------------------------------------
 void PipelineItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
+  PipelineModel* model = m_View->getPipelineModel();
+  if (model->isPipelineRootItem(index))
+  {
+    return paint(painter, option, index);
+  }
+
   painter->save();
 
   painter->setRenderHint(QPainter::Antialiasing);
-
-  PipelineModel* model = m_View->getPipelineModel();
 
   PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(model->data(index, PipelineModel::WidgetStateRole).toInt());
   PipelineItem::PipelineState pState = static_cast<PipelineItem::PipelineState>(model->data(index, PipelineModel::PipelineStateRole).toInt());
@@ -410,6 +414,10 @@ void PipelineItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 bool PipelineItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
   PipelineModel* pipelineModel = dynamic_cast<PipelineModel*>(model);
+  if (pipelineModel->isPipelineRootItem(index))
+  {
+    return PipelineItemDelegate::editorEvent(event, model, option, index);
+  }
 
   QRect deleteBtnRect;
   deleteBtnRect.setX(option.rect.width() - ::k_ButtonSize - ::k_TextMargin);

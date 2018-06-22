@@ -83,21 +83,21 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
      * @param index
      * @return
      */
-    bool isPipelineRootItem(const QModelIndex &index);
+    bool isPipelineRootItem(const QModelIndex &index) const;
 
     /**
      * @brief isFilterItem
      * @param index
      * @return
      */
-    bool isFilterItem(const QModelIndex &index);
+    bool isFilterItem(const QModelIndex &index) const;
 
     /**
      * @brief isDropIndicatorItem
      * @param index
      * @return
      */
-    bool isDropIndicatorItem(const QModelIndex &index);
+    bool isDropIndicatorItem(const QModelIndex &index) const;
 
     QVariant data(const QModelIndex& index, int role) const override;
 //    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
@@ -106,6 +106,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     FilterPipeline::Pointer savedPipeline(const QModelIndex &index) const;
 
     bool setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline);
+
+    AbstractFilter::Pointer filter(const QModelIndex &index) const;
 
     QString dropIndicatorText(const QModelIndex &index) const;
     void setDropIndicatorText(const QModelIndex &index, const QString &text);
@@ -150,6 +152,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     QList<QObject*> getPipelineMessageObservers();
 
+    QModelIndex getPipelineRootIndexFromPipeline(FilterPipeline::Pointer pipeline);
+
   signals:
     void clearIssuesTriggered();
 
@@ -181,6 +185,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     PipelineItem* getItem(const QModelIndex& index) const;
 
     QColor getForegroundColor(const QModelIndex &index) const;
+
+    void addFilterData(AbstractFilter::Pointer filter, const QModelIndex &filterIndex);
 
     PipelineModel(const PipelineModel&);    // Copy Constructor Not Implemented
     void operator=(const PipelineModel&);  // Operator '=' Not Implemented

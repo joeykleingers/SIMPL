@@ -272,30 +272,92 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
   for (int i = 0; i < rowCount(pipelineRootIndex); i++)
   {
     AbstractFilter::Pointer filter = container[i];
-
     QModelIndex filterIndex = this->index(i, PipelineItem::Contents, pipelineRootIndex);
-    setData(filterIndex, static_cast<int>(PipelineItem::ItemType::Filter), Roles::ItemTypeRole);
-
-    if(filter->getEnabled() == false)
-    {
-      setData(filterIndex, static_cast<int>(PipelineItem::WidgetState::Disabled), PipelineModel::WidgetStateRole);
-    }
-
-    connect(filter.get(), SIGNAL(filterCompleted(AbstractFilter*)), this, SLOT(listenFilterCompleted(AbstractFilter*)));
-
-    connect(filter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
-
-    FilterInputWidget* fiw = filterInputWidget(filterIndex);
-
-    connect(fiw, &FilterInputWidget::filterParametersChanged, [=] {
-      emit preflightTriggered(pipelineRootIndex);
-      emit filterParametersChanged(filter);
-    });
+    addFilterData(filter, filterIndex);
   }
+
+  emit clearIssuesTriggered();
+  emit preflightTriggered(pipelineRootIndex);
+
+  // Connection that automatically updates the model when a filter gets added to the FilterPipeline
+  connect(pipeline.get(), &FilterPipeline::filterWasAdded, [=] (AbstractFilter::Pointer filter, int index) {
+    insertRow(index, pipelineRootIndex);
+    QModelIndex filterIndex = this->index(index, PipelineItem::Contents, pipelineRootIndex);
+    addFilterData(filter, filterIndex);
+    emit clearIssuesTriggered();
+    emit preflightTriggered(pipelineRootIndex);
+  });
+
+  // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
+  connect(pipeline.get(), &FilterPipeline::filterWasRemoved, [=] (int index) {
+    removeRow(index, pipelineRootIndex);
+    emit clearIssuesTriggered();
+    emit preflightTriggered(pipelineRootIndex);
+  });
 
   emit dataChanged(index, index);
 
   return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+AbstractFilter::Pointer PipelineModel::filter(const QModelIndex &index) const
+{
+  if (isFilterItem(index))
+  {
+    QModelIndex parentIndex = index.parent();
+    FilterPipeline::Pointer pipeline = tempPipeline(parentIndex);
+    FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+    return container[index.row()];
+  }
+
+  return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex PipelineModel::getPipelineRootIndexFromPipeline(FilterPipeline::Pointer pipeline)
+{
+  for (int i = 0; i < rowCount(); i++)
+  {
+    QModelIndex index = this->index(i, PipelineItem::Contents);
+    FilterPipeline::Pointer storedPipeline = tempPipeline(index);
+    if (storedPipeline == pipeline)
+    {
+      return index;
+    }
+  }
+
+  return QModelIndex();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::addFilterData(AbstractFilter::Pointer filter, const QModelIndex &filterIndex)
+{
+  setData(filterIndex, static_cast<int>(PipelineItem::ItemType::Filter), Roles::ItemTypeRole);
+
+  if(filter->getEnabled() == false)
+  {
+    setData(filterIndex, static_cast<int>(PipelineItem::WidgetState::Disabled), PipelineModel::WidgetStateRole);
+  }
+
+  // Connection that changes the filter state to Completed when the filter is completed
+  connect(filter.get(), SIGNAL(filterCompleted(AbstractFilter*)), this, SLOT(listenFilterCompleted(AbstractFilter*)));
+
+  // Connection that changes the filter state to In Progress when the filter is in progress
+  connect(filter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
+
+  // Connection that triggers a preflight and re-emits that filter parameters have changed if the filter input widget is edited
+  FilterInputWidget* fiw = filterInputWidget(filterIndex);
+  connect(fiw, &FilterInputWidget::filterParametersChanged, [=] {
+    emit preflightTriggered(filterIndex.parent());
+    emit filterParametersChanged(filter);
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -798,7 +860,7 @@ bool PipelineModel::isEmpty()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool PipelineModel::isPipelineRootItem(const QModelIndex &index)
+bool PipelineModel::isPipelineRootItem(const QModelIndex &index) const
 {
   return static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::PipelineRoot;
 }
@@ -806,17 +868,19 @@ bool PipelineModel::isPipelineRootItem(const QModelIndex &index)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool PipelineModel::isFilterItem(const QModelIndex &index)
+bool PipelineModel::isFilterItem(const QModelIndex &index) const
 {
-  return static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::Filter;
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt());
+  return itemType == PipelineItem::ItemType::Filter;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool PipelineModel::isDropIndicatorItem(const QModelIndex &index)
+bool PipelineModel::isDropIndicatorItem(const QModelIndex &index) const
 {
-  return static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::DropIndicator;
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt());
+  return itemType == PipelineItem::ItemType::DropIndicator;
 }
 
 // -----------------------------------------------------------------------------

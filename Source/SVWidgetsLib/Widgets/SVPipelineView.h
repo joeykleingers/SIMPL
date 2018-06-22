@@ -355,6 +355,7 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 
     QPoint m_DragStartPosition;
     QModelIndex m_DropIndicatorIndex;
+    QModelIndex m_PipelineRootIndex;
 
     QPixmap m_DisableBtnPixmap;
     QPixmap m_DisableHighlightedPixmap;

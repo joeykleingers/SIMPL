@@ -63,6 +63,11 @@ PipelineItem::PipelineItem(const QVector<QVariant>& data, PipelineItem* parent)
 PipelineItem::~PipelineItem()
 {
   qDeleteAll(m_ChildItems);
+
+  if (m_FilterInputWidget)
+  {
+    delete m_FilterInputWidget;
+  }
 }
 
 // -----------------------------------------------------------------------------

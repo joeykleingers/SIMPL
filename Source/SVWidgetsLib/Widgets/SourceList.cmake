@@ -12,6 +12,10 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/DataStructureTreeView.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/DataStructureModel.h
 
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/AddPipelineToModelCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/AddFilterToPipelineCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/RemoveFilterFromPipelineCommand.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/RemovePipelineFromModelCommand.h
 
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/BookmarksItemDelegate.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/BookmarksModel.h
@@ -62,6 +66,11 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/DataStructureWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/DataStructureTreeView.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/DataStructureModel.cpp
+
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/AddPipelineToModelCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/AddFilterToPipelineCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/RemoveFilterFromPipelineCommand.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/RemovePipelineFromModelCommand.cpp
 
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/BookmarksItem.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/BookmarksItemDelegate.cpp
@@ -120,27 +129,12 @@ set(SVWidgetsLib_Widgets_UIS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/UI_Files/StatusBarWidget.ui
   )
 
-SET(SVWidgetsLib_Widgets_Util_HDRS
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddPipelineToModelCommand.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToPipelineCommand.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterFromModelCommand.h
-)
-
-SET(SVWidgetsLib_Widgets_Util_SRCS
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddPipelineToModelCommand.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/AddFilterToPipelineCommand.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/util/RemoveFilterFromModelCommand.cpp
-  )
-
 #-- Only include this widget if we are compiling against QtWebEngine
 if(SIMPL_USE_QtWebEngine)
   set(SVWidgetsLib_Widgets_MOC_HDRS ${SVWidgetsLib_Widgets_MOC_HDRS}  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVUserManualDialog.h)
   set(SVWidgetsLib_Widgets_SRCS ${SVWidgetsLib_Widgets_SRCS} ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVUserManualDialog.cpp)
   set(SVWidgetsLib_Widgets_UIS ${SVWidgetsLib_Widgets_UIS} ${SVWidgetsLib_SOURCE_DIR}/Widgets/UI_Files/SVUserManualDialog.ui)
 endif()
-
-cmp_IDE_SOURCE_PROPERTIES( "SVWidgetsLib/Widgets/util" "${SVWidgetsLib_Widgets_Util_HDRS}" "${SVWidgetsLib_Widgets_Util_SRCS}" "${PROJECT_INSTALL_HEADERS}")
-source_group("${SVWidgetsLib_SOURCE_DIR}/Widgets util" FILES ${HEADERS} ${SOURCES})
 
 cmp_IDE_SOURCE_PROPERTIES( "SVWidgetsLib/Widgets" "${SVWidgetsLib_Widgets_MOC_HDRS};${SVWidgetsLib_Widgets_HDRS}" "${SVWidgetsLib_Widgets_SRCS}" "0")
 
@@ -172,8 +166,6 @@ set(SVWidgets_Widgets_Files
   ${SVWidgetsLib_Widgets_MOC_HDRS}
   ${SVWidgetsLib_Widgets_SRCS}
   ${SVWidgetsLib_Widgets_HDRS}
-  ${SVWidgetsLib_Widgets_Util_HDRS}
-  ${SVWidgetsLib_Widgets_Util_SRCS}
 
   ${SVWidgetsLib_Widgets_Generated_MOC_SRCS}
   ${SVWidgetsLib_Widgets_Generated_UI_HDRS}

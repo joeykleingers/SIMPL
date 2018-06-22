@@ -117,6 +117,7 @@ public:
   virtual void pushBack(AbstractFilter::Pointer f);
   virtual void popBack();
   virtual void insert(size_t index, AbstractFilter::Pointer f);
+  virtual void insert(size_t index, std::vector<AbstractFilter::Pointer> filters);
   virtual void erase(size_t index);
   virtual void clear();
   virtual size_t size();
@@ -217,6 +218,26 @@ signals:
   * @brief The signal is emitted when changes are applied to the FilterPipeline
   */
   void pipelineWasEdited();
+
+  /**
+   * @brief The signal is emitted when a filter is added to the FilterPipeline
+   * @param filter The filter that was added
+   * @param index The index in the FilterPipeline where the filter is located
+   */
+  void filterWasAdded(AbstractFilter::Pointer filter, int index);
+
+  /**
+   * @brief The signal is emitted when a filter is edited in the FilterPipeline
+   * @param filter The filter that was edited
+   * @param index The index in the FilterPipeline where the filter is located
+   */
+  void filterWasEdited(AbstractFilter::Pointer filter, int index);
+
+  /**
+   * @brief The signal is emitted when a filter is removed from the FilterPipeline
+   * @param index The index in the FilterPipeline where the filter was originally located
+   */
+  void filterWasRemoved(int index);
 
   /**
   * @brief This signal is emitted when the pipeline name changes

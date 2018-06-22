@@ -54,8 +54,10 @@
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineItem.h"
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
-#include "SVWidgetsLib/Widgets/util/AddFilterToModelCommand.h"
-#include "SVWidgetsLib/Widgets/util/RemoveFilterFromModelCommand.h"
+#include "SVWidgetsLib/Widgets/AddPipelineToModelCommand.h"
+#include "SVWidgetsLib/Widgets/AddFilterToPipelineCommand.h"
+#include "SVWidgetsLib/Widgets/RemoveFilterFromPipelineCommand.h"
+#include "SVWidgetsLib/Widgets/RemovePipelineFromModelCommand.h"
 #include "SVWidgetsLib/QtSupport/QtSFileDragMessageBox.h"
 
 // -----------------------------------------------------------------------------
@@ -125,8 +127,21 @@ void PipelineViewController::addFilter(AbstractFilter::Pointer filter, int inser
 {
   if (m_PipelineModel)
   {
-    AddFilterToModelCommand* cmd = new AddFilterToModelCommand(filter, m_PipelineModel, insertIndex, pipelineRootIndex, "Add");
-    addUndoCommand(cmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    if (pipeline.get() != nullptr)
+    {
+      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filter, pipeline, insertIndex, "Add");
+      if (cmd->isValidCommand())
+      {
+        connect(cmd, &AddFilterToPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+        connect(cmd, &AddFilterToPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+        addUndoCommand(cmd);
+      }
+      else
+      {
+        delete cmd;
+      }
+    }
   }
 }
 
@@ -137,8 +152,21 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
 {
   if (m_PipelineModel)
   {
-    AddFilterToModelCommand* cmd = new AddFilterToModelCommand(filters, m_PipelineModel, insertIndex, pipelineRootIndex, "Add");
-    addUndoCommand(cmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    if (pipeline.get() != nullptr)
+    {
+      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, insertIndex, "Add");
+      if (cmd->isValidCommand())
+      {
+        connect(cmd, &AddFilterToPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+        connect(cmd, &AddFilterToPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+        addUndoCommand(cmd);
+      }
+      else
+      {
+        delete cmd;
+      }
+    }
   }
 }
 
@@ -149,8 +177,18 @@ void PipelineViewController::removeFilter(AbstractFilter::Pointer filter, const 
 {
   if (m_PipelineModel)
   {
-    RemoveFilterFromModelCommand* cmd = new RemoveFilterFromModelCommand(filter, m_PipelineModel, pipelineRootIndex, "Remove");
-    addUndoCommand(cmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filter, pipeline, "Remove");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -161,8 +199,18 @@ void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> 
 {
   if (m_PipelineModel)
   {
-    RemoveFilterFromModelCommand* cmd = new RemoveFilterFromModelCommand(filters, m_PipelineModel, pipelineRootIndex, "Remove");
-    addUndoCommand(cmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, "Remove");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -173,15 +221,17 @@ void PipelineViewController::addPipeline(FilterPipeline::Pointer pipeline, int i
 {
   if (m_PipelineModel)
   {
-    QList<AbstractFilter::Pointer> pipelineFilters = pipeline->getFilterContainer();
-    std::vector<AbstractFilter::Pointer> filters;
-    for(int i = 0; i < pipelineFilters.size(); i++)
+    AddPipelineToModelCommand* cmd = new AddPipelineToModelCommand(pipeline, m_PipelineModel, insertIndex, "Add");
+    if (cmd->isValidCommand())
     {
-      filters.push_back(pipelineFilters[i]);
+      connect(cmd, &AddPipelineToModelCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &AddPipelineToModelCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
     }
-
-    AddFilterToModelCommand* cmd = new AddFilterToModelCommand(filters, m_PipelineModel, insertIndex, pipelineRootIndex, "Add");
-    addUndoCommand(cmd);
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -192,15 +242,29 @@ void PipelineViewController::removePipeline(FilterPipeline::Pointer pipeline)
 {
   if (m_PipelineModel)
   {
-    QList<AbstractFilter::Pointer> pipelineFilters = pipeline->getFilterContainer();
-    std::vector<AbstractFilter::Pointer> filters;
-    for(int i = 0; i < pipelineFilters.size(); i++)
-    {
-      filters.push_back(pipelineFilters[i]);
-    }
+    QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(pipeline);
+    removePipeline(pipelineRootIndex);
+  }
+}
 
-    AddFilterToModelCommand* cmd = new AddFilterToModelCommand(filters, m_PipelineModel, insertIndex, pipelineRootIndex, "Add");
-    addUndoCommand(cmd);
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::removePipeline(const QModelIndex &pipelineRootIndex)
+{
+  if (m_PipelineModel)
+  {
+    RemovePipelineFromModelCommand* cmd = new RemovePipelineFromModelCommand(m_PipelineModel, pipelineRootIndex, "Add");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &RemovePipelineFromModelCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &RemovePipelineFromModelCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -211,8 +275,18 @@ void PipelineViewController::cutFilter(AbstractFilter::Pointer filter, const QMo
 {
   if (m_PipelineModel)
   {
-    RemoveFilterFromModelCommand* cmd = new RemoveFilterFromModelCommand(filter, m_PipelineModel, pipelineRootIndex, "Cut");
-    addUndoCommand(cmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filter, pipeline, "Cut");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -223,8 +297,18 @@ void PipelineViewController::cutFilters(std::vector<AbstractFilter::Pointer> fil
 {
   if (m_PipelineModel)
   {
-    RemoveFilterFromModelCommand* cmd = new RemoveFilterFromModelCommand(filters, m_PipelineModel, pipelineRootIndex, "Cut");
-    addUndoCommand(cmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, "Cut");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -248,8 +332,18 @@ void PipelineViewController::pasteFilters(int insertIndex, const QModelIndex &pi
       filters.push_back(container[i]);
     }
 
-    AddFilterToModelCommand* addCmd = new AddFilterToModelCommand(filters, m_PipelineModel, insertIndex, pipelineRootIndex, "Paste");
-    addUndoCommand(addCmd);
+    pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, insertIndex, "Paste");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &AddFilterToPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &AddFilterToPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -359,8 +453,18 @@ void PipelineViewController::clearPipeline(const QModelIndex &pipelineRootIndex)
       filters.push_back(m_PipelineModel->filter(filterIndex));
     }
 
-    RemoveFilterFromModelCommand* removeCmd = new RemoveFilterFromModelCommand(filters, m_PipelineModel, pipelineRootIndex, "Clear");
-    addUndoCommand(removeCmd);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, "Clear");
+    if (cmd->isValidCommand())
+    {
+      connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
+      connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      addUndoCommand(cmd);
+    }
+    else
+    {
+      delete cmd;
+    }
   }
 }
 
@@ -428,7 +532,7 @@ FilterPipeline::Pointer PipelineViewController::getFilterPipeline(const QModelIn
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int PipelineViewController::openPipeline(const QString& filePath, int insertIndex, const QModelIndex &pipelineRootIndex)
+int PipelineViewController::openPipeline(const QString& filePath, int insertIndex, QModelIndex pipelineRootIndex)
 {
   if (m_PipelineModel)
   {
@@ -456,7 +560,7 @@ int PipelineViewController::openPipeline(const QString& filePath, int insertInde
           DataContainerReader::Pointer reader = DataContainerReader::New();
           reader->setInputFile(filePath);
 
-          addFilter(reader, insertIndex);
+          addFilter(reader, insertIndex, pipelineRootIndex);
           return true;
         }
       }
@@ -485,7 +589,15 @@ int PipelineViewController::openPipeline(const QString& filePath, int insertInde
     }
 
     // Populate the pipeline view
-    addFilters(filters, insertIndex, pipelineRootIndex);
+    if (pipelineRootIndex.isValid())
+    {
+      addFilters(filters, insertIndex, pipelineRootIndex);
+    }
+    else
+    {
+      addPipeline(pipeline);
+      pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(pipeline);
+    }
 
     emit pipelineFilePathUpdated(filePath);
     emit pipelineDataChanged(pipelineRootIndex);
