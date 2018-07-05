@@ -95,7 +95,7 @@ BookmarksTreeView::BookmarksTreeView(QWidget* parent)
   connect(m_ActionOpenBookmark, &QAction::triggered, this, &BookmarksTreeView::listenOpenBookmarkTriggered);
   connect(m_ActionExecuteBookmark, &QAction::triggered, this, &BookmarksTreeView::listenExecuteBookmarkTriggered);
   connect(m_ActionClearBookmarks, &QAction::triggered, this, &BookmarksTreeView::listenClearBookmarksTriggered);
-  connect(m_ActionLocateFile, &QAction::triggered, this, &BookmarksTreeView::listenLocateBookmarkTriggered);
+  connect(m_ActionLocateFile, &QAction::triggered, this, &BookmarksTreeView::locateBookmarkTriggered);
 }
 
 // -----------------------------------------------------------------------------
@@ -164,18 +164,23 @@ void BookmarksTreeView::listenAddBookmarkTriggered()
 // -----------------------------------------------------------------------------
 void BookmarksTreeView::listenAddBookmarkFolderTriggered()
 {
+  BookmarksModel* model = BookmarksModel::Instance();
+
   QModelIndex parent = currentIndex();
 
-  if(parent.isValid() == false)
+  if(parent.isValid() == false || static_cast<BookmarksItem::ItemType>(model->data(parent, BookmarksModel::Roles::ItemTypeRole).toInt()) == BookmarksItem::ItemType::Bookmark)
   {
     parent = QModelIndex();
   }
 
+  emit raiseBookmarksWidget();
+
   QString name = "New Folder";
 
-  BookmarksModel* model = BookmarksModel::Instance();
-
   QModelIndex index = model->addTreeItem(parent, name, QIcon(":/SIMPL/icons/images/folder_blue.png"), "", model->rowCount(parent), BookmarksItem::ItemType::Folder, false);
+  expandIndex(parent);
+  setCurrentIndex(index);
+  scrollTo(index);
   edit(index);
 }
 
@@ -359,52 +364,6 @@ void BookmarksTreeView::listenClearBookmarksTriggered()
       model->removeRows(0, model->rowCount(QModelIndex()));
     }
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void BookmarksTreeView::listenLocateBookmarkTriggered()
-{
-  BookmarksModel* model = BookmarksModel::Instance();
-
-  QModelIndex current = currentIndex();
-
-  QModelIndex index = model->index(current.row(), BookmarksItem::Contents, current.parent());
-
-  QString path = model->data(index, static_cast<int>(BookmarksModel::Roles::PathRole)).toString();
-  QFileInfo fi(path);
-  QString restrictions;
-  if(fi.completeSuffix() == "json")
-  {
-    restrictions = "Json File (*.json)";
-  }
-  else if(fi.completeSuffix() == "dream3d")
-  {
-    restrictions = "Dream3d File(*.dream3d)";
-  }
-  else if(fi.completeSuffix() == "txt")
-  {
-    restrictions = "Text File (*.txt)";
-  }
-  else
-  {
-    restrictions = "Ini File (*.ini)";
-  }
-
-  QString filePath = QFileDialog::getOpenFileName(this, tr("Locate Pipeline File"), path, tr(restrictions.toStdString().c_str()));
-  if(true == filePath.isEmpty())
-  {
-    return;
-  }
-
-  filePath = QDir::toNativeSeparators(filePath);
-
-  // Set the new path into the item
-  model->setData(index, filePath, static_cast<int>(BookmarksModel::Roles::PathRole));
-
-  // Change item back to default look and functionality
-  model->setData(index, false, Qt::UserRole);
 }
 
 // -----------------------------------------------------------------------------

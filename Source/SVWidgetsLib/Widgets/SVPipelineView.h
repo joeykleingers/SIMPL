@@ -80,13 +80,14 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 
 public:
   SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
+
   SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
   SIMPL_GET_PROPERTY(QAction*, ActionCut)
   SIMPL_GET_PROPERTY(QAction*, ActionCopy)
   SIMPL_GET_PROPERTY(QAction*, ActionPaste)
   SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
 
-  SVPipelineView(QWidget* parent = 0);
+  SVPipelineView(QWidget* parent = nullptr);
   virtual ~SVPipelineView();
 
   /**
@@ -191,7 +192,7 @@ public:
    * @param outputPath
    * @return
    */
-  int writePipeline(const QModelIndex& pipelineRootIndex, const QString& outputPath);
+  int writePipeline(const QModelIndex &pipelineRootIndex, const QString &outputPath);
 
 public slots:
   /**
@@ -297,6 +298,28 @@ signals:
 
   void deleteKeyPressed();
 
+
+
+  void displayIssuesTriggered();
+  void clearIssuesTriggered();
+  void clearDataStructureWidgetTriggered();
+
+  void writeSIMPLViewSettingsTriggered();
+
+  void addPlaceHolderFilter(QPoint p);
+  void removePlaceHolderFilter();
+
+  void filterParametersChanged(AbstractFilter::Pointer filter);
+
+  void pipelineStarted();
+
+  void pipelineHasMessage(const PipelineMessage& msg);
+  void pipelineFilePathUpdated(const QString& name);
+  void pipelineChanged();
+
+  void statusMessage(const QString& message);
+  void stdOutMessage(const QString& message);
+
 protected:
   void setupGui();
 
@@ -319,7 +342,7 @@ protected:
   void setFiltersEnabled(QModelIndexList indexes, bool enabled);
   void setSelectedFiltersEnabled(bool enabled);
 
-protected slots:
+protected slots:  
   /**
    * @brief updatePasteAvailability
    */
@@ -342,7 +365,13 @@ protected slots:
   void listenClearPipelineTriggered();
 
 private:
+  QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
+
+  bool m_PipelineRunning = false;
+
   QUndoCommand* m_MoveCommand = nullptr;
+  QPoint m_DragStartPosition;
+  QModelIndex m_DropIndicatorIndex;
 
   QAction* m_ActionEnableFilter = nullptr;
   QAction* m_ActionCut = nullptr;
@@ -352,8 +381,6 @@ private:
 
   QString m_CurrentPipelineFilePath;
 
-  QPoint m_DragStartPosition;
-  QModelIndex m_DropIndicatorIndex;
   QModelIndex m_PipelineRootIndex;
 
   QPixmap m_DisableBtnPixmap;
@@ -415,6 +442,12 @@ private:
    * @param menu
    */
   void requestSinglePipelineContextMenu(QMenu& menu);
+
+  /**
+   * @brief requestErrorHandlingContextMenu
+   * @param menu
+   */
+  void requestErrorHandlingContextMenu(QMenu& menu);
 
   /**
    * @brief requestDefaultContextMenu

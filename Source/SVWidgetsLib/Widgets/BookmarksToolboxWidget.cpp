@@ -104,6 +104,10 @@ void BookmarksToolboxWidget::setupGui()
 
   connect(bookmarksTreeView, &BookmarksTreeView::fireWriteSettings, this, &BookmarksToolboxWidget::fireWriteSettings);
 
+  connect(bookmarksTreeView, &BookmarksTreeView::raiseBookmarksWidget, this, &BookmarksToolboxWidget::raiseBookmarksDockWidget);
+
+  connect(bookmarksTreeView, &BookmarksTreeView::locateBookmarkTriggered, this, &BookmarksToolboxWidget::listenLocateBookmarkTriggered);
+
   //bookmarksTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
@@ -191,39 +195,104 @@ void BookmarksToolboxWidget::on_bookmarksTreeView_doubleClicked(const QModelInde
 {
   BookmarksModel* model = BookmarksModel::Instance();
 
-  QString path = model->data(index, static_cast<int>(BookmarksModel::Roles::PathRole)).toString();
-  if(path.isEmpty())
+  BookmarksItem::ItemType itemType = static_cast<BookmarksItem::ItemType>(model->data(index, BookmarksModel::Roles::ItemTypeRole).toInt());
+  if(itemType == BookmarksItem::ItemType::Folder)
   {
     return; // The user double clicked a folder, so don't do anything
   }
+  else if(itemType == BookmarksItem::ItemType::Bookmark)
+  {
+    QString path = model->data(index, static_cast<int>(BookmarksModel::Roles::PathRole)).toString();
+    QFileInfo fi(path);
 
-  QFileInfo fi(path);
-  if(fi.isDir())
-  {
-    return;
+    if (fi.exists() == false)
+    {
+      bookmarksTreeView->blockSignals(true);
+      QtSBookmarkMissingDialog* dialog = new QtSBookmarkMissingDialog(this, Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint | Qt::WindowTitleHint);
+      QString name = model->data(index, Qt::DisplayRole).toString();
+      dialog->setBookmarkName(name);
+      int ret = dialog->exec();
+      delete dialog;
+      bookmarksTreeView->blockSignals(false);
+
+      if (ret == QDialog::Accepted)
+      {
+        bool result = locateBookmark();
+        if (result)
+        {
+          QString filePath = model->data(index, BookmarksModel::Roles::PathRole).toString();
+          emit bookmarkActivated(filePath);
+        }
+      }
+    }
+    else
+    {
+      bool itemHasErrors = model->data(index, static_cast<int>(BookmarksModel::Roles::ErrorsRole)).toBool();
+      if(itemHasErrors == true)
+      {
+        // Set the itemHasError variable, and have the watcher monitor the file again
+        model->setData(index, false, static_cast<int>(BookmarksModel::Roles::ErrorsRole));
+        model->getFileSystemWatcher()->addPath(path);
+      }
+      emit bookmarkActivated(path);
+    }
   }
-  else if(fi.exists() == false)
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void BookmarksToolboxWidget::listenLocateBookmarkTriggered()
+{
+  locateBookmark();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool BookmarksToolboxWidget::locateBookmark()
+{
+  BookmarksModel* model = BookmarksModel::Instance();
+
+  QModelIndex current = bookmarksTreeView->currentIndex();
+
+  QModelIndex index = model->index(current.row(), BookmarksItem::Contents, current.parent());
+
+  QString path = model->data(index, static_cast<int>(BookmarksModel::Roles::PathRole)).toString();
+  QFileInfo fi(path);
+  QString restrictions;
+  if(fi.completeSuffix() == "json")
   {
-    bookmarksTreeView->blockSignals(true);
-    QtSBookmarkMissingDialog* dialog = new QtSBookmarkMissingDialog(this, Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint | Qt::WindowTitleHint);
-    connect(dialog, SIGNAL(locateBtnPressed()), bookmarksTreeView, SLOT(listenLocateBookmarkTriggered()));
-    QString name = model->data(index, Qt::DisplayRole).toString();
-    dialog->setBookmarkName(name);
-    dialog->exec();
-    delete dialog;
-    bookmarksTreeView->blockSignals(false);
+    restrictions = "Json File (*.json)";
+  }
+  else if(fi.completeSuffix() == "dream3d")
+  {
+    restrictions = "Dream3d File(*.dream3d)";
+  }
+  else if(fi.completeSuffix() == "txt")
+  {
+    restrictions = "Text File (*.txt)";
   }
   else
   {
-    bool itemHasErrors = model->data(index, static_cast<int>(BookmarksModel::Roles::ErrorsRole)).toBool();
-    if(itemHasErrors == true)
-    {
-      // Set the itemHasError variable, and have the watcher monitor the file again
-      model->setData(index, false, static_cast<int>(BookmarksModel::Roles::ErrorsRole));
-      model->getFileSystemWatcher()->addPath(path);
-    }
-    emit bookmarkActivated(path);
+    restrictions = "Ini File (*.ini)";
   }
+
+  QString filePath = QFileDialog::getOpenFileName(this, tr("Locate Pipeline File"), path, tr(restrictions.toStdString().c_str()));
+  if(true == filePath.isEmpty())
+  {
+    return false;
+  }
+
+  filePath = QDir::toNativeSeparators(filePath);
+
+  // Set the new path into the item
+  model->setData(index, filePath, static_cast<int>(BookmarksModel::Roles::PathRole));
+
+  // Change item back to default look and functionality
+  model->setData(index, false, static_cast<int>(BookmarksModel::Roles::ErrorsRole));
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------

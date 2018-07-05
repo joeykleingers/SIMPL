@@ -54,7 +54,7 @@ class SVWidgetsLib_EXPORT PipelineView
   public:
     virtual ~PipelineView();
 
-    SIMPL_GET_PROPERTY(PipelineViewController*, PipelineViewController)
+    SIMPL_POINTER_PROPERTY(PipelineViewController, PipelineViewController)
 
     /**
      * @brief getActionUndo
@@ -153,10 +153,7 @@ class SVWidgetsLib_EXPORT PipelineView
 
     virtual std::vector<AbstractFilter::Pointer> getSelectedFilters() = 0;
 
-    SIMPL_SET_PROPERTY(PipelineViewController*, PipelineViewController)
-
   private:
-    PipelineViewController* m_PipelineViewController = nullptr;
 
     PipelineView(const PipelineView&) = delete;   // Copy Constructor Not Implemented
     void operator=(const PipelineView&) = delete; // Move assignment Not Implemented

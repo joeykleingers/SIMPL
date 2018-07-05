@@ -54,7 +54,7 @@ class SVWidgetsLib_EXPORT PipelineExecutionController : public QObject
 
     virtual ~PipelineExecutionController();
 
-    SIMPL_INSTANCE_PROPERTY(QThread*, WorkerThread)
+    SIMPL_POINTER_PROPERTY(QThread, WorkerThread)
     SIMPL_INSTANCE_PROPERTY(FilterPipeline::Pointer, Pipeline)
 
     SIMPL_GET_PROPERTY(QVector<DataContainerArray::Pointer>, PreflightDataContainerArrays)

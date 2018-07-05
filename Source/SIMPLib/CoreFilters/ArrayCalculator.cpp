@@ -45,6 +45,7 @@
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/CalculatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
+#include "SIMPLib/FilterParameters/ScalarTypeFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
 #include "util/ABSOperator.h"
@@ -138,6 +139,7 @@ ArrayCalculator::ArrayCalculator()
 , m_InfixEquation(QString())
 , m_CalculatedArray("", "", "Output")
 , m_Units(Radians)
+, m_ScalarType(SIMPL::ScalarTypes::Type::Double)
 {
 
   createSymbolMap();
@@ -160,6 +162,8 @@ void ArrayCalculator::setupFilterParameters()
   }
 
   parameters.push_back(SIMPL_NEW_CALC_FP("Infix Expression", InfixEquation, FilterParameter::Parameter, ArrayCalculator));
+
+  parameters.push_back(SIMPL_NEW_SCALARTYPE_FP("Scalar Type", ScalarType, FilterParameter::CreatedArray, ArrayCalculator));
 
   {
     DataArrayCreationFilterParameter::RequirementType req = DataArrayCreationFilterParameter::CreateRequirement(AttributeMatrix::Type::Any, IGeometry::Type::Any);
@@ -252,53 +256,56 @@ void ArrayCalculator::dataCheck()
     }
   }
 
+  if(false == m_CalculatedArray.isValid())
+  {
+    setErrorCondition(-4675);
+    QString ss = QObject::tr("The output path must be valid");
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
+
   DataArrayPath calculatedAMPath(m_CalculatedArray.getDataContainerName(), m_CalculatedArray.getAttributeMatrixName(), "");
   AttributeMatrix::Pointer calculatedAM = getDataContainerArray()->getAttributeMatrix(calculatedAMPath);
   AttributeMatrix::Pointer selectedAM = getDataContainerArray()->getAttributeMatrix(m_SelectedAttributeMatrix);
 
-  bool hasArrays = false;
-  bool resultIsNumber = true;
   QVector<size_t> cDims;
+  ICalculatorArray::ValueType resultType = ICalculatorArray::ValueType::Unknown;
 
   for(int32_t i = 0; i < parsedInfix.size(); i++)
   {
     CalculatorItem::Pointer item1 = parsedInfix[i];
-    if(nullptr != std::dynamic_pointer_cast<ICalculatorArray>(item1))
+    if(item1->isICalculatorArray())
     {
-      hasArrays = true;
       ICalculatorArray::Pointer array1 = std::dynamic_pointer_cast<ICalculatorArray>(item1);
-      if(array1->getArray()->getNumberOfTuples() != 1)
+      if (item1->isArray())
       {
-        resultIsNumber = false;
-      }
-      cDims = array1->getArray()->getComponentDimensions();
-      for(int32_t j = i; j < parsedInfix.size(); j++)
-      {
-        CalculatorItem::Pointer item2 = parsedInfix[j];
-        if(nullptr != std::dynamic_pointer_cast<ICalculatorArray>(item2))
+        if (cDims.isEmpty() == false && resultType == ICalculatorArray::ValueType::Array && cDims != array1->getArray()->getComponentDimensions())
         {
-          ICalculatorArray::Pointer array2 = std::dynamic_pointer_cast<ICalculatorArray>(item2);
-          if(array1->getType() != ICalculatorArray::Number && array2->getType() != ICalculatorArray::Number &&
-             array1->getArray()->getComponentDimensions() != array2->getArray()->getComponentDimensions())
-          {
-            QString ss = QObject::tr("Attribute Array symbols in the infix expression have mismatching component dimensions");
-            setErrorCondition(static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_COMP_DIMS));
-            notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-            return;
-          }
+          QString ss = QObject::tr("Attribute Array symbols in the infix expression have mismatching component dimensions");
+          setErrorCondition(static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_COMP_DIMS));
+          notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+          return;
         }
+
+        resultType = ICalculatorArray::ValueType::Array;
+        cDims = array1->getArray()->getComponentDimensions();
+      }
+      else if (resultType == ICalculatorArray::ValueType::Unknown)
+      {
+        resultType = ICalculatorArray::ValueType::Number;
+        cDims = array1->getArray()->getComponentDimensions();
       }
     }
   }
 
-  if(hasArrays == false)
+  if(resultType == ICalculatorArray::ValueType::Unknown)
   {
     QString ss = QObject::tr("The expression does not have any arguments that simplify down to a number.");
     setErrorCondition(static_cast<int>(CalculatorItem::ErrorCode::NO_NUMERIC_ARGUMENTS));
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     return;
   }
-  else if(resultIsNumber == true)
+  else if(resultType == ICalculatorArray::ValueType::Number)
   {
     QString ss = QObject::tr("The result of the chosen expression will be a numeric value or contain one tuple."
                              " This numeric value will be stored in an array with the number of tuples equal to 1");
@@ -331,7 +338,47 @@ void ArrayCalculator::dataCheck()
     return;
   }
 
-  getDataContainerArray()->createNonPrereqArrayFromPath<DoubleArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+  switch(m_ScalarType)
+  {
+  case SIMPL::ScalarTypes::Type::Int8:
+    getDataContainerArray()->createNonPrereqArrayFromPath<Int8ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt8:
+    getDataContainerArray()->createNonPrereqArrayFromPath<UInt8ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::Int16:
+    getDataContainerArray()->createNonPrereqArrayFromPath<Int16ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt16:
+    getDataContainerArray()->createNonPrereqArrayFromPath<UInt16ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::Int32:
+    getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt32:
+    getDataContainerArray()->createNonPrereqArrayFromPath<UInt32ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::Int64:
+    getDataContainerArray()->createNonPrereqArrayFromPath<Int64ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt64:
+    getDataContainerArray()->createNonPrereqArrayFromPath<UInt64ArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::Float:
+    getDataContainerArray()->createNonPrereqArrayFromPath<FloatArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::Double:
+    getDataContainerArray()->createNonPrereqArrayFromPath<DoubleArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  case SIMPL::ScalarTypes::Type::Bool:
+    getDataContainerArray()->createNonPrereqArrayFromPath<BoolArrayType, AbstractFilter, double>(this, m_CalculatedArray, 0, cDims);
+    break;
+  default:
+    QString ss = QObject::tr("The output array type is not valid.  No DataArray could be created.");
+    setErrorCondition(static_cast<int>(CalculatorItem::ErrorCode::InvalidOutputArrayType));
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -417,12 +464,15 @@ void ArrayCalculator::execute()
     IDataArray::Pointer resultArray = IDataArray::NullPointer();
     resultArray = arrayItem->getArray();
 
+    IDataArray::Pointer resultTypeArray = IDataArray::NullPointer();
+    resultTypeArray = convertArrayType(resultArray, m_ScalarType);
+
     DataArrayPath createdAMPath(m_CalculatedArray.getDataContainerName(), m_CalculatedArray.getAttributeMatrixName(), "");
     AttributeMatrix::Pointer createdAM = getDataContainerArray()->getAttributeMatrix(createdAMPath);
     if(nullptr != createdAM)
     {
-      resultArray->setName(m_CalculatedArray.getDataArrayName());
-      createdAM->addAttributeArray(resultArray->getName(), resultArray);
+      resultTypeArray->setName(m_CalculatedArray.getDataArrayName());
+      createdAM->addAttributeArray(resultTypeArray->getName(), resultTypeArray);
     }
   }
   else
@@ -435,6 +485,86 @@ void ArrayCalculator::execute()
   }
 
   notifyStatusMessage(getHumanLabel(), "Complete");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+template<typename T> IDataArray::Pointer convertArray(DoubleArrayType::Pointer inputArray)
+{
+  if(nullptr == inputArray)
+  {
+    return nullptr;
+  }
+
+  double* rawInputarray = inputArray->getPointer(0);
+
+  typename DataArray<T>::Pointer convertedArrayPtr = DataArray<T>::CreateArray(inputArray->getNumberOfTuples(), inputArray->getComponentDimensions(), inputArray->getName());
+  T* rawOutputArray = convertedArrayPtr->getPointer(0);
+
+  int count = inputArray->getSize();
+  for(int i = 0; i < count; i++)
+  {
+    double val = rawInputarray[i];
+    rawOutputArray[i] = val;
+  }
+
+  return convertedArrayPtr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+IDataArray::Pointer ArrayCalculator::convertArrayType(IDataArray::Pointer inputArray, SIMPL::ScalarTypes::Type scalarType)
+{
+  DoubleArrayType::Pointer inputDblArray = std::dynamic_pointer_cast<DoubleArrayType>(inputArray);
+  if(nullptr == inputDblArray)
+  {
+    return nullptr;
+  }
+
+  IDataArray::Pointer castArray = nullptr;
+
+  switch(scalarType)
+  {
+  case SIMPL::ScalarTypes::Type::Int8:
+    castArray = convertArray<int8_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt8:
+    castArray = convertArray<uint8_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::Int16:
+    castArray = convertArray<int16_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt16:
+    castArray = convertArray<uint16_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::Int32:
+    castArray = convertArray<int32_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt32:
+    castArray = convertArray<uint32_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::Int64:
+    castArray = convertArray<int64_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::UInt64:
+    castArray = convertArray<uint64_t>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::Float:
+    castArray = convertArray<float>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::Double:
+    castArray = convertArray<double>(inputDblArray);
+    break;
+  case SIMPL::ScalarTypes::Type::Bool:
+    castArray = convertArray<bool>(inputDblArray);
+    break;
+  default:
+    break;
+  }
+
+  return castArray;
 }
 
 // -----------------------------------------------------------------------------
@@ -687,13 +817,25 @@ void ArrayCalculator::parseNumericValue(QString token, QVector<CalculatorItem::P
 bool ArrayCalculator::parseIndexOperator(QString token, QVector<CalculatorItem::Pointer>& parsedInfix)
 {
   int idx = parsedInfix.size() - 1;
-  if(idx < 0 || (idx >= 0 && std::dynamic_pointer_cast<ICalculatorArray>(parsedInfix[idx]) == ICalculatorArray::NullPointer()) ||
-     (idx >= 0 && std::dynamic_pointer_cast<ICalculatorArray>(parsedInfix[idx]) != ICalculatorArray::NullPointer() &&
-      std::dynamic_pointer_cast<ICalculatorArray>(parsedInfix[idx])->getType() == ICalculatorArray::Number))
+
+  QString errorMsg = QObject::tr("Index operator '%1' is not paired with a valid array name.").arg(token);
+  int errCode = static_cast<int>(CalculatorItem::ErrorCode::ORPHANED_COMPONENT);
+  if(idx < 0)
   {
-    QString ss = QObject::tr("Index operator '%1' is not paired with a valid array name.").arg(token);
-    setErrorCondition(static_cast<int>(CalculatorItem::ErrorCode::ORPHANED_COMPONENT));
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    setErrorCondition(errCode);
+    notifyErrorMessage(getHumanLabel(), errorMsg, getErrorCondition());
+    return false;
+  }
+  else if (parsedInfix[idx]->isICalculatorArray() == false)
+  {
+    setErrorCondition(errCode);
+    notifyErrorMessage(getHumanLabel(), errorMsg, getErrorCondition());
+    return false;
+  }
+  else if (parsedInfix[idx]->isNumber())
+  {
+    setErrorCondition(errCode);
+    notifyErrorMessage(getHumanLabel(), errorMsg, getErrorCondition());
     return false;
   }
 

@@ -524,4 +524,9 @@ QTreeView::branch:selected:!active {
 }
 
 
+SVSmallLabel
+{
+    font-size: 11pt;
+}
+
 

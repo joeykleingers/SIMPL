@@ -239,7 +239,7 @@ public:     \
 * @brief Creates a "setter" method to set the property.
 */
 #define SIMPL_SET_PROPERTY(type, prpty)\
-  void set##prpty(type value) { this->m_##prpty = value; }
+  void set##prpty(const type& value) { this->m_##prpty = value; }
 
 /**
 * @brief Creates a "getter" method to retrieve the value of the property.
@@ -257,7 +257,7 @@ public:     \
 * @brief
 */
 #define SIMPL_SET_FILTER_PARAMETER(type, prpty)\
-  void set##prpty(type value) { this->m_##prpty = value; emit parametersChanged(); }
+  void set##prpty(const type& value) { this->m_##prpty = value; emit parametersChanged(); }
 
 
 #define SIMPL_SET_PROPERTY_DECL(type, prpty)\
@@ -289,7 +289,7 @@ public:     \
 
 
 #define SIMPL_SET_PROPERTY_DEF(class, type, prpty)\
-  void class::set##prpty(type value) { this->m_##prpty = value; }
+  void class::set##prpty(const type& value) { this->m_##prpty = value; }
 
 #define SIMPL_GET_PROPERTY_DEF(class, type, prpty)\
   type class::get##prpty() const { return m_##prpty; }
@@ -319,6 +319,16 @@ public:     \
   public:\
   SIMPL_SET_PROPERTY(type, prpty)\
   SIMPL_GET_PROPERTY(type, prpty)
+  
+  
+
+#define SIMPL_POINTER_PROPERTY(type, prpty)\
+  private:\
+    type* m_##prpty = nullptr;\
+  public:\
+  void set##prpty(type* f) { m_##prpty = f; }\
+  SIMPL_GET_PROPERTY(type*, prpty)  
+  
 
 #define SIMPL_PRIVATE_INSTANCE_PROPERTY(type, prpty)\
   private:\
@@ -372,6 +382,10 @@ public:     \
 #define PYB11_METHOD(...)
 
 #define PYB11_METHOD_MAPPER(...)
+
+// End of PYBIND11 Macro Definitions
+/* **************************************************************************** */
+
 
 
 #define SIMPL_SET_PROPERTY_DECL(type, prpty)\
@@ -433,9 +447,10 @@ public:     \
   private:\
   type   m_##prpty;\
   public:\
-  SIMPL_SET_PROPERTY(type, prpty)\
-  SIMPL_GET_PROPERTY(type, prpty)
+  void set##prpty(const type& value) { this->m_##prpty = value; }\
+  type get##prpty() const { return m_##prpty; }
   
+
   
 
 // -----------------------------------------------------------------------------
@@ -444,7 +459,7 @@ public:     \
 #define SIMPL_SET_2DVECTOR_PROPERTY(type, prpty, varname)\
   void set##prpty(type value[2]) {\
     (varname)[0] = value[0]; (varname)[1] = value[1]; }\
-  void set##prpty(type value_0, type value_1) {\
+  void set##prpty(const type& value_0, const type& value_1) {\
     (varname)[0] = value_0; (varname)[1] = value_1; }\
   void set##prpty(const std::tuple<type, type> &var) {\
     (varname)[0] = std::get<0>(var); (varname)[1] = std::get<1>(var); }
@@ -527,7 +542,7 @@ public:     \
 * @brief Creates a "setter" method to set the property.
 */
 #define SIMPL_SET_STRING_PROPERTY( prpty, varname) \
-  void set##prpty(const QString &value) { this->varname = value; }
+  void set##prpty(const QString& value) { this->varname = value; }
 
 /**
 * @brief Creates a "getter" method to retrieve the value of the property.
@@ -592,21 +607,6 @@ public:\
   SIMPL_SET_PROPERTY(DataArray<Type>::Pointer, prpty)\
   SIMPL_GET_PROPERTY(DataArray<Type>::Pointer, prpty)
 
-
-#define SIMPL_POINTER_PROPERTY(name, var, type)\
-  private:\
-    (type)* m_##var;\
-  public:\
-  (type)* get##name##Pointer() { return m_##var; }\
-  void set##name##Pointer((type)* f)\
-  {\
-    if (m_##var != nullptr && m_##var != f)\
-    {\
-      deallocateArrayData(m_##var);\
-      m_##var = nullptr;\
-    }\
-    m_##var = f;\
-  }
 
 // -----------------------------------------------------------------------------
 //
