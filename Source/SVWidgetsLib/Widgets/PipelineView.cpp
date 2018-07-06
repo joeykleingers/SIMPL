@@ -38,10 +38,17 @@
 #include <QtGui/QClipboard>
 
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QMenu>
 
+#include "SIMPLib/Common/DocRequestManager.h"
+#include "SIMPLib/FilterParameters/JsonFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/JsonFilterParametersWriter.h"
 
+#include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
+#include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineViewController.h"
+#include "SVWidgetsLib/Widgets/IssuesWidget.h"
+#include "SVWidgetsLib/Widgets/StandardOutputWidget.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -49,13 +56,120 @@
 PipelineView::PipelineView() :
   m_PipelineViewController(new PipelineViewController())
 {
-
+  setupGui();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineView::~PipelineView() = default;
+PipelineView::~PipelineView()
+{
+  delete m_ActionEnableFilter;
+  delete m_ActionCut;
+  delete m_ActionCopy;
+  delete m_ActionPaste;
+  delete m_ActionClearPipeline;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::setupGui()
+{
+  // Delete action if it exists
+  if(m_ActionEnableFilter)
+  {
+    delete m_ActionEnableFilter;
+  }
+
+  m_ActionEnableFilter = new QAction("Enable");
+  m_ActionEnableFilter->setCheckable(true);
+  m_ActionEnableFilter->setChecked(true);
+  m_ActionEnableFilter->setEnabled(false);
+
+  m_ActionCut = new QAction("Cut");
+  m_ActionCopy = new QAction("Copy");
+  m_ActionPaste = new QAction("Paste");
+  m_ActionClearPipeline = new QAction("Clear Pipeline");
+
+  m_ActionCut->setShortcut(QKeySequence::Cut);
+  m_ActionCopy->setShortcut(QKeySequence::Copy);
+  m_ActionPaste->setShortcut(QKeySequence::Paste);
+
+  m_ActionCut->setDisabled(true);
+  m_ActionCopy->setDisabled(true);
+
+  m_ActionClearPipeline->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Backspace));
+
+  // Run this once, so that the Paste button availability is updated for what is currently on the system clipboard
+  updatePasteAvailability();
+
+  QClipboard* clipboard = QApplication::clipboard();
+  QObject::connect(clipboard, &QClipboard::dataChanged, [=] { updatePasteAvailability(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::connectSignalsSlots()
+{
+  QObject::connect(m_ActionClearPipeline, &QAction::triggered, [=] { clearPipeline(); });
+
+  QObject::connect(m_ActionCut, &QAction::triggered, [=] {
+    copySelectedFilters();
+
+    std::vector<AbstractFilter::Pointer> filters = getSelectedFilters();
+    cutFilters(filters);
+  });
+
+  QObject::connect(m_ActionCopy, &QAction::triggered, [=] { copySelectedFilters(); });
+  QObject::connect(m_ActionPaste, &QAction::triggered, [=] { pasteFilters(); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------s
+void PipelineView::updatePasteAvailability()
+{
+  QClipboard* clipboard = QApplication::clipboard();
+  QString text = clipboard->text();
+
+  JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
+  FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromString(text);
+
+  if(text.isEmpty() || FilterPipeline::NullPointer() == pipeline)
+  {
+    m_ActionPaste->setDisabled(true);
+  }
+  else
+  {
+    m_ActionPaste->setEnabled(true);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::addPipelineMessageObserver(QObject* pipelineMessageObserver)
+{
+  if(m_PipelineViewController)
+  {
+    m_PipelineViewController->addPipelineMessageObserver(pipelineMessageObserver);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int PipelineView::writePipeline(const QModelIndex& pipelineRootIndex, const QString& outputPath)
+{
+  if(m_PipelineViewController)
+  {
+    return m_PipelineViewController->writePipeline(pipelineRootIndex, outputPath);
+  }
+
+  return -1;
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -74,6 +188,261 @@ void PipelineView::copySelectedFilters()
 
   QClipboard* clipboard = QApplication::clipboard();
   clipboard->setText(jsonString);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::requestFilterItemContextMenu(const QPoint& pos, const QModelIndex& index)
+{
+  if(m_PipelineViewController)
+  {
+    PipelineModel* model = getPipelineModel();
+    QModelIndexList selectedIndexes = getSelectedRows();
+    qSort(selectedIndexes);
+
+    QMenu menu;
+
+    menu.addAction(getActionCut());
+    menu.addAction(getActionCopy());
+    menu.addSeparator();
+
+    QAction* actionPasteAbove = new QAction("Paste Above");
+    QAction* actionPasteBelow = new QAction("Paste Below");
+
+    QObject::connect(actionPasteAbove, &QAction::triggered, [=] { pasteFilters(index.row()); });
+
+    QObject::connect(actionPasteBelow, &QAction::triggered, [=] { pasteFilters(index.row() + 1); });
+
+    menu.addAction(actionPasteAbove);
+    menu.addAction(actionPasteBelow);
+    menu.addSeparator();
+
+    int count = selectedIndexes.size();
+    bool widgetEnabled = true;
+
+    for(int i = 0; i < count && widgetEnabled; i++)
+    {
+      AbstractFilter::Pointer filter = model->filter(selectedIndexes[i]);
+      if(filter != nullptr)
+      {
+        widgetEnabled = filter->getEnabled();
+      }
+    }
+
+    if(selectedIndexes.contains(index) == false)
+    {
+      // Only toggle the target filter widget if it is not in the selected objects
+      QModelIndexList toggledIndices = QModelIndexList();
+      toggledIndices.push_back(index);
+
+      AbstractFilter::Pointer filter = model->filter(index);
+      if(filter != nullptr)
+      {
+        widgetEnabled = filter->getEnabled();
+      }
+
+      QObject::disconnect(m_ActionEnableFilter, &QAction::toggled, 0, 0);
+      QObject::connect(m_ActionEnableFilter, &QAction::toggled, [=] { m_PipelineViewController->setFiltersEnabled(toggledIndices, m_ActionEnableFilter->isChecked()); });
+    }
+    else
+    {
+      QObject::disconnect(m_ActionEnableFilter, &QAction::toggled, 0, 0);
+      QObject::connect(m_ActionEnableFilter, &QAction::toggled, [=] { m_PipelineViewController->setFiltersEnabled(selectedIndexes, m_ActionEnableFilter->isChecked()); });
+    }
+
+    m_ActionEnableFilter->setChecked(widgetEnabled);
+    m_ActionEnableFilter->setEnabled(true);
+//    m_ActionEnableFilter->setDisabled(getPipelineIsRunning());
+    menu.addAction(m_ActionEnableFilter);
+
+    menu.addSeparator();
+
+    QAction* removeAction;
+    QList<QKeySequence> shortcutList;
+    shortcutList.push_back(QKeySequence(Qt::Key_Backspace));
+    shortcutList.push_back(QKeySequence(Qt::Key_Delete));
+
+    if(selectedIndexes.contains(index) == false || selectedIndexes.size() == 1)
+    {
+      removeAction = new QAction("Delete Filter", &menu);
+      QObject::connect(removeAction, &QAction::triggered, [=] {
+        AbstractFilter::Pointer filter = model->filter(index);
+        removeFilter(filter);
+      });
+    }
+    else
+    {
+      removeAction = new QAction(QObject::tr("Delete %1 Filters").arg(selectedIndexes.size()), &menu);
+      QObject::connect(removeAction, &QAction::triggered, [=] {
+        QList<QPersistentModelIndex> persistentList;
+        for(int i = 0; i < selectedIndexes.size(); i++)
+        {
+          persistentList.push_back(selectedIndexes[i]);
+        }
+
+        std::vector<AbstractFilter::Pointer> filters;
+        for(int i = 0; i < persistentList.size(); i++)
+        {
+          AbstractFilter::Pointer filter = model->filter(persistentList[i]);
+          filters.push_back(filter);
+        }
+
+        removeFilters(filters);
+      });
+    }
+    removeAction->setShortcuts(shortcutList);
+//    if(getPipelineIsRunning() == true)
+//    {
+//      removeAction->setDisabled(true);
+//    }
+
+    menu.addAction(removeAction);
+
+    menu.addAction(m_ActionClearPipeline);
+
+    menu.addSeparator();
+
+    // Error Handling Menu
+    requestErrorHandlingContextMenu(menu);
+    menu.addSeparator();
+
+    QAction* actionLaunchHelp = new QAction("Filter Help");
+    QObject::connect(actionLaunchHelp, &QAction::triggered, [=] {
+      AbstractFilter::Pointer filter = model->filter(index);
+      if(filter != nullptr)
+      {
+        // Launch the help for this filter
+        QString className = filter->getNameOfClass();
+
+        DocRequestManager* docRequester = DocRequestManager::Instance();
+        docRequester->requestFilterDocs(className);
+      }
+    });
+
+    menu.addAction(actionLaunchHelp);
+
+    menu.exec(pos);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::requestPipelineItemContextMenu(const QPoint& pos)
+{
+  QMenu menu;
+
+  menu.addAction(m_ActionPaste);
+
+  requestSinglePipelineContextMenu(menu);
+
+  requestErrorHandlingContextMenu(menu);
+
+  menu.exec(pos);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::requestSinglePipelineContextMenu(QMenu& menu)
+{
+  menu.addSeparator();
+
+  menu.addAction(m_ActionClearPipeline);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::requestDefaultContextMenu(const QPoint& pos)
+{
+  QMenu menu;
+  menu.addAction(m_ActionPaste);
+  menu.addSeparator();
+  menu.addAction(m_ActionClearPipeline);
+
+  menu.exec(pos);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::requestErrorHandlingContextMenu(QMenu& menu)
+{
+  menu.addSeparator();
+
+  QMenu* errorMenu = menu.addMenu("Error Handling");
+
+  QMenu* combinedMenu = errorMenu->addMenu("All");
+  QAction* showCombinedErrorAction = combinedMenu->addAction("Show on Error");
+  QAction* ignoreCombinedErrorAction = combinedMenu->addAction("Ignore on Error");
+
+  QMenu* errorTableMenu = errorMenu->addMenu("Issues Table");
+  QAction* showTableErrorAction = errorTableMenu->addAction("Show on Error");
+  QAction* ignoreTableErrorAction = errorTableMenu->addAction("Ignore on Error");
+
+  QMenu* stdOutMenu = errorMenu->addMenu("Standard Output");
+  QAction* showStdOutErrorAction = stdOutMenu->addAction("Show on Error");
+  QAction* ignoreStdOutErrorAction = stdOutMenu->addAction("Ignore on Error");
+
+  menu.addSeparator();
+
+  showTableErrorAction->setCheckable(true);
+  ignoreTableErrorAction->setCheckable(true);
+  showStdOutErrorAction->setCheckable(true);
+  ignoreStdOutErrorAction->setCheckable(true);
+  showCombinedErrorAction->setCheckable(true);
+  ignoreCombinedErrorAction->setCheckable(true);
+
+  // Set Checked based on user preferences
+  SIMPLView::DockWidgetSettings::HideDockSetting issuesTableSetting = IssuesWidget::GetHideDockSetting();
+  SIMPLView::DockWidgetSettings::HideDockSetting stdOutSetting = StandardOutputWidget::GetHideDockSetting();
+
+  bool showTableError = (issuesTableSetting != SIMPLView::DockWidgetSettings::HideDockSetting::Ignore);
+  bool showStdOutput = (stdOutSetting != SIMPLView::DockWidgetSettings::HideDockSetting::Ignore);
+  bool showCombinedError = showTableError && showStdOutput;
+  bool ignoreCombinedError = !showTableError && !showStdOutput;
+
+  showTableErrorAction->setChecked(showTableError);
+  ignoreTableErrorAction->setChecked(!showTableError);
+  showStdOutErrorAction->setChecked(showStdOutput);
+  ignoreStdOutErrorAction->setChecked(!showStdOutput);
+  showCombinedErrorAction->setChecked(showCombinedError);
+  ignoreCombinedErrorAction->setChecked(ignoreCombinedError);
+
+  // Connect actions
+  // Issues Widget
+  QObject::connect(showTableErrorAction, &QAction::triggered, [=]() {
+    IssuesWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::OnError);
+    preflightPipeline();
+  });
+  QObject::connect(ignoreTableErrorAction, &QAction::triggered, [=]() {
+    IssuesWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::Ignore);
+    preflightPipeline();
+  });
+
+  // Standard Output
+  QObject::connect(showStdOutErrorAction, &QAction::triggered, [=]() {
+    StandardOutputWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::OnError);
+    preflightPipeline();
+  });
+  QObject::connect(ignoreStdOutErrorAction, &QAction::triggered, [=]() {
+    StandardOutputWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::Ignore);
+    preflightPipeline();
+  });
+
+  // Combined
+  QObject::connect(showCombinedErrorAction, &QAction::triggered, [=]() {
+    IssuesWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::OnError);
+    StandardOutputWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::OnError);
+    preflightPipeline();
+  });
+  QObject::connect(ignoreCombinedErrorAction, &QAction::triggered, [=]() {
+    IssuesWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::Ignore);
+    StandardOutputWidget::SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting::Ignore);
+    preflightPipeline();
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -98,4 +467,48 @@ QAction* PipelineView::getActionRedo()
     return m_PipelineViewController->getActionRedo();
   }
   return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+std::vector<AbstractFilter::Pointer> PipelineView::getSelectedFilters()
+{
+  QModelIndexList selectedIndexes = getSelectedRows();
+  qSort(selectedIndexes);
+
+  std::vector<AbstractFilter::Pointer> filters;
+  PipelineModel* model = getPipelineModel();
+  for(int i = 0; i < selectedIndexes.size(); i++)
+  {
+    AbstractFilter::Pointer filter = model->filter(selectedIndexes[i]);
+    filters.push_back(filter);
+  }
+
+  return filters;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+PipelineModel* PipelineView::getPipelineModel()
+{
+  if (m_PipelineViewController)
+  {
+    return m_PipelineViewController->getPipelineModel();
+  }
+  return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::setSelectedFiltersEnabled(bool enabled)
+{
+  if (m_PipelineViewController)
+  {
+    QModelIndexList indexes = getSelectedRows();
+    qSort(indexes);
+    m_PipelineViewController->setFiltersEnabled(indexes, enabled);
+  }
 }

@@ -29,6 +29,7 @@
 
 #include "PipelineListWidget.h"
 
+#include "SVWidgetsLib/Widgets/PipelineViewController.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/SVStyle.h"
 
@@ -61,7 +62,7 @@ void PipelineListWidget::setupGui()
 
   pipelineView->addPipelineMessageObserver(this);
 
-  connect(pipelineView, &SVPipelineView::preflightFinished, this, &PipelineListWidget::preflightFinished);
+  connect(pipelineView->getPipelineViewController(), &PipelineViewController::preflightFinished, this, &PipelineListWidget::preflightFinished);
 
   connect(pipelineView, &SVPipelineView::pipelineFinished, [=] { updateStartButtonState(StartButtonState::Idle); });
 

@@ -81,20 +81,8 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 public:
   SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
 
-  SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
-  SIMPL_GET_PROPERTY(QAction*, ActionCut)
-  SIMPL_GET_PROPERTY(QAction*, ActionCopy)
-  SIMPL_GET_PROPERTY(QAction*, ActionPaste)
-  SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
-
   SVPipelineView(QWidget* parent = nullptr);
   virtual ~SVPipelineView();
-
-  /**
-   * @brief addPipelineMessageObserver
-   * @param pipelineMessageObserver
-   */
-  void addPipelineMessageObserver(QObject* pipelineMessageObserver);
 
   /**
    * @brief filterCount
@@ -105,9 +93,10 @@ public:
   /**
    * @brief openPipeline
    * @param filePath
+   * @param insertIndex
    * @return
    */
-  int openPipeline(const QString& filePath, int insertIndex = -1);
+  int openPipeline(const QString& filePath, int insertIndex = -1) override;
 
   /**
    * @brief setModel
@@ -186,13 +175,6 @@ public:
    * @return
    */
   QPixmap getHighDPIDeleteBtnHoveredPixmap(bool highlighted = false);
-
-  /**
-   * @brief writePipeline
-   * @param outputPath
-   * @return
-   */
-  int writePipeline(const QModelIndex &pipelineRootIndex, const QString &outputPath);
 
 public slots:
   /**
@@ -283,18 +265,13 @@ public slots:
   void clearPipeline() override;
 
 signals:
-  void preflightFinished(FilterPipeline::Pointer pipeline, int err);
   void pipelineFinished();
 
   void pipelineDataChanged();
 
-  void currentFilterUpdated(AbstractFilter::Pointer filter);
-
   void filePathOpened(const QString& filePath);
 
   void filterInputWidgetNeedsCleared();
-
-  void filterEnabledStateChanged();
 
   void deleteKeyPressed();
 
@@ -302,7 +279,6 @@ signals:
 
   void displayIssuesTriggered();
   void clearIssuesTriggered();
-  void clearDataStructureWidgetTriggered();
 
   void writeSIMPLViewSettingsTriggered();
 
@@ -339,15 +315,7 @@ protected:
   void dropEvent(QDropEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
 
-  void setFiltersEnabled(QModelIndexList indexes, bool enabled);
-  void setSelectedFiltersEnabled(bool enabled);
-
-protected slots:  
-  /**
-   * @brief updatePasteAvailability
-   */
-  void updatePasteAvailability();
-
+protected slots:
   /**
    * @brief requestContextMenu
    * @param pos
@@ -359,11 +327,6 @@ protected slots:
    */
   void listenDeleteKeyTriggered();
 
-  void listenCutTriggered();
-  void listenCopyTriggered();
-  void listenPasteTriggered();
-  void listenClearPipelineTriggered();
-
 private:
   QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
 
@@ -372,12 +335,6 @@ private:
   QUndoCommand* m_MoveCommand = nullptr;
   QPoint m_DragStartPosition;
   QModelIndex m_DropIndicatorIndex;
-
-  QAction* m_ActionEnableFilter = nullptr;
-  QAction* m_ActionCut = nullptr;
-  QAction* m_ActionCopy = nullptr;
-  QAction* m_ActionPaste = nullptr;
-  QAction* m_ActionClearPipeline = nullptr;
 
   QString m_CurrentPipelineFilePath;
 
@@ -419,41 +376,10 @@ private:
   QColor m_DeleteBtnHovered2xColor = QColor(Qt::black);
 
   /**
-   * @brief Gets the currently selected filters
+   * @brief getSelectedRows
    * @return
    */
-  std::vector<AbstractFilter::Pointer> getSelectedFilters();
-
-  /**
-   * @brief requestFilterContextMenu
-   * @param pos
-   * @param index
-   */
-  void requestFilterItemContextMenu(const QPoint& pos, const QModelIndex& index);
-
-  /**
-   * @brief requestPipelineContextMenu
-   * @param pos
-   */
-  void requestPipelineItemContextMenu(const QPoint& pos);
-
-  /**
-   * @brief requestSinglePipelineContextMenu
-   * @param menu
-   */
-  void requestSinglePipelineContextMenu(QMenu& menu);
-
-  /**
-   * @brief requestErrorHandlingContextMenu
-   * @param menu
-   */
-  void requestErrorHandlingContextMenu(QMenu& menu);
-
-  /**
-   * @brief requestDefaultContextMenu
-   * @param pos
-   */
-  void requestDefaultContextMenu(const QPoint& pos);
+  QModelIndexList getSelectedRows() override;
 
   /**
    * @brief addDropIndicator

@@ -63,6 +63,8 @@ public:
   virtual void redo();
 
 signals:
+  void pipelineChanged(FilterPipeline::Pointer pipeline);
+
   void statusMessageGenerated(const QString &msg);
   void standardOutputMessageGenerated(const QString &msg);
 

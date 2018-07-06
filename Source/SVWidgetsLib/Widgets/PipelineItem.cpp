@@ -137,8 +137,6 @@ AbstractFilter::Pointer PipelineItem::getFilter()
 void PipelineItem::setFilter(AbstractFilter::Pointer filter)
 {
   m_Filter = filter;
-
-  setupFilterInputWidget();
 }
 
 // -----------------------------------------------------------------------------
@@ -271,20 +269,4 @@ bool PipelineItem::setData(int column, const QVariant& value)
 void PipelineItem::setParent(PipelineItem* parent)
 {
   m_ParentItem = parent;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineItem::setupFilterInputWidget()
-{
-  // Instantiate the filter input widget object
-  if(m_FilterInputWidget)
-  {
-    m_FilterInputWidget->deleteLater();
-  }
-
-  m_FilterInputWidget = new FilterInputWidget(m_Filter, nullptr);
-
-  m_FilterInputWidget->displayFilterParameters(m_Filter);
 }

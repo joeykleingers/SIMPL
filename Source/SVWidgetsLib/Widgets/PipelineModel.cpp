@@ -151,7 +151,7 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   }
   else if (role == Qt::FontRole)
   {
-    if (item->isActivePipeline())
+    if (item->getItemType() == PipelineItem::ItemType::PipelineRoot)
     {
       QFont font;
       font.setBold(true);
@@ -352,8 +352,11 @@ void PipelineModel::addFilterData(AbstractFilter::Pointer filter, const QModelIn
   // Connection that changes the filter state to In Progress when the filter is in progress
   connect(filter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
 
+  FilterInputWidget* fiw = new FilterInputWidget(filter, nullptr);
+  fiw->displayFilterParameters(filter);
+  setFilterInputWidget(filterIndex, fiw);
+
   // Connection that triggers a preflight and re-emits that filter parameters have changed if the filter input widget is edited
-  FilterInputWidget* fiw = filterInputWidget(filterIndex);
   connect(fiw, &FilterInputWidget::filterParametersChanged, [=] {
     emit preflightTriggered(filterIndex.parent());
     emit filterParametersChanged(filter);
@@ -835,6 +838,17 @@ FilterInputWidget* PipelineModel::filterInputWidget(const QModelIndex &index)
 {
   PipelineItem* item = getItem(index);
   return item->getFilterInputWidget();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::setFilterInputWidget(const QModelIndex &index, FilterInputWidget* fiw)
+{
+  PipelineItem* item = getItem(index);
+  item->setFilterInputWidget(fiw);
+
+  emit dataChanged(index, index);
 }
 
 // -----------------------------------------------------------------------------

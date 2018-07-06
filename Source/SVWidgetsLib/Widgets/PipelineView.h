@@ -45,6 +45,8 @@
 
 class PipelineViewController;
 class QAction;
+class QMenu;
+class PipelineModel;
 
 /**
  * @brief The PipelineView class
@@ -55,6 +57,38 @@ class SVWidgetsLib_EXPORT PipelineView
     virtual ~PipelineView();
 
     SIMPL_POINTER_PROPERTY(PipelineViewController, PipelineViewController)
+
+    SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
+    SIMPL_GET_PROPERTY(QAction*, ActionCut)
+    SIMPL_GET_PROPERTY(QAction*, ActionCopy)
+    SIMPL_GET_PROPERTY(QAction*, ActionPaste)
+    SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
+
+    /**
+     * @brief addPipelineMessageObserver
+     * @param pipelineMessageObserver
+     */
+    void addPipelineMessageObserver(QObject* pipelineMessageObserver);
+
+    /**
+     * @brief openPipeline
+     * @param filePath
+     * @param insertIndex
+     * @return
+     */
+    virtual int openPipeline(const QString& filePath, int insertIndex = -1) = 0;
+
+    /**
+     * @brief writePipeline
+     * @param outputPath
+     * @return
+     */
+    int writePipeline(const QModelIndex &pipelineRootIndex, const QString &outputPath);
+
+    /**
+     * @brief Copies the currently selected filters from the current model into the system clipboard
+     */
+    void copySelectedFilters();
 
     /**
      * @brief getActionUndo
@@ -67,6 +101,24 @@ class SVWidgetsLib_EXPORT PipelineView
      * @return
      */
     QAction* getActionRedo();
+
+    /**
+     * @brief getPipelineModel
+     * @return
+     */
+    PipelineModel* getPipelineModel();
+
+    /**
+     * @brief getSelectedFilters
+     * @return
+     */
+    std::vector<AbstractFilter::Pointer> getSelectedFilters();
+
+    /**
+     * @brief getSelectedRows
+     * @return
+     */
+    virtual QModelIndexList getSelectedRows() = 0;
 
   public slots:
     /**
@@ -143,17 +195,67 @@ class SVWidgetsLib_EXPORT PipelineView
      */
     virtual void clearPipeline() = 0;
 
-    /**
-     * @brief Copies the currently selected filters from the current model into the system clipboard
-     */
-    void copySelectedFilters();
-
   protected:
     PipelineView();
 
-    virtual std::vector<AbstractFilter::Pointer> getSelectedFilters() = 0;
+    /**
+     * @brief setupGui
+     */
+    void setupGui();
+
+    /**
+     * @brief setSelectedFiltersEnabled
+     * @param enabled
+     */
+    void setSelectedFiltersEnabled(bool enabled);
+
+    /**
+     * @brief requestFilterContextMenu
+     * @param pos
+     * @param index
+     */
+    void requestFilterItemContextMenu(const QPoint& pos, const QModelIndex& index);
+
+    /**
+     * @brief requestPipelineContextMenu
+     * @param pos
+     */
+    void requestPipelineItemContextMenu(const QPoint& pos);
+
+    /**
+     * @brief requestSinglePipelineContextMenu
+     * @param menu
+     */
+    void requestSinglePipelineContextMenu(QMenu& menu);
+
+    /**
+     * @brief requestErrorHandlingContextMenu
+     * @param menu
+     */
+    void requestErrorHandlingContextMenu(QMenu& menu);
+
+    /**
+     * @brief requestDefaultContextMenu
+     * @param pos
+     */
+    void requestDefaultContextMenu(const QPoint& pos);
 
   private:
+    QAction* m_ActionEnableFilter = nullptr;
+    QAction* m_ActionCut = nullptr;
+    QAction* m_ActionCopy = nullptr;
+    QAction* m_ActionPaste = nullptr;
+    QAction* m_ActionClearPipeline = nullptr;
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
+
+    /**
+     * @brief updatePasteAvailability
+     */
+    void updatePasteAvailability();
 
     PipelineView(const PipelineView&) = delete;   // Copy Constructor Not Implemented
     void operator=(const PipelineView&) = delete; // Move assignment Not Implemented

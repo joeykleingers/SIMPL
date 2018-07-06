@@ -136,8 +136,6 @@ class SVWidgetsLib_EXPORT PipelineItem
     AbstractFilter::Pointer                 m_Filter = nullptr;
     PipelineItem*                           m_ParentItem;
 
-    void setupFilterInputWidget();
-
     PipelineItem(const PipelineItem&);    // Copy Constructor Not Implemented
     void operator=(const PipelineItem&);  // Operator '=' Not Implemented
 };

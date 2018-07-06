@@ -66,6 +66,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
 
     SIMPL_GET_PROPERTY(QAction*, ActionUndo)
     SIMPL_GET_PROPERTY(QAction*, ActionRedo)
+    SIMPL_GET_PROPERTY(PipelineModel*, PipelineModel)
 
     /**
      * @brief addPipelineMessageObserver
@@ -94,7 +95,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param filePath
      * @return
      */
-    int openPipeline(const QString& filePath, int insertIndex = -1, QModelIndex pipelineRootIndex = QModelIndex());
+    int openPipeline(const QString& filePath, QModelIndex &pipelineRootIndex, int insertIndex = -1);
 
     /**
      * @brief readPipelineFromFile
@@ -229,6 +230,13 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      */
     void cancelPipeline(const QModelIndex &pipelineRootIndex);
 
+    /**
+     * @brief setFiltersEnabled
+     * @param indexes
+     * @param enabled
+     */
+    void setFiltersEnabled(QModelIndexList indexes, bool enabled);
+
   protected:
     /**
      * @brief initialize
@@ -239,7 +247,11 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     void clearIssuesTriggered();
     void displayIssuesTriggered();
 
+    void filterEnabledStateChanged();
+
     void writeSIMPLViewSettingsTriggered();
+
+    void pipelineChanged(FilterPipeline::Pointer pipeline);
 
     void preflightFinished(FilterPipeline::Pointer pipeline, int err);
 
@@ -276,6 +288,11 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @brief setupUndoStack
      */
     void setupUndoStack();
+
+    /**
+     * @brief connectSignalsSlots
+     */
+    void connectSignalsSlots();
 
     /**
      * @brief setupControllerActions

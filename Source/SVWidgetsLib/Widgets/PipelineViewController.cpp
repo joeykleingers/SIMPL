@@ -90,6 +90,16 @@ PipelineViewController::~PipelineViewController() = default;
 void PipelineViewController::initialize()
 {
   setupUndoStack();
+
+  connectSignalsSlots();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::connectSignalsSlots()
+{
+
 }
 
 // -----------------------------------------------------------------------------
@@ -442,6 +452,43 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void PipelineViewController::setFiltersEnabled(QModelIndexList indexes, bool enabled)
+{
+  int count = indexes.size();
+  PipelineModel* model = getPipelineModel();
+  QModelIndexList pipelineRootIndexes;
+  for(int i = 0; i < count; i++)
+  {
+    QModelIndex index = indexes[i];
+    AbstractFilter::Pointer filter = model->filter(index);
+    if(enabled == true)
+    {
+      filter->setEnabled(true);
+      model->setData(index, static_cast<int>(PipelineItem::WidgetState::Ready), PipelineModel::WidgetStateRole);
+    }
+    else
+    {
+      filter->setEnabled(false);
+      model->setData(index, static_cast<int>(PipelineItem::WidgetState::Disabled), PipelineModel::WidgetStateRole);
+    }
+
+    if (pipelineRootIndexes.contains(index.parent()) == false)
+    {
+      pipelineRootIndexes.push_back(index.parent());
+    }
+  }
+
+  for (int i = 0; i < pipelineRootIndexes.size(); i++)
+  {
+    preflightPipeline(pipelineRootIndexes[i]);
+  }
+
+  emit filterEnabledStateChanged();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void PipelineViewController::clearPipeline(const QModelIndex &pipelineRootIndex)
 {
   if (m_PipelineModel)
@@ -459,6 +506,7 @@ void PipelineViewController::clearPipeline(const QModelIndex &pipelineRootIndex)
     {
       connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
       connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
+      connect(cmd, &RemoveFilterFromPipelineCommand::pipelineChanged, this, &PipelineViewController::pipelineChanged);
       addUndoCommand(cmd);
     }
     else
@@ -532,7 +580,7 @@ FilterPipeline::Pointer PipelineViewController::getFilterPipeline(const QModelIn
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int PipelineViewController::openPipeline(const QString& filePath, int insertIndex, QModelIndex pipelineRootIndex)
+int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &pipelineRootIndex, int insertIndex)
 {
   if (m_PipelineModel)
   {
@@ -595,12 +643,11 @@ int PipelineViewController::openPipeline(const QString& filePath, int insertInde
     }
     else
     {
-      addPipeline(pipeline);
-      pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(pipeline);
+      addPipeline(pipeline, insertIndex);
+      pipelineRootIndex = m_PipelineModel->index(insertIndex, PipelineItem::Contents);
     }
 
     emit pipelineFilePathUpdated(filePath);
-    emit pipelineDataChanged(pipelineRootIndex);
 
     return 0;
   }

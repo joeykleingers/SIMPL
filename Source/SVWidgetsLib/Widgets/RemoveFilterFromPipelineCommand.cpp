@@ -125,6 +125,8 @@ void RemoveFilterFromPipelineCommand::redo()
     m_FirstRun = false;
   }
 
+  emit pipelineChanged(m_Pipeline);
+
   emit statusMessageGenerated(statusMessage);
   emit standardOutputMessageGenerated(statusMessage);
 }

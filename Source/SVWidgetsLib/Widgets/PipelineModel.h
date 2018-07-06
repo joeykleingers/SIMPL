@@ -115,6 +115,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     QModelIndex indexOfFilter(AbstractFilter *filter, const QModelIndex &parent = QModelIndex());
 
     FilterInputWidget* filterInputWidget(const QModelIndex &index);
+    void setFilterInputWidget(const QModelIndex &index, FilterInputWidget* fiw);
 
     bool isEmpty();
 
@@ -160,9 +161,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void preflightTriggered(const QModelIndex &pipelineRootIndex);
 
     void filterParametersChanged(AbstractFilter::Pointer filter);
-
-    void statusMessageGenerated(const QString &msg);
-    void standardOutputMessageGenerated(const QString &msg);
 
   private slots:
     /**
