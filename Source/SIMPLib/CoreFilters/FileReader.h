@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _filereader_h_
-#define _filereader_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -112,9 +111,8 @@ class SIMPLib_EXPORT FileReader : public AbstractFilter
 
   public:
     FileReader(const FileReader&) = delete;     // Copy Constructor Not Implemented
-    FileReader(FileReader&&) = delete;          // Move Constructor
+    FileReader(FileReader&&) = delete;          // Move Constructor Not Implemented
     FileReader& operator=(const FileReader&) = delete; // Copy Assignment Not Implemented
     FileReader& operator=(FileReader&&) = delete;      // Move Assignment
 };
 
-#endif /* FileReader_H_ */

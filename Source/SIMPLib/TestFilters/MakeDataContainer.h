@@ -32,8 +32,7 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _makedatacontainer_h_
-#define _makedatacontainer_h_
+#pragma once
 
 #include <QtCore/QString>
 
@@ -161,9 +160,8 @@ private:
 
 public:
   MakeDataContainer(const MakeDataContainer&) = delete; // Copy Constructor Not Implemented
-  MakeDataContainer(MakeDataContainer&&) = delete;      // Move Constructor
+  MakeDataContainer(MakeDataContainer&&) = delete;      // Move Constructor Not Implemented
   MakeDataContainer& operator=(const MakeDataContainer&) = delete; // Copy Assignment Not Implemented
   MakeDataContainer& operator=(MakeDataContainer&&) = delete;      // Move Assignment Not Implemented
 };
 
-#endif /*    */

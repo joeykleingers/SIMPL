@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _datacontainerreader_h_
-#define _datacontainerreader_h_
+#pragma once
 
 #include <QtCore/QDateTime>
 
@@ -57,11 +56,6 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
     
     // This line MUST be first when exposing a class and properties to Python
     PYB11_CREATE_BINDINGS(DataContainerReader SUPERCLASS AbstractFilter)
-    PYB11_PROPERTY(QString InputFile READ getInputFile WRITE setInputFile)
-    PYB11_PROPERTY(bool OverwriteExistingDataContainers READ getOverwriteExistingDataContainers WRITE setOverwriteExistingDataContainers)
-    PYB11_PROPERTY(QString LastFileRead READ getLastFileRead WRITE setLastFileRead)
-    PYB11_PROPERTY(QDateTime LastRead READ getLastRead WRITE setLastRead)
-    PYB11_PROPERTY(DataContainerArrayProxy InputFileDataContainerArrayProxy READ getInputFileDataContainerArrayProxy WRITE setInputFileDataContainerArrayProxy)
     PYB11_PROPERTY(QString InputFile READ getInputFile WRITE setInputFile)
     PYB11_PROPERTY(bool OverwriteExistingDataContainers READ getOverwriteExistingDataContainers WRITE setOverwriteExistingDataContainers)
     PYB11_PROPERTY(QString LastFileRead READ getLastFileRead WRITE setLastFileRead)
@@ -152,7 +146,7 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
     /**
      * @brief writeFilterParameters Reimplemented from @see AbstractFilter class
      */
-    virtual void writeFilterParameters(QJsonObject& obj) override;
+    virtual void writeFilterParameters(QJsonObject& obj) const override;
 
     /**
      * @brief readFilterParameters Reimplemented from @see AbstractFilter class
@@ -258,9 +252,8 @@ class SIMPLib_EXPORT DataContainerReader : public AbstractFilter
 
   public:
     DataContainerReader(const DataContainerReader&) = delete; // Copy Constructor Not Implemented
-    DataContainerReader(DataContainerReader&&) = delete;      // Move Constructor
+    DataContainerReader(DataContainerReader&&) = delete;      // Move Constructor Not Implemented
     DataContainerReader& operator=(const DataContainerReader&) = delete; // Copy Assignment Not Implemented
     DataContainerReader& operator=(DataContainerReader&&) = delete;      // Move Assignment
 };
 
-#endif /* _DataContainerReader_H_ */

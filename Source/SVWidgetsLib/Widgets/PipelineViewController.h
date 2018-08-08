@@ -265,7 +265,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
 
   private slots:
     /**
-     * @brief finishPipeline
+     * @brief pipelineExecutionFinished
      * @param pipeline
      * @param pipelineRootIndex
      */

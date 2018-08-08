@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _convertdata_h_
-#define _convertdata_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -171,9 +170,8 @@ class SIMPLib_EXPORT ConvertData : public AbstractFilter
 
   public:
     ConvertData(const ConvertData&) = delete;    // Copy Constructor Not Implemented
-    ConvertData(ConvertData&&) = delete;         // Move Constructor
+    ConvertData(ConvertData&&) = delete;         // Move Constructor Not Implemented
     ConvertData& operator=(const ConvertData&) = delete; // Copy Assignment Not Implemented
     ConvertData& operator=(ConvertData&&) = delete;      // Move Assignment
 };
 
-#endif /* _ConvertData_H_ */

@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _createfeaturearrayfromelementarray_h_
-#define _createfeaturearrayfromelementarray_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -179,9 +178,8 @@ class SIMPLib_EXPORT CreateFeatureArrayFromElementArray : public AbstractFilter
 
   public:
     CreateFeatureArrayFromElementArray(const CreateFeatureArrayFromElementArray&) = delete; // Copy Constructor Not Implemented
-    CreateFeatureArrayFromElementArray(CreateFeatureArrayFromElementArray&&) = delete;      // Move Constructor
+    CreateFeatureArrayFromElementArray(CreateFeatureArrayFromElementArray&&) = delete;      // Move Constructor Not Implemented
     CreateFeatureArrayFromElementArray& operator=(const CreateFeatureArrayFromElementArray&) = delete; // Copy Assignment Not Implemented
     CreateFeatureArrayFromElementArray& operator=(CreateFeatureArrayFromElementArray&&) = delete;      // Move Assignment
 };
 
-#endif /* CreateFeatureArrayFromElementArray_H_ */

@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _multithresholdobjects_h_
-#define _multithresholdobjects_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -171,9 +170,8 @@ class SIMPLib_EXPORT MultiThresholdObjects : public AbstractFilter
 
   public:
     MultiThresholdObjects(const MultiThresholdObjects&) = delete; // Copy Constructor Not Implemented
-    MultiThresholdObjects(MultiThresholdObjects&&) = delete;      // Move Constructor
+    MultiThresholdObjects(MultiThresholdObjects&&) = delete;      // Move Constructor Not Implemented
     MultiThresholdObjects& operator=(const MultiThresholdObjects&) = delete; // Copy Assignment Not Implemented
     MultiThresholdObjects& operator=(MultiThresholdObjects&&) = delete;      // Move Assignment
 };
 
-#endif /* _MultiThresholdObjects_H_ */

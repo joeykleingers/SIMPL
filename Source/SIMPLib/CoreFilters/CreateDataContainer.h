@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _createdatacontainer_h_
-#define _createdatacontainer_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -163,9 +162,8 @@ class SIMPLib_EXPORT CreateDataContainer : public AbstractFilter
 
   public:
     CreateDataContainer(const CreateDataContainer&) = delete; // Copy Constructor Not Implemented
-    CreateDataContainer(CreateDataContainer&&) = delete;      // Move Constructor
+    CreateDataContainer(CreateDataContainer&&) = delete;      // Move Constructor Not Implemented
     CreateDataContainer& operator=(const CreateDataContainer&) = delete; // Copy Assignment Not Implemented
     CreateDataContainer& operator=(CreateDataContainer&&) = delete;      // Move Assignment
 };
 
-#endif /* _CreateDataContainer_H_ */

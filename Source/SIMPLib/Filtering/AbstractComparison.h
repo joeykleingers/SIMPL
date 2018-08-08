@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _AbstractComparison_h_
-#define _AbstractComparison_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataContainers/DataArrayPath.h"
@@ -52,7 +51,7 @@ public:
   SIMPL_SHARED_POINTERS(AbstractComparison)
   SIMPL_TYPE_MACRO(AbstractComparison)
 
-  ~AbstractComparison();
+  virtual ~AbstractComparison();
 
   /**
   * @brief Create comparison from JSon
@@ -95,4 +94,3 @@ protected:
   AbstractComparison();
 };
 
-#endif

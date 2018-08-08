@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _removearrays_h_
-#define _removearrays_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataContainers/DataContainerArrayProxy.h"
@@ -177,9 +176,8 @@ class SIMPLib_EXPORT RemoveArrays : public AbstractFilter
 
   public:
     RemoveArrays(const RemoveArrays&) = delete;   // Copy Constructor Not Implemented
-    RemoveArrays(RemoveArrays&&) = delete;        // Move Constructor
+    RemoveArrays(RemoveArrays&&) = delete;        // Move Constructor Not Implemented
     RemoveArrays& operator=(const RemoveArrays&) = delete; // Copy Assignment Not Implemented
     RemoveArrays& operator=(RemoveArrays&&) = delete;      // Move Assignment
 };
 
-#endif /* _RemoveArrays_H_ */

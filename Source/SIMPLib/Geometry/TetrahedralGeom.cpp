@@ -36,7 +36,7 @@
 /* ============================================================================
  * TetrahedralGeom re-implements code from the following vtk modules:
  *
- * * vtkTriangle.cxx
+ * * vtkTetra.cxx
  *   - re-implemented vtkTetra::GetParametricCenter to TetrahedralGeom::getParametricCenter
  *   - re-implemented vtkTetra::InterpolationDerivs to TetrahedralGeom::getShapeFunctions
  * * vtkGradientFilter.cxx

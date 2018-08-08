@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _genericexample_h_
-#define _genericexample_h_
+#pragma once
 
 #include <QtCore/QString>
 
@@ -273,13 +272,13 @@ public:
   * @brief readFilterParametersFromJson Reads the filter parameters from a file
   * @param reader Reader that is used to read the parameters from a file
   */
-  virtual void readFilterParameters(QJsonObject& obj);
+  void readFilterParameters(QJsonObject& obj) override;
 
   /**
   * @brief writeFilterParametersToJson Writes the filter parameters to a file
   * @param root The root json object
   */
-  virtual void writeFilterParameters(QJsonObject& obj);
+  void writeFilterParameters(QJsonObject& obj) const override;
 
   /**
    * @brief Reimplemented from @see AbstractFilter class
@@ -314,9 +313,8 @@ protected:
 private:
 public:
   GenericExample(const GenericExample&) = delete; // Copy Constructor Not Implemented
-  GenericExample(GenericExample&&) = delete;      // Move Constructor
+  GenericExample(GenericExample&&) = delete;      // Move Constructor Not Implemented
   GenericExample& operator=(const GenericExample&) = delete; // Copy Assignment Not Implemented
   GenericExample& operator=(GenericExample&&) = delete;      // Move Assignment
 };
 
-#endif /* _GenericExample_H_ */

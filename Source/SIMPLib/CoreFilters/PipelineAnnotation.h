@@ -31,8 +31,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _pipelineAnnotation_h_
-#define _pipelineAnnotation_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -155,9 +154,8 @@ protected:
 private:
 public:
   PipelineAnnotation(const PipelineAnnotation&) = delete; // Copy Constructor Not Implemented
-  PipelineAnnotation(PipelineAnnotation&&) = delete;      // Move Constructor
+  PipelineAnnotation(PipelineAnnotation&&) = delete;      // Move Constructor Not Implemented
   PipelineAnnotation& operator=(const PipelineAnnotation&) = delete; // Copy Assignment Not Implemented
   PipelineAnnotation& operator=(PipelineAnnotation&&) = delete;      // Move Assignment Not Implemented
 };
 
-#endif /* _pipelineAnnotation_h_ */

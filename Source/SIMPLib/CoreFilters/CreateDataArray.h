@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _createdataarray_h_
-#define _createdataarray_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/FilterParameters/RangeFilterParameter.h"
@@ -212,10 +211,9 @@ class SIMPLib_EXPORT CreateDataArray : public AbstractFilter
 
   public:
     CreateDataArray(const CreateDataArray&) = delete; // Copy Constructor Not Implemented
-    CreateDataArray(CreateDataArray&&) = delete;      // Move Constructor
+    CreateDataArray(CreateDataArray&&) = delete;      // Move Constructor Not Implemented
     CreateDataArray& operator=(const CreateDataArray&) = delete; // Copy Assignment Not Implemented
     CreateDataArray& operator=(CreateDataArray&&) = delete;      // Move Assignment
 };
 
 
-#endif /* _CreateDataArray_H_ */

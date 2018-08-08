@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _featuredatacsvwriter_h_
-#define _featuredatacsvwriter_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -189,9 +188,8 @@ class  SIMPLib_EXPORT FeatureDataCSVWriter : public AbstractFilter
 
   public:
     FeatureDataCSVWriter(const FeatureDataCSVWriter&) = delete; // Copy Constructor Not Implemented
-    FeatureDataCSVWriter(FeatureDataCSVWriter&&) = delete;      // Move Constructor
+    FeatureDataCSVWriter(FeatureDataCSVWriter&&) = delete;      // Move Constructor Not Implemented
     FeatureDataCSVWriter& operator=(const FeatureDataCSVWriter&) = delete; // Copy Assignment Not Implemented
     FeatureDataCSVWriter& operator=(FeatureDataCSVWriter&&) = delete;      // Move Assignment
 };
 
-#endif /* FeatureDataCSVWriter_H_ */

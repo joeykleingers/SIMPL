@@ -1,5 +1,4 @@
-#ifndef _ITKInPlaceImageToDream3DDataFilter_h
-#define _ITKInPlaceImageToDream3DDataFilter_h
+#pragma once
 
 #include "itkDream3DImage.h"
 #include "itkGetComponentsDimensions.h"
@@ -55,11 +54,11 @@ protected:
   InPlaceImageToDream3DDataFilter();
   virtual ~InPlaceImageToDream3DDataFilter();
 
-  virtual void VerifyPreconditions() ITK_OVERRIDE;
+  virtual void VerifyPreconditions() override;
   ProcessObject::DataObjectPointer MakeOutput(ProcessObject::DataObjectPointerArraySizeType) override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  virtual void GenerateData() override;
+  virtual void GenerateOutputInformation() override;
 
   void CheckValidArrayPathComponentName(std::string var);
 
@@ -77,4 +76,3 @@ private:
 #include "itkInPlaceImageToDream3DDataFilter.hxx"
 #endif
 
-#endif

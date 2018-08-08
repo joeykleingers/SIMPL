@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _combineattributearrays_h_
-#define _combineattributearrays_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -178,9 +177,8 @@ class SIMPLib_EXPORT CombineAttributeArrays : public AbstractFilter
 
   public:
     CombineAttributeArrays(const CombineAttributeArrays&) = delete; // Copy Constructor Not Implemented
-    CombineAttributeArrays(CombineAttributeArrays&&) = delete;      // Move Constructor
+    CombineAttributeArrays(CombineAttributeArrays&&) = delete;      // Move Constructor Not Implemented
     CombineAttributeArrays& operator=(const CombineAttributeArrays&) = delete; // Copy Assignment Not Implemented
     CombineAttributeArrays& operator=(CombineAttributeArrays&&) = delete;      // Move Assignment
 };
 
-#endif /* _CombineAttributeArrays_H_ */

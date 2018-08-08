@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _extractcomponentasarray_h_
-#define _extractcomponentasarray_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -175,9 +174,8 @@ class SIMPLib_EXPORT ExtractComponentAsArray : public AbstractFilter
 
   public:
     ExtractComponentAsArray(const ExtractComponentAsArray&) = delete; // Copy Constructor Not Implemented
-    ExtractComponentAsArray(ExtractComponentAsArray&&) = delete;      // Move Constructor
+    ExtractComponentAsArray(ExtractComponentAsArray&&) = delete;      // Move Constructor Not Implemented
     ExtractComponentAsArray& operator=(const ExtractComponentAsArray&) = delete; // Copy Assignment Not Implemented
     ExtractComponentAsArray& operator=(ExtractComponentAsArray&&) = delete;      // Move Assignment
 };
 
-#endif /* ExtractComponentAsArray_H_ */

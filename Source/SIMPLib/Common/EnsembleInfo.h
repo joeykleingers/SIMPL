@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _ensembleinfo_h_
-#define _ensembleinfo_h_
+#pragma once
 
 #include <QtCore/QJsonObject>
 #include <QtCore/QMetaType>
@@ -46,7 +45,7 @@
 #include "SIMPLib/Common/PhaseType.h"
 
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/DataArrays/StringDataArray.hpp"
+#include "SIMPLib/DataArrays/StringDataArray.h"
 
 /**
  * @class EnsembleInfo EnsembleInfo.h DREAM3DLib/Common/EnsembleInfo.h
@@ -120,4 +119,3 @@ private:
 
 Q_DECLARE_METATYPE(EnsembleInfo)
 
-#endif /* _EnsembleInfo_H_ */

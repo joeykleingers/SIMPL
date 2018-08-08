@@ -30,8 +30,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _importhdf5treemodel_h_
-#define _importhdf5treemodel_h_
+#pragma once
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QModelIndex>
@@ -51,6 +50,11 @@ class SVWidgetsLib_EXPORT ImportHDF5TreeModel : public QAbstractItemModel
 public:
   ImportHDF5TreeModel(hid_t fileId, QObject* parent = 0);
   ~ImportHDF5TreeModel();
+
+  enum Roles
+  {
+    HasErrorsRole = Qt::UserRole + 1
+  };
 
   /**
    * @brief data
@@ -143,7 +147,7 @@ public:
   QStringList getSelectedHDF5Paths();
 
 signals:
-  void modelChanged();
+  void selectedHDF5PathsChanged();
 
 private:
   ImportHDF5TreeModelItem* m_RootItem;
@@ -163,5 +167,3 @@ private:
    */
   void setupModelData();
 };
-
-#endif /* _importhdf5treemodel_h_ */

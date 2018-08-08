@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _replacevalueinarray_h_
-#define _replacevalueinarray_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -175,9 +174,8 @@ class SIMPLib_EXPORT ReplaceValueInArray : public AbstractFilter
 
   public:
     ReplaceValueInArray(const ReplaceValueInArray&) = delete; // Copy Constructor Not Implemented
-    ReplaceValueInArray(ReplaceValueInArray&&) = delete;      // Move Constructor
+    ReplaceValueInArray(ReplaceValueInArray&&) = delete;      // Move Constructor Not Implemented
     ReplaceValueInArray& operator=(const ReplaceValueInArray&) = delete; // Copy Assignment Not Implemented
     ReplaceValueInArray& operator=(ReplaceValueInArray&&) = delete;      // Move Assignment
 };
 
-#endif /* _ReplaceValueInArray_H_ */

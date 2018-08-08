@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _renameattributematrix_h_
-#define _renameattributematrix_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -173,9 +172,8 @@ class SIMPLib_EXPORT RenameAttributeMatrix : public AbstractFilter
 
   public:
     RenameAttributeMatrix(const RenameAttributeMatrix&) = delete; // Copy Constructor Not Implemented
-    RenameAttributeMatrix(RenameAttributeMatrix&&) = delete;      // Move Constructor
+    RenameAttributeMatrix(RenameAttributeMatrix&&) = delete;      // Move Constructor Not Implemented
     RenameAttributeMatrix& operator=(const RenameAttributeMatrix&) = delete; // Copy Assignment Not Implemented
     RenameAttributeMatrix& operator=(RenameAttributeMatrix&&) = delete;      // Move Assignment
 };
 
-#endif /* _RenameAttributeMatrix_H_ */

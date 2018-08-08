@@ -30,14 +30,15 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _importhdf5treemodelitem_h_
-#define _importhdf5treemodelitem_h_
+#pragma once
 
 #include <QtCore/QList>
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
 
 #include <hdf5.h>
+
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
@@ -46,6 +47,8 @@ class SVWidgetsLib_EXPORT ImportHDF5TreeModelItem
 public:
   ImportHDF5TreeModelItem(hid_t fileId, const QString& data, ImportHDF5TreeModelItem* parent = 0);
   ~ImportHDF5TreeModelItem();
+
+  SIMPL_INSTANCE_PROPERTY(bool, HasErrors)
 
   void appendChild(ImportHDF5TreeModelItem* child);
 
@@ -92,4 +95,3 @@ private:
   Qt::CheckState m_CheckState = Qt::Unchecked;
 };
 
-#endif /* _importhdf5treemodelitem_h_ */

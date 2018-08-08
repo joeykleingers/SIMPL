@@ -1,5 +1,4 @@
-#ifndef _itkInPlaceDream3DDataToImageFilter_h
-#define _itkInPlaceDream3DDataToImageFilter_h
+#pragma once
 
 #include "itkDream3DImage.h"
 #include <itkImportImageFilter.h>
@@ -10,7 +9,9 @@
 
 namespace itk
 {
-template <typename PixelType, unsigned int VDimension> class InPlaceDream3DDataToImageFilter : public ImageSource<itk::Dream3DImage<PixelType, VDimension>>
+
+template <typename PixelType, unsigned int VDimension>
+class InPlaceDream3DDataToImageFilter : public ImageSource<itk::Dream3DImage<PixelType, VDimension>>
 {
 public:
   /** Standard class typedefs. */
@@ -48,10 +49,10 @@ protected:
   InPlaceDream3DDataToImageFilter();
   virtual ~InPlaceDream3DDataToImageFilter();
 
-  virtual void VerifyPreconditions() ITK_OVERRIDE;
+  virtual void VerifyPreconditions() override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
-  virtual void GenerateData() ITK_OVERRIDE;
+  virtual void GenerateOutputInformation() override;
+  virtual void GenerateData() override;
   DataContainer::Pointer m_DataContainer;
 
 private:
@@ -70,4 +71,3 @@ private:
 #include "itkInPlaceDream3DDataToImageFilter.hxx"
 #endif
 
-#endif

@@ -47,17 +47,14 @@ PipelineListWidget::PipelineListWidget(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineListWidget::~PipelineListWidget()
-{
-
-}
+PipelineListWidget::~PipelineListWidget() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void PipelineListWidget::setupGui()
 {
-  startPipelineBtn->setStyleSheet(getStartPipelineIdleStyle());
+  setPipelineState(SVPipelineView::PipelineViewState::Idle);
   startPipelineBtn->setDisabled(true);
 
   pipelineView->addPipelineMessageObserver(this);
@@ -92,20 +89,31 @@ void PipelineListWidget::processPipelineMessage(const PipelineMessage& msg)
 void PipelineListWidget::on_startPipelineBtn_clicked()
 {
   PipelineModel* model = pipelineView->getPipelineModel();
-  if(startPipelineBtn->text().compare("Cancel Pipeline") == 0)
+  if(pipelineView->getPipelineState() == SVPipelineView::PipelineViewState::Running)
   {
+    QModelIndex pipelineIndex = model->index(0, PipelineItem::Contents);
     emit pipelineCanceled(QModelIndex());
+
+    setPipelineState(SVPipelineView::PipelineViewState::Cancelling);
+
+    //    // Enable FilterListToolboxWidget signals - resume adding filters
+    //    getFilterListToolboxWidget()->blockSignals(false);
+
+    //    // Enable FilterLibraryToolboxWidget signals - resume adding filters
+    //    getFilterLibraryToolboxWidget()->blockSignals(false);
 
     updateStartButtonState(StartButtonState::Canceling);
     return;
   }
-  else if(startPipelineBtn->text().compare("Canceling...") == 0)
+
+  if(pipelineView->getPipelineState() == SVPipelineView::PipelineViewState::Cancelling)
   {
     return;
   }
 
   if (model->rowCount() > 0)
   {
+    setPipelineState(SVPipelineView::PipelineViewState::Running);
     pipelineView->executePipeline();
     updateStartButtonState(StartButtonState::Running);
   }
@@ -237,4 +245,28 @@ QString PipelineListWidget::getStartPipelineInProgressStyle(float percent)
 SVPipelineView* PipelineListWidget::getPipelineView()
 {
   return pipelineView;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineListWidget::setPipelineState(SVPipelineView::PipelineViewState state)
+{
+  switch(state)
+  {
+  case SVPipelineView::PipelineViewState::Idle:
+    startPipelineBtn->setText("Start Pipeline");
+    startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_play_white.png"));
+    startPipelineBtn->setStyleSheet(getStartPipelineIdleStyle());
+    break;
+  case SVPipelineView::PipelineViewState::Running:
+    startPipelineBtn->setText("Cancel Pipeline");
+    startPipelineBtn->setIcon(QIcon(":/SIMPL/icons/images/media_stop_white.png"));
+    break;
+
+  case SVPipelineView::PipelineViewState::Cancelling:
+    startPipelineBtn->setText("Canceling...");
+    break;
+  }
+  pipelineView->setPipelineState(state);
 }

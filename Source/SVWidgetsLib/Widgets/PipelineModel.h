@@ -29,8 +29,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _pipelinetreemodel_h_
-#define _pipelinetreemodel_h_
+#pragma once
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QModelIndex>
@@ -190,4 +189,3 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void operator=(const PipelineModel&);  // Operator '=' Not Implemented
 };
 
-#endif // _pipelinetreemodel_h_

@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _findderivatives_h_
-#define _findderivatives_h_
+#pragma once
 
 #include <QtCore/QFile>
 #include <QtCore/QString>
@@ -180,9 +179,8 @@ private:
 
   public:
     FindDerivatives(const FindDerivatives&) = delete; // Copy Constructor Not Implemented
-    FindDerivatives(FindDerivatives&&) = delete;      // Move Constructor
+    FindDerivatives(FindDerivatives&&) = delete;      // Move Constructor Not Implemented
     FindDerivatives& operator=(const FindDerivatives&) = delete; // Copy Assignment Not Implemented
     FindDerivatives& operator=(FindDerivatives&&) = delete;      // Move Assignment
 };
 
-#endif /* _FindDerivatives_H_ */

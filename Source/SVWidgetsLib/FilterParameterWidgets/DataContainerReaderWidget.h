@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _datacontainerreaderwidget_h_
-#define _datacontainerreaderwidget_h_
+#pragma once
 
 
 #include <QtCore/QObject>
@@ -123,6 +122,10 @@ class SVWidgetsLib_EXPORT DataContainerReaderWidget : public FilterParameterWidg
   protected:
     void updateProxyFromModel();
 
+    void checkFilePath(const QString& text);
+    void updateDCAProxy(const QString& text);
+    void updateStylingForPath(const QString& text);
+
     void updateModelFromProxy(DataContainerArrayProxy& proxy);
     void updateProxyFromProxy(DataContainerArrayProxy& current, DataContainerArrayProxy& incoming);
 
@@ -163,4 +166,3 @@ class SVWidgetsLib_EXPORT DataContainerReaderWidget : public FilterParameterWidg
     void operator=(const DataContainerReaderWidget&) = delete;            // Move assignment Not Implemented
 };
 
-#endif /* _DataContainerReaderWidget_H_ */

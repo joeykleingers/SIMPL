@@ -27,8 +27,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _pipelinelistwidget_h_
-#define _pipelinelistwidget_h_
+#pragma once
 
 #include <QtWidgets/QFrame>
 
@@ -42,7 +41,7 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
 
   public:
     PipelineListWidget(QWidget* parent = nullptr);
-    virtual ~PipelineListWidget();
+    ~PipelineListWidget() override;
 
     enum class StartButtonState : unsigned int
     {
@@ -112,8 +111,14 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
      */
     QString getStartPipelineInProgressStyle(float percent);
 
+    /**
+     * @brief Sets the PipelineState and updates the UI to match
+     * @param state
+     */
+    void setPipelineState(SVPipelineView::PipelineViewState state);
+
+  public:
     PipelineListWidget(const PipelineListWidget&) = delete; // Copy Constructor Not Implemented
     void operator=(const PipelineListWidget&) = delete;  // Operator '=' Not Implemented
 };
 
-#endif /* _pipelinelistwidget_h_ */

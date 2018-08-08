@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _breakpoint_h_
-#define _breakpoint_h_
+#pragma once
 
 #include <QtCore/QWaitCondition>
 
@@ -185,9 +184,8 @@ class SIMPLib_EXPORT Breakpoint : public AbstractFilter
 
   public:
     Breakpoint(const Breakpoint&) = delete;     // Copy Constructor Not Implemented
-    Breakpoint(Breakpoint&&) = delete;          // Move Constructor
+    Breakpoint(Breakpoint&&) = delete;          // Move Constructor Not Implemented
     Breakpoint& operator=(const Breakpoint&) = delete; // Copy Assignment Not Implemented
     Breakpoint& operator=(Breakpoint&&) = delete;      // Move Assignment
 };
 
-#endif /* _Breakpoint_H_ */

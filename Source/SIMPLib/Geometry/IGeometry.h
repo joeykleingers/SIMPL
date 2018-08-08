@@ -33,19 +33,19 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _igeometry_h_
-#define _igeometry_h_
+#pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QMap>
 #include <QMutex>
+#include <QtCore/QMap>
+#include <QtCore/QString>
 
-#include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Common/Observable.h"
-#include "SIMPLib/DataArrays/DynamicListArray.hpp"
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
+#include "SIMPLib/DataArrays/DynamicListArray.hpp"
 #include "SIMPLib/DataContainers/AttributeMatrix.h"
+#include "SIMPLib/Geometry/ITransformContainer.h"
+#include "SIMPLib/SIMPLib.h"
 
 class QTextStream;
 
@@ -57,6 +57,7 @@ typedef Int64ArrayType SharedEdgeList;
 typedef Int64ArrayType SharedTriList;
 typedef Int64ArrayType SharedQuadList;
 typedef Int64ArrayType SharedTetList;
+typedef Int64ArrayType SharedHexList;
 typedef Int64ArrayType SharedFaceList;
 typedef UInt16Int64DynamicListArray ElementDynamicList;
 
@@ -108,6 +109,7 @@ class SIMPLib_EXPORT IGeometry : public Observable
        Triangle = 5,
        Quad = 9,
        Tetrahedral = 10,
+       Hexahedral = 12,
        Unknown = 999,
        Any = 4294967295U
     };
@@ -124,6 +126,7 @@ class SIMPLib_EXPORT IGeometry : public Observable
       Triangle,
       Quad,
       Tetrahedral,
+      Hexahedral,
       Unknown = 999,
       Any = 4294967295U
     };
@@ -139,6 +142,7 @@ class SIMPLib_EXPORT IGeometry : public Observable
 
     SIMPL_INSTANCE_PROPERTY(float, TimeValue)
     SIMPL_INSTANCE_PROPERTY(bool, EnableTimeSeries)
+    SIMPL_INSTANCE_PROPERTY(ITransformContainer::Pointer, TransformContainer)
 
 // -----------------------------------------------------------------------------
 // Connectivity
@@ -443,6 +447,3 @@ class SIMPLib_EXPORT IGeometry : public Observable
     IGeometry(const IGeometry&) = delete;      // Copy Constructor Not Implemented
     void operator=(const IGeometry&) = delete; // Move assignment Not Implemented
 };
-
-#endif /* _IGeometry_H_ */
-

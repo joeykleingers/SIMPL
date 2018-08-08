@@ -33,14 +33,14 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _filelistinfowidget_h_
-#define _filelistinfowidget_h_
+#pragma once
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>
 #include <QtCore/QVector>
+#include <QtWidgets/QButtonGroup>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/FilterParameters/FileListInfoFilterParameter.h"
@@ -177,4 +177,3 @@ private:
   void operator=(const FileListInfoWidget&) = delete;     // Move assignment Not Implemented
 };
 
-#endif /* EbsdImportWIDGET_H_ */

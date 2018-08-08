@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _emptyfilter_h_
-#define _emptyfilter_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -171,9 +170,8 @@ class SIMPLib_EXPORT EmptyFilter : public AbstractFilter
 
   public:
     EmptyFilter(const EmptyFilter&) = delete;    // Copy Constructor Not Implemented
-    EmptyFilter(EmptyFilter&&) = delete;         // Move Constructor
+    EmptyFilter(EmptyFilter&&) = delete;         // Move Constructor Not Implemented
     EmptyFilter& operator=(const EmptyFilter&) = delete; // Copy Assignment Not Implemented
     EmptyFilter& operator=(EmptyFilter&&) = delete;      // Move Assignment
 };
 
-#endif /* _EmptyFilter_H_ */

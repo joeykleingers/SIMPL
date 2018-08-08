@@ -105,6 +105,7 @@ SVPipelineView::SVPipelineView(QWidget* parent)
 : QListView(parent)
 , PipelineView()
 , m_PipelineIsRunning(false)
+, m_PipelineState(PipelineViewState::Idle)
 {
   setupGui();
 }
@@ -249,9 +250,9 @@ void SVPipelineView::removeFilter(AbstractFilter::Pointer filter)
 // -----------------------------------------------------------------------------
 void SVPipelineView::removeFilters(std::vector<AbstractFilter::Pointer> filters)
 {
-  if(getPipelineViewController())
+  if (getPipelineViewController())
   {
-    getPipelineViewController()->removeFilters(filters, m_PipelineRootIndex);
+    getPipelineViewController()->removeFilters(filters);
   }
 }
 
@@ -940,8 +941,7 @@ void SVPipelineView::keyPressEvent(QKeyEvent* event)
 {
   if(event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)
   {
-    bool isRunning = getPipelineIsRunning();
-    if(isRunning == false)
+    if(getPipelineState() == PipelineViewState::Running)
     {
       emit deleteKeyPressed();
     }
@@ -976,8 +976,6 @@ int SVPipelineView::openPipeline(const QString& filePath, int insertIndex)
     }
     return err;
   }
-
-  return -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -1083,7 +1081,7 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
 // -----------------------------------------------------------------------------
 bool SVPipelineView::isPipelineCurrentlyRunning()
 {
-  return m_PipelineIsRunning;
+  return (getPipelineState() == PipelineViewState::Running);
 }
 
 // -----------------------------------------------------------------------------

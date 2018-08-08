@@ -2,8 +2,7 @@
  * Your License or Copyright can go here
  */
 
-#ifndef _readasciidata_h_
-#define _readasciidata_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -100,13 +99,13 @@ class SIMPLib_EXPORT ReadASCIIData : public AbstractFilter
   * @brief readFilterParametersFromJson Reads the filter parameters from a file
   * @param reader Reader that is used to read the parameters from a file
   */
-  virtual void readFilterParameters(QJsonObject& obj);
+  void readFilterParameters(QJsonObject& obj) override;
 
   /**
   * @brief writeFilterParametersToJson Writes the filter parameters to a file
   * @param root The root json object
   */
-  virtual void writeFilterParameters(QJsonObject& obj);
+  void writeFilterParameters(QJsonObject& obj) const override;
 
    /**
     * @brief execute Reimplemented from @see AbstractFilter class
@@ -166,9 +165,8 @@ class SIMPLib_EXPORT ReadASCIIData : public AbstractFilter
 
   public:
     ReadASCIIData(const ReadASCIIData&) = delete;  // Copy Constructor Not Implemented
-    ReadASCIIData(ReadASCIIData&&) = delete;       // Move Constructor
+    ReadASCIIData(ReadASCIIData&&) = delete;       // Move Constructor Not Implemented
     ReadASCIIData& operator=(const ReadASCIIData&) = delete; // Copy Assignment Not Implemented
     ReadASCIIData& operator=(ReadASCIIData&&) = delete;      // Move Assignment
 };
 
-#endif /* _readasciidata_h_ */

@@ -87,7 +87,7 @@ endMacro()
 
 #------------------------------------------------------------------------------
 # Set up the directories that are used for each Group
-set(SIMPL_Group_BASE_MODULES Common DataArrays DataContainers Geometry HDF5 Math StatsData Utilities)
+set(SIMPL_Group_BASE_MODULES Common DataArrays DataContainers Geometry HDF5 Math StatsData Utilities ITK)
 set(SIMPL_Group_FILTERS_MODULES Filtering FilterParameters VTKUtils)
 set(SIMPL_Group_PLUGIN_MODULES Plugin)
 
@@ -135,7 +135,7 @@ if(SIMPL_Group_FILTERS)
   set(CORE_FILTER_LIST ${CORE_FILTER_LIST} ${_PublicFilters} )
   #-----------------------------------------------------
   # conditionally compile our example codes- These should be turned off for a release
-  if(NOT "${SIMPLProj_RELEASE_TYPE}" STREQUAL "Offical")
+  if(NOT "${SIMPLProj_RELEASE_TYPE}" STREQUAL "Official")
       # Add the generated moc file to the project sources
       set(Project_SRCS ${Project_SRCS} ${PluginAutoMocSourceFile} )
       include(${SIMPLib_SOURCE_DIR}/TestFilters/SourceList.cmake)
@@ -160,7 +160,6 @@ cmpReplaceFileIfDifferent(OLD_FILE_PATH  ${SIMPLib_BINARY_DIR}/CoreFilters/SIMPL
                           NEW_FILE_PATH  ${AllFiltersHeaderFile} )
 cmpReplaceFileIfDifferent(OLD_FILE_PATH  ${SIMPLib_BINARY_DIR}/CoreFilters/RegisterKnownFilters.cpp
                           NEW_FILE_PATH  ${RegisterKnownFiltersFile} )
-
 
 
 set(${PROJECT_NAME}_LINK_LIBS Qt5::Core Qt5::Network H5Support)

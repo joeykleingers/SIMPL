@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _datacontainerwriter_h_
-#define _datacontainerwriter_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -50,9 +49,6 @@ class SIMPLib_EXPORT DataContainerWriter : public AbstractFilter
     
     // This line MUST be first when exposing a class and properties to Python
     PYB11_CREATE_BINDINGS(DataContainerWriter SUPERCLASS AbstractFilter)
-    PYB11_PROPERTY(QString OutputFile READ getOutputFile WRITE setOutputFile)
-    PYB11_PROPERTY(bool WriteXdmfFile READ getWriteXdmfFile WRITE setWriteXdmfFile)
-    PYB11_PROPERTY(bool WriteTimeSeries READ getWriteTimeSeries WRITE setWriteTimeSeries)
     PYB11_PROPERTY(QString OutputFile READ getOutputFile WRITE setOutputFile)
     PYB11_PROPERTY(bool WriteXdmfFile READ getWriteXdmfFile WRITE setWriteXdmfFile)
     PYB11_PROPERTY(bool WriteTimeSeries READ getWriteTimeSeries WRITE setWriteTimeSeries)
@@ -221,9 +217,8 @@ class SIMPLib_EXPORT DataContainerWriter : public AbstractFilter
 
   public:
     DataContainerWriter(const DataContainerWriter&) = delete; // Copy Constructor Not Implemented
-    DataContainerWriter(DataContainerWriter&&) = delete;      // Move Constructor
+    DataContainerWriter(DataContainerWriter&&) = delete;      // Move Constructor Not Implemented
     DataContainerWriter& operator=(const DataContainerWriter&) = delete; // Copy Assignment Not Implemented
     DataContainerWriter& operator=(DataContainerWriter&&) = delete;      // Move Assignment
 };
 
-#endif /* _DataContainerWriter_H_ */

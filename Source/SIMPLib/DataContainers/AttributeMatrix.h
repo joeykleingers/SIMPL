@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _attributematrix_h_
-#define _attributematrix_h_
+#pragma once
 
 #if defined (_MSC_VER)
 #define WIN32_LEAN_AND_MEAN   // Exclude rarely-used stuff from Windows headers
@@ -498,15 +497,14 @@ public:
     template<class ArrayType, class AbstractFilter>
     bool dataArrayCompatibility(const QString& arrayName, int numComp, AbstractFilter* filter)
     {
-      // First try checking by name
-      // IDataArray::Pointer iDataArray = ;
-      typename ArrayType::Pointer targetDestArray = std::dynamic_pointer_cast< ArrayType >(getAttributeArray(arrayName));
-      typename ArrayType::Pointer validTargetArray = ArrayType::CreateArray(1, "JUNK_INTERNAL_ARRAY", false);
-
+      // Make sure the types are the same
+      IDataArray::Pointer ida = getAttributeArray(arrayName);     
+      typename ArrayType::Pointer targetDestArray = std::dynamic_pointer_cast< ArrayType >(ida);
       if (targetDestArray.get() == 0)
       {
         if (nullptr != filter)
         {
+          typename ArrayType::Pointer validTargetArray = ArrayType::CreateArray(1, "JUNK_INTERNAL_ARRAY", false);
           IDataArray::Pointer srcArray = getAttributeArray(arrayName);
           QString srcDesc = srcArray->getTypeAsString();
           QString desc = validTargetArray->getTypeAsString();
@@ -685,4 +683,3 @@ public:
 
 Q_DECLARE_METATYPE(AttributeMatrix::Type)
 Q_DECLARE_METATYPE(AttributeMatrix::Category)
-#endif

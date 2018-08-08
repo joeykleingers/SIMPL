@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _linkfeaturemaptoelementarray_h_
-#define _linkfeaturemaptoelementarray_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -180,9 +179,8 @@ class SIMPLib_EXPORT LinkFeatureMapToElementArray : public AbstractFilter
 
   public:
     LinkFeatureMapToElementArray(const LinkFeatureMapToElementArray&) = delete; // Copy Constructor Not Implemented
-    LinkFeatureMapToElementArray(LinkFeatureMapToElementArray&&) = delete;      // Move Constructor
+    LinkFeatureMapToElementArray(LinkFeatureMapToElementArray&&) = delete;      // Move Constructor Not Implemented
     LinkFeatureMapToElementArray& operator=(const LinkFeatureMapToElementArray&) = delete; // Copy Assignment Not Implemented
     LinkFeatureMapToElementArray& operator=(LinkFeatureMapToElementArray&&) = delete;      // Move Assignment
 };
 
-#endif /* _LinkFeatureMapToElementArray_H_ */

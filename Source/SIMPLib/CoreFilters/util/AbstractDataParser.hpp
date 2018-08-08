@@ -27,14 +27,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _AbstractDataParser_hpp_
-#define _AbstractDataParser_hpp_
+#pragma once
 
 #include <QtCore/QString>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/DataArrays/StringDataArray.hpp"
+#include "SIMPLib/DataArrays/StringDataArray.h"
 #include "SIMPLib/SIMPLib.h"
 
 #include "SIMPLib/CoreFilters/util/ParserFunctors.hpp"
@@ -160,4 +159,3 @@ typedef Parser<DoubleArrayType, DoubleFunctor> DoubleParserType;
 
 typedef Parser<StringDataArray, StringFunctor> StringParserType;
 
-#endif /* DATAPARSER_HPP_ */

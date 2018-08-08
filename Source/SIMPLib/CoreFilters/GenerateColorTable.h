@@ -2,8 +2,7 @@
  * Your License or Copyright can go here
  */
 
-#ifndef _generatecolortable_h_
-#define _generatecolortable_h_
+#pragma once
 
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -141,9 +140,8 @@ class SIMPLib_EXPORT GenerateColorTable : public AbstractFilter
 
   public:
     GenerateColorTable(const GenerateColorTable&) = delete; // Copy Constructor Not Implemented
-    GenerateColorTable(GenerateColorTable&&) = delete;      // Move Constructor
+    GenerateColorTable(GenerateColorTable&&) = delete;      // Move Constructor Not Implemented
     GenerateColorTable& operator=(const GenerateColorTable&) = delete; // Copy Assignment Not Implemented
     GenerateColorTable& operator=(GenerateColorTable&&) = delete;      // Move Assignment
 };
 
-#endif /* _GenerateColorTable_H_ */

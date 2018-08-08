@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _h5filterparameterswriter_h_
-#define _h5filterparameterswriter_h_
+#pragma once
 
 #include "hdf5.h"
 
@@ -141,10 +140,9 @@ class SIMPLib_EXPORT H5FilterParametersWriter : public AbstractFilterParametersW
 
   public:
     H5FilterParametersWriter(const H5FilterParametersWriter&) = delete; // Copy Constructor Not Implemented
-    H5FilterParametersWriter(H5FilterParametersWriter&&) = delete;      // Move Constructor
+    H5FilterParametersWriter(H5FilterParametersWriter&&) = delete;      // Move Constructor Not Implemented
     H5FilterParametersWriter& operator=(const H5FilterParametersWriter&) = delete; // Copy Assignment Not Implemented
     H5FilterParametersWriter& operator=(H5FilterParametersWriter&&) = delete;      // Move Assignment
 };
 
-#endif /* _H5FilterParametersWRITER_H_ */
 

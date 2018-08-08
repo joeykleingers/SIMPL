@@ -81,6 +81,17 @@ class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
 public:
   SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
 
+  enum class PipelineViewState : int
+  {
+    Idle = 0,
+    Running,
+    Cancelling
+  };
+
+  using IndexedFilterObject = std::pair<int, PipelineFilterObject*>;
+
+  SIMPL_INSTANCE_PROPERTY(PipelineViewState, PipelineState)
+
   SVPipelineView(QWidget* parent = nullptr);
   virtual ~SVPipelineView();
 
@@ -329,8 +340,6 @@ protected slots:
 
 private:
   QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
-
-  bool m_PipelineRunning = false;
 
   QUndoCommand* m_MoveCommand = nullptr;
   QPoint m_DragStartPosition;

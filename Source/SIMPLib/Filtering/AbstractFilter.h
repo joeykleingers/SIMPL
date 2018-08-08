@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _abstractfilter_h_
-#define _abstractfilter_h_
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -73,6 +72,7 @@ class SIMPLib_EXPORT AbstractFilter : public Observable
   Q_PROPERTY(QString CompiledLibraryName READ getCompiledLibraryName CONSTANT)
   Q_PROPERTY(int Cancel READ getCancel WRITE setCancel)
   Q_PROPERTY(bool Enabled READ getEnabled WRITE setEnabled)
+  Q_PROPERTY(bool Removing READ getRemoving WRITE setRemoving)
   
   // This line MUST be first when exposing a class and properties to Python
   PYB11_CREATE_BINDINGS(AbstractFilter)
@@ -186,7 +186,7 @@ public:
   * @brief writeFilterParametersToJson Writes the filter parameters to a file
   * @param obj The json object to add the filter parameters into
   */
-  virtual void writeFilterParameters(QJsonObject& obj);
+  virtual void writeFilterParameters(QJsonObject& obj) const;
 
   /**
    * @brief This method is called just after the writeFilterParameters() completes
@@ -248,6 +248,8 @@ public:
   SIMPL_INSTANCE_PROPERTY(bool, InPreflight)
 
   SIMPL_INSTANCE_PROPERTY(bool, Enabled)
+
+  SIMPL_INSTANCE_PROPERTY(bool, Removing)
 
   // ------------------------------
   // These functions allow interogating the position the filter is in the pipeline and the previous and next filters
@@ -435,4 +437,3 @@ private:
   void operator=(const AbstractFilter&) = delete; // Move assignment Not Implemented
 };
 
-#endif /* _AbstractFilter_H_  */

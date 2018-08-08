@@ -33,8 +33,7 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _filewriter_h_
-#define _filewriter_h_
+#pragma once
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -101,9 +100,8 @@ class SIMPLib_EXPORT FileWriter : public AbstractFilter
 
   public:
     FileWriter(const FileWriter&) = delete;     // Copy Constructor Not Implemented
-    FileWriter(FileWriter&&) = delete;          // Move Constructor
+    FileWriter(FileWriter&&) = delete;          // Move Constructor Not Implemented
     FileWriter& operator=(const FileWriter&) = delete; // Copy Assignment Not Implemented
     FileWriter& operator=(FileWriter&&) = delete;      // Move Assignment
 };
 
-#endif /* FileWriter_H_ */

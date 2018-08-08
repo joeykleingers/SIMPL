@@ -34,8 +34,7 @@
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#ifndef _arraycalculator_h_
-#define _arraycalculator_h_
+#pragma once
 
 #include <QtCore/QStack>
 #include <QtCore/QQueue>
@@ -148,13 +147,13 @@ class SIMPLib_EXPORT ArrayCalculator : public AbstractFilter
     * @brief readFilterParametersFromJson Reads the filter parameters from a file
     * @param reader Reader that is used to read the parameters from a file
     */
-    virtual void readFilterParameters(QJsonObject &obj);
+    void readFilterParameters(QJsonObject &obj) override;
 
     /**
     * @brief writeFilterParametersToJson Writes the filter parameters to a file
     * @param root The root json object
     */
-    virtual void writeFilterParameters(QJsonObject &obj);
+    void writeFilterParameters(QJsonObject &obj) const override;
 
     /**
      * @brief execute Reimplemented from @see AbstractFilter class
@@ -269,9 +268,8 @@ class SIMPLib_EXPORT ArrayCalculator : public AbstractFilter
 
   public:
     ArrayCalculator(const ArrayCalculator&) = delete; // Copy Constructor Not Implemented
-    ArrayCalculator(ArrayCalculator&&) = delete;      // Move Constructor
+    ArrayCalculator(ArrayCalculator&&) = delete;      // Move Constructor Not Implemented
     ArrayCalculator& operator=(const ArrayCalculator&) = delete; // Copy Assignment Not Implemented
     ArrayCalculator& operator=(ArrayCalculator&&) = delete;      // Move Assignment
 };
 
-#endif /* _ArrayCalculator_H_ */
