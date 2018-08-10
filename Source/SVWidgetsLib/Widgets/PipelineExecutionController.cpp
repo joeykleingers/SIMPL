@@ -83,7 +83,7 @@ void PipelineExecutionController::execute()
   connect(m_Pipeline.get(), SIGNAL(pipelineFinished()), m_WorkerThread, SLOT(quit()));
 
   // When the QThread finishes, re-emit the signal that it has finished.
-  connect(m_WorkerThread, SIGNAL(finished()), this, SIGNAL(finished()));
+  connect(m_WorkerThread, SIGNAL(finished()), this, SLOT(finished()));
 
   m_WorkerThread->start();
 }

@@ -122,6 +122,8 @@ public:
   virtual size_t size();
   virtual bool empty();
 
+  virtual int findFilterPosition(AbstractFilter::Pointer filter);
+
   virtual FilterContainerType& getFilterContainer();
 
   virtual DataContainerArray::Pointer getDataContainerArray();

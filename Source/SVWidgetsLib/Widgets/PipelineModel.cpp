@@ -466,7 +466,9 @@ Qt::ItemFlags PipelineModel::flags(const QModelIndex& index) const
     return Qt::ItemIsDropEnabled;
   }
 
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
+  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
+
+  return itemFlags;
 }
 
 // -----------------------------------------------------------------------------

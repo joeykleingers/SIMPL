@@ -81,12 +81,6 @@ class SVWidgetsLib_EXPORT SVPipelineTreeView : public QTreeView, public Pipeline
 public:
   SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
 
-  SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
-  SIMPL_GET_PROPERTY(QAction*, ActionCut)
-  SIMPL_GET_PROPERTY(QAction*, ActionCopy)
-  SIMPL_GET_PROPERTY(QAction*, ActionPaste)
-  SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
-
   SVPipelineTreeView(QWidget* parent = nullptr);
   virtual ~SVPipelineTreeView();
 
@@ -137,84 +131,10 @@ public slots:
   void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
 
   /**
-   * @brief Adds a filter with the specified filterClassName to the current model
-   * @param filterClassName
-   */
-  void addFilterFromClassName(const QString& filterClassName, int insertIndex = -1) override;
-
-  /**
-   * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
-   * the filter gets appended to the end of the model
-   * @param filter
-   */
-  void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1) override;
-
-  /**
-   * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
-   * the filters get appended to the end of the model
-   * @param filters
-   */
-  void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1) override;
-
-  /**
    * @brief removePipeline
    * @param pipeline
    */
   void removePipeline(FilterPipeline::Pointer pipeline);
-
-  /**
-   * @brief Removes filter from the current model
-   * @param filter
-   */
-  void removeFilter(AbstractFilter::Pointer filter) override;
-
-  /**
-   * @brief Removes multiple filters from the current model
-   * @param filters
-   */
-  void removeFilters(std::vector<AbstractFilter::Pointer> filters) override;
-
-  /**
-   * @brief Cuts filter from the current model
-   * @param filter
-   */
-  void cutFilter(AbstractFilter::Pointer filter) override;
-
-  /**
-   * @brief Cuts multiple filters from the current model
-   * @param filters
-   */
-  void cutFilters(std::vector<AbstractFilter::Pointer> filters) override;
-
-  /**
-   * @brief Pastes multiple filters from the system clipboard to the current model
-   * @param insertIndex
-   */
-  void pasteFilters(int insertIndex = -1) override;
-
-  /**
-   * @brief preflightPipeline
-   * @param pipelineRootIndex
-   */
-  void preflightPipeline() override;
-
-  /**
-   * @brief executePipeline
-   * @param pipelineRootIndex
-   */
-  void executePipeline() override;
-
-  /**
-   * @brief cancelPipeline
-   * @param pipelineIndex
-   */
-  void cancelPipeline() override;
-
-  /**
-   * @brief clearPipeline
-   * @param pipelineRootIndex
-   */
-  void clearPipeline() override;
 
 signals:
   void pipelineFinished();
@@ -226,10 +146,6 @@ signals:
   void filterInputWidgetNeedsCleared();
 
   void filterEnabledStateChanged();
-
-  void deleteKeyPressed();
-
-
 
   void displayIssuesTriggered();
   void clearIssuesTriggered();
@@ -269,9 +185,6 @@ protected:
   void dropEvent(QDropEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
 
-  void setFiltersEnabled(QModelIndexList indexes, bool enabled);
-  void setSelectedFiltersEnabled(bool enabled);
-
 protected slots:  
   /**
    * @brief updatePasteAvailability
@@ -284,16 +197,6 @@ protected slots:
    */
   void requestContextMenu(const QPoint& pos);
 
-  /**
-   * @brief Slot that executes when the delete key gets pressed
-   */
-  void listenDeleteKeyTriggered();
-
-  void listenCutTriggered();
-  void listenCopyTriggered();
-  void listenPasteTriggered();
-  void listenClearPipelineTriggered();
-
 private:
   QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
 
@@ -303,52 +206,15 @@ private:
   QPoint m_DragStartPosition;
   QModelIndex m_DropIndicatorIndex;
 
-  QAction* m_ActionEnableFilter = nullptr;
-  QAction* m_ActionCut = nullptr;
-  QAction* m_ActionCopy = nullptr;
-  QAction* m_ActionPaste = nullptr;
-  QAction* m_ActionClearPipeline = nullptr;
-
   QString m_CurrentPipelineFilePath;
 
-  QModelIndex m_PipelineRootIndex;
+  QModelIndex m_ActivePipelineRootIndex;
 
   /**
    * @brief getSelectedRows
    * @return
    */
   QModelIndexList getSelectedRows() override;
-
-  /**
-   * @brief requestFilterContextMenu
-   * @param pos
-   * @param index
-   */
-  void requestFilterItemContextMenu(const QPoint& pos, const QModelIndex& index);
-
-  /**
-   * @brief requestPipelineContextMenu
-   * @param pos
-   */
-  void requestPipelineItemContextMenu(const QPoint& pos);
-
-  /**
-   * @brief requestSinglePipelineContextMenu
-   * @param menu
-   */
-  void requestSinglePipelineContextMenu(QMenu& menu);
-
-  /**
-   * @brief requestErrorHandlingContextMenu
-   * @param menu
-   */
-  void requestErrorHandlingContextMenu(QMenu& menu);
-
-  /**
-   * @brief requestDefaultContextMenu
-   * @param pos
-   */
-  void requestDefaultContextMenu(const QPoint& pos);
 
   /**
    * @brief addDropIndicator

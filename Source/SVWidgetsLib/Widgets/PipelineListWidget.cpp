@@ -61,7 +61,7 @@ void PipelineListWidget::setupGui()
 
   connect(pipelineView->getPipelineViewController(), &PipelineViewController::preflightFinished, this, &PipelineListWidget::preflightFinished);
 
-  connect(pipelineView, &SVPipelineView::pipelineFinished, [=] { updateStartButtonState(StartButtonState::Idle); });
+  connect(pipelineView->getPipelineViewController(), &PipelineViewController::pipelineFinished, [=] { updateStartButtonState(StartButtonState::Idle); });
 
   connect(this, &PipelineListWidget::pipelineCanceled, [=] { pipelineView->cancelPipeline(); });
 }

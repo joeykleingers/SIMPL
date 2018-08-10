@@ -52,53 +52,25 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddFilterToPipelineCommand::AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, QString actionText, QUndoCommand* parent)
+AddFilterToPipelineCommand::AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, QUndoCommand* parent)
 : QUndoCommand(parent)
-, m_ActionText(actionText)
 , m_Pipeline(pipeline)
 {
-  if (filter.get() == nullptr || pipeline.get() == nullptr)
-  {
-    m_ValidCommand = false;
-    return;
-  }
-
-  if(insertIndex < 0 || insertIndex > pipeline->size())
-  {
-    insertIndex = pipeline->size();
-  }
-  m_InsertIndex = insertIndex;
-
-  setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg(actionText).arg(filter->getHumanLabel()).arg(pipeline->getName()));
-
-  m_Filters.push_back(filter);
-
-  m_FilterRows.push_back(insertIndex);
+  std::vector<AbstractFilter::Pointer> filters;
+  filters.push_back(filter);
+  AddFilterToPipelineCommand(filters, pipeline, insertIndex, parent);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddFilterToPipelineCommand::AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, QString actionText, QUndoCommand* parent)
+AddFilterToPipelineCommand::AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Filters(filters)
-, m_ActionText(actionText)
 , m_Pipeline(pipeline)
 {
-  if (pipeline.get() == nullptr || filters.size() <= 0)
-  {
-    m_ValidCommand = false;
-    return;
-  }
-
   for(size_t i = 0; i < m_Filters.size(); i++)
   {
-    if (m_Filters[i].get() == nullptr)
-    {
-      m_ValidCommand = false;
-      return;
-    }
-
     m_FilterRows.push_back(insertIndex + i);
   }
 
@@ -107,15 +79,6 @@ AddFilterToPipelineCommand::AddFilterToPipelineCommand(std::vector<AbstractFilte
     insertIndex = pipeline->size();
   }
   m_InsertIndex = insertIndex;
-
-  if(filters.size() == 1)
-  {
-    setText(QObject::tr("\"%1 '%2'\"").arg(actionText).arg(filters[0]->getHumanLabel()));
-  }
-  else
-  {
-    setText(QObject::tr("\"%1 %2 Filters\"").arg(actionText).arg(filters.size()));
-  }
 }
 
 // -----------------------------------------------------------------------------

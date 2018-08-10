@@ -100,6 +100,7 @@ void RemovePipelineFromModelCommand::undo()
 {
   m_PipelineModel->insertRow(m_RemovalRow);
   QModelIndex pipelineRootIndex = m_PipelineModel->index(m_RemovalRow, PipelineItem::Contents);
+  m_PipelineModel->setData(pipelineRootIndex, static_cast<int>(PipelineItem::ItemType::PipelineRoot), PipelineModel::Roles::ItemTypeRole);
   m_PipelineModel->setPipeline(pipelineRootIndex, m_Pipeline);
 
   QString statusMessage = getStatusMessage();

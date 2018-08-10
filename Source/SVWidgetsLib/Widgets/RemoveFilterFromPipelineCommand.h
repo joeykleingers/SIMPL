@@ -52,11 +52,9 @@ class SVWidgetsLib_EXPORT RemoveFilterFromPipelineCommand : public QObject, publ
     Q_OBJECT
 
 public:
-  RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, QString actionText, QUndoCommand* parent = nullptr);
-  RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, QString actionText, QUndoCommand* parent = nullptr);
+  RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, QUndoCommand* parent = nullptr);
+  RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, QUndoCommand* parent = nullptr);
   virtual ~RemoveFilterFromPipelineCommand();
-
-  SIMPL_GET_BOOL_PROPERTY(ValidCommand)
 
   virtual void undo();
 
@@ -73,7 +71,6 @@ private:
   std::vector<AbstractFilter::Pointer> m_Filters;
   std::vector<int> m_RemovalRows;
   bool m_FirstRun = true;
-  bool m_ValidCommand = true;
 
   const QString m_SingleFilterStatusMsg = "Removed '%1' filter at index %2 from pipeline '%3'";
   const QString m_MultipleFiltersStatusMsg = "Removed %1 filters starting at index %2 from pipeline '%3'";

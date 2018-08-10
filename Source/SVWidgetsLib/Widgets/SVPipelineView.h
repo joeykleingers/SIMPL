@@ -128,6 +128,12 @@ public:
   bool isPipelineCurrentlyRunning();
 
   /**
+   * @brief setPipelineViewState
+   * @param state
+   */
+  void setPipelineViewState(PipelineViewState state);
+
+  /**
    * @brief Returns the regular disable button pixmap in the current highlighted text color
    * @return
    */
@@ -196,84 +202,10 @@ public slots:
   void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
 
   /**
-   * @brief Adds a filter with the specified filterClassName to the current model
-   * @param filterClassName
-   */
-  void addFilterFromClassName(const QString& filterClassName, int insertIndex = -1) override;
-
-  /**
-   * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
-   * the filter gets appended to the end of the model
-   * @param filter
-   */
-  void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1) override;
-
-  /**
-   * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
-   * the filters get appended to the end of the model
-   * @param filters
-   */
-  void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1) override;
-
-  /**
    * @brief removePipeline
    * @param pipeline
    */
   void removePipeline(FilterPipeline::Pointer pipeline);
-
-  /**
-   * @brief Removes filter from the current model
-   * @param filter
-   */
-  void removeFilter(AbstractFilter::Pointer filter) override;
-
-  /**
-   * @brief Removes multiple filters from the current model
-   * @param filters
-   */
-  void removeFilters(std::vector<AbstractFilter::Pointer> filters) override;
-
-  /**
-   * @brief Cuts filter from the current model
-   * @param filter
-   */
-  void cutFilter(AbstractFilter::Pointer filter) override;
-
-  /**
-   * @brief Cuts multiple filters from the current model
-   * @param filters
-   */
-  void cutFilters(std::vector<AbstractFilter::Pointer> filters) override;
-
-  /**
-   * @brief Pastes multiple filters from the system clipboard to the current model
-   * @param insertIndex
-   */
-  void pasteFilters(int insertIndex = -1) override;
-
-  /**
-   * @brief preflightPipeline
-   * @param pipelineRootIndex
-   */
-  void preflightPipeline() override;
-
-  /**
-   * @brief executePipeline
-   * @param pipelineRootIndex
-   */
-  void executePipeline() override;
-
-  /**
-   * @brief cancelPipeline
-   * @param pipelineIndex
-   */
-  void cancelPipeline() override;
-
-  /**
-   * @brief clearPipeline
-   * @param pipelineRootIndex
-   */
-  void clearPipeline() override;
 
 signals:
   void pipelineFinished();
@@ -283,10 +215,6 @@ signals:
   void filePathOpened(const QString& filePath);
 
   void filterInputWidgetNeedsCleared();
-
-  void deleteKeyPressed();
-
-
 
   void displayIssuesTriggered();
   void clearIssuesTriggered();
@@ -332,11 +260,6 @@ protected slots:
    * @param pos
    */
   void requestContextMenu(const QPoint& pos);
-
-  /**
-   * @brief Slot that executes when the delete key gets pressed
-   */
-  void listenDeleteKeyTriggered();
 
 private:
   QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;

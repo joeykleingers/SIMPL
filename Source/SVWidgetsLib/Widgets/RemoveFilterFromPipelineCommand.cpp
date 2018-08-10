@@ -43,17 +43,13 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, QString actionText, QUndoCommand* parent)
+RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
 {
-  if (filter.get() == nullptr || pipeline.get() == nullptr)
-  {
-    m_ValidCommand = false;
-    return;
-  }
-
-  setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg(actionText).arg(filter->getHumanLabel()));
+  FilterPipeline::FilterContainerType container = m_Pipeline->getFilterContainer();
+  int index = container.indexOf(filter);
+  m_RemovalRows.push_back(index);
 
   m_Filters.push_back(filter);
 }
@@ -61,26 +57,11 @@ RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(AbstractFilter:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, QString actionText, QUndoCommand* parent)
+RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
 , m_Filters(filters)
 {
-  if (pipeline.get() == nullptr || filters.size() <= 0)
-  {
-    m_ValidCommand = false;
-    return;
-  }
-
-  for (int i = 0; i < filters.size(); i++)
-  {
-    if (m_Filters[i].get() == nullptr)
-    {
-      m_ValidCommand = false;
-      return;
-    }
-  }
-
   FilterPipeline::FilterContainerType container = m_Pipeline->getFilterContainer();
   for (int i = 0; i < m_Filters.size(); i++)
   {
@@ -88,8 +69,6 @@ RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<Abs
     int index = container.indexOf(filter);
     m_RemovalRows.push_back(index);
   }
-
-  setText(QObject::tr("\"%1 %2 Filters\"").arg(actionText).arg(filters.size()));
 }
 
 // -----------------------------------------------------------------------------
@@ -110,7 +89,11 @@ void RemoveFilterFromPipelineCommand::redo()
   for (int i = 0; i < m_Filters.size(); i++)
   {
     AbstractFilter::Pointer filter = m_Filters[i];
-    m_Pipeline->erase(m_RemovalRows[i]);
+    int index = m_Pipeline->findFilterPosition(filter);
+    if (index >= 0)
+    {
+      m_Pipeline->erase(index);
+    }
   }
 
   QString statusMessage = getStatusMessage();

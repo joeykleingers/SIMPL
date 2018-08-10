@@ -447,6 +447,22 @@ bool FilterPipeline::empty()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+int FilterPipeline::findFilterPosition(AbstractFilter::Pointer filter)
+{
+  for (int i = 0; i < m_Pipeline.size(); i++)
+  {
+    if (m_Pipeline[i] == filter)
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 AbstractFilter::Pointer FilterPipeline::removeFirstFilterByName(const QString& name)
 {
   AbstractFilter::Pointer f = AbstractFilter::NullPointer();

@@ -58,12 +58,6 @@ class SVWidgetsLib_EXPORT PipelineView
 
     SIMPL_POINTER_PROPERTY(PipelineViewController, PipelineViewController)
 
-    SIMPL_GET_PROPERTY(QAction*, ActionEnableFilter)
-    SIMPL_GET_PROPERTY(QAction*, ActionCut)
-    SIMPL_GET_PROPERTY(QAction*, ActionCopy)
-    SIMPL_GET_PROPERTY(QAction*, ActionPaste)
-    SIMPL_GET_PROPERTY(QAction*, ActionClearPipeline)
-
     /**
      * @brief addPipelineMessageObserver
      * @param pipelineMessageObserver
@@ -125,75 +119,75 @@ class SVWidgetsLib_EXPORT PipelineView
      * @brief Adds a filter with the specified filterClassName to the current model
      * @param filterClassName
      */
-    virtual void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1) = 0;
+    void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1);
 
     /**
      * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
      * the filter gets appended to the end of the model
      * @param filter
      */
-    virtual void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1) = 0;
+    void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1);
 
     /**
      * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
      * the filters get appended to the end of the model
      * @param filters
      */
-    virtual void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1) = 0;
+    void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1);
 
     /**
      * @brief Removes filter from the current model
      * @param filter
      */
-    virtual void removeFilter(AbstractFilter::Pointer filter) = 0;
+    void removeFilter(AbstractFilter::Pointer filter);
 
     /**
      * @brief Removes multiple filters from the current model
      * @param filters
      */
-    virtual void removeFilters(std::vector<AbstractFilter::Pointer> filters) = 0;
+    void removeFilters(std::vector<AbstractFilter::Pointer> filters);
 
     /**
      * @brief Cuts filter from the current model
      * @param filter
      */
-    virtual void cutFilter(AbstractFilter::Pointer filter) = 0;
+    void cutFilter(AbstractFilter::Pointer filter);
 
     /**
      * @brief Cuts multiple filters from the current model
      * @param filters
      */
-    virtual void cutFilters(std::vector<AbstractFilter::Pointer> filters) = 0;
+    void cutFilters(std::vector<AbstractFilter::Pointer> filters);
 
     /**
      * @brief Pastes multiple filters from the system clipboard to the current model
      * @param insertIndex
      */
-    virtual void pasteFilters(int insertIndex = -1) = 0;
+    void pasteFilters(int insertIndex = -1);
 
     /**
      * @brief preflightPipeline
      * @param pipelineRootIndex
      */
-    virtual void preflightPipeline() = 0;
+    void preflightPipeline();
 
     /**
      * @brief executePipeline
      * @param pipelineRootIndex
      */
-    virtual void executePipeline() = 0;
+    void executePipeline();
 
     /**
      * @brief cancelPipeline
      * @param pipelineIndex
      */
-    virtual void cancelPipeline() = 0;
+    void cancelPipeline();
 
     /**
      * @brief clearPipeline
      * @param pipelineRootIndex
      */
-    virtual void clearPipeline() = 0;
+    void clearPipeline();
 
   protected:
     PipelineView();
@@ -207,55 +201,10 @@ class SVWidgetsLib_EXPORT PipelineView
      * @brief setSelectedFiltersEnabled
      * @param enabled
      */
-    void setSelectedFiltersEnabled(bool enabled);
-
-    /**
-     * @brief requestFilterContextMenu
-     * @param pos
-     * @param index
-     */
-    void requestFilterItemContextMenu(const QPoint& pos, const QModelIndex& index);
-
-    /**
-     * @brief requestPipelineContextMenu
-     * @param pos
-     */
-    void requestPipelineItemContextMenu(const QPoint& pos);
-
-    /**
-     * @brief requestSinglePipelineContextMenu
-     * @param menu
-     */
-    void requestSinglePipelineContextMenu(QMenu& menu);
-
-    /**
-     * @brief requestErrorHandlingContextMenu
-     * @param menu
-     */
-    void requestErrorHandlingContextMenu(QMenu& menu);
-
-    /**
-     * @brief requestDefaultContextMenu
-     * @param pos
-     */
-    void requestDefaultContextMenu(const QPoint& pos);
+    void setSelectedFiltersEnabled();
 
   private:
-    QAction* m_ActionEnableFilter = nullptr;
-    QAction* m_ActionCut = nullptr;
-    QAction* m_ActionCopy = nullptr;
-    QAction* m_ActionPaste = nullptr;
-    QAction* m_ActionClearPipeline = nullptr;
-
-    /**
-     * @brief connectSignalsSlots
-     */
-    void connectSignalsSlots();
-
-    /**
-     * @brief updatePasteAvailability
-     */
-    void updatePasteAvailability();
+    QModelIndex m_ActivePipelineIndex;
 
     PipelineView(const PipelineView&) = delete;   // Copy Constructor Not Implemented
     void operator=(const PipelineView&) = delete; // Move assignment Not Implemented

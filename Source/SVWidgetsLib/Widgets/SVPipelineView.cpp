@@ -145,38 +145,40 @@ void SVPipelineView::connectSignalsSlots()
 {
   connect(this, &SVPipelineView::customContextMenuRequested, this, &SVPipelineView::requestContextMenu);
 
-  connect(this, &SVPipelineView::deleteKeyPressed, this, &SVPipelineView::listenDeleteKeyTriggered);
+  connect(selectionModel(), &QItemSelectionModel::selectionChanged, [=](const QItemSelection& selected, const QItemSelection& deselected) {
+    Q_UNUSED(deselected)
+    getPipelineViewController()->setCutCopyEnabled(selected.size() > 0);
+  });
 
-  connect(getPipelineViewController(), &PipelineViewController::pipelineFinished, [=](const QModelIndex& pipelineRootIndex) {
+  connect(getPipelineViewController(), &PipelineViewController::pipelineStarted, [=] { setPipelineViewState(PipelineViewState::Running); });
+  connect(getPipelineViewController(), &PipelineViewController::pipelineCanceling, [=] { setPipelineViewState(PipelineViewState::Cancelling); });
+  connect(getPipelineViewController(), &PipelineViewController::pipelineFinished, [=] { setPipelineViewState(PipelineViewState::Idle); });
+  connect(getPipelineViewController(), &PipelineViewController::pipelineCanceled, [=] { setPipelineViewState(PipelineViewState::Idle); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SVPipelineView::setPipelineViewState(SVPipelineView::PipelineViewState state)
+{
+  m_PipelineState = state;
+
+  if (state == PipelineViewState::Idle)
+  {
     setPipelineIsRunning(false);
     setAcceptDrops(true);
     setDragEnabled(true);
-
-    PipelineModel* pipelineModel = getPipelineModel();
-    if (pipelineModel)
-    {
-      getActionClearPipeline()->setEnabled(pipelineModel->rowCount() > 0);
-    }
-    else
-    {
-      getActionClearPipeline()->setDisabled(true);
-    }
-    emit pipelineFinished();
-  });
-
-  connect(getPipelineViewController(), &PipelineViewController::pipelineStarted, [=](const QModelIndex& pipelineRootIndex) {
+  }
+  else if (state == PipelineViewState::Running)
+  {
     setPipelineIsRunning(true);
     setAcceptDrops(false);
     setDragEnabled(false);
-    getActionClearPipeline()->setDisabled(true);
-  });
+  }
+  else
+  {
 
-  connect(getPipelineViewController(), &PipelineViewController::pipelineFilePathUpdated, [=](const QString& name) { m_CurrentPipelineFilePath = name; });
-
-  connect(selectionModel(), &QItemSelectionModel::selectionChanged, [=](const QItemSelection& selected, const QItemSelection& deselected) {
-    getActionCut()->setEnabled(selected.size() > 0);
-    getActionCopy()->setEnabled(selected.size() > 0);
-  });
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -187,39 +189,6 @@ void SVPipelineView::addPipeline(FilterPipeline::Pointer pipeline, int insertInd
   if(getPipelineViewController())
   {
     getPipelineViewController()->addPipeline(pipeline, insertIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::addFilterFromClassName(const QString& filterClassName, int insertIndex)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->addFilterFromClassName(filterClassName, insertIndex, m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::addFilter(AbstractFilter::Pointer filter, int insertIndex)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->addFilter(filter, insertIndex, m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->addFilters(filters, insertIndex, m_PipelineRootIndex);
   }
 }
 
@@ -237,133 +206,9 @@ void SVPipelineView::removePipeline(FilterPipeline::Pointer pipeline)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineView::removeFilter(AbstractFilter::Pointer filter)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->removeFilter(filter, m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::removeFilters(std::vector<AbstractFilter::Pointer> filters)
-{
-  if (getPipelineViewController())
-  {
-    getPipelineViewController()->removeFilters(filters);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::cutFilter(AbstractFilter::Pointer filter)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->cutFilter(filter, m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->cutFilters(filters, m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::pasteFilters(int insertIndex)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->pasteFilters(insertIndex, m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::preflightPipeline()
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->preflightPipeline(m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::executePipeline()
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->executePipeline(m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::cancelPipeline()
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->cancelPipeline(m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::clearPipeline()
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->clearPipeline(m_PipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QModelIndexList SVPipelineView::getSelectedRows()
 {
   return selectionModel()->selectedRows();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineView::listenDeleteKeyTriggered()
-{
-  QModelIndexList selectedIndexes = selectionModel()->selectedRows();
-  if(selectedIndexes.size() <= 0)
-  {
-    return;
-  }
-
-  qSort(selectedIndexes);
-
-  PipelineModel* model = getPipelineModel();
-
-  std::vector<AbstractFilter::Pointer> filters;
-  for(int i = 0; i < selectedIndexes.size(); i++)
-  {
-    AbstractFilter::Pointer filter = model->filter(selectedIndexes[i]);
-    filters.push_back(filter);
-  }
-
-  removeFilters(filters);
 }
 
 // -----------------------------------------------------------------------------
@@ -485,7 +330,15 @@ void SVPipelineView::beginDrag(QMouseEvent* event)
     m_MoveCommand = new QUndoCommand();
 
     FilterPipeline::Pointer pipeline = model->tempPipeline(m_PipelineRootIndex);
-    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, "Remove", m_MoveCommand);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, m_MoveCommand);
+    if(filters.size() == 1)
+    {
+      cmd->setText(QObject::tr("\"%1 '%2' from pipeline '%3'\"").arg("Remove").arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
+    }
+    else
+    {
+      cmd->setText(QObject::tr("\"%1 %2 filters from pipeline '%3'\"").arg("Remove").arg(filters.size()).arg(pipeline->getName()));
+    }
     m_MoveCommand->setText(cmd->text());
 
     int dropIndicatorRow = currentIndex().row();
@@ -828,7 +681,15 @@ void SVPipelineView::dropEvent(QDropEvent* event)
       FilterPipeline::Pointer pipeline = model->tempPipeline(m_PipelineRootIndex);
 
       // This is an internal move, so we need to create an Add command and add it as a child to the overall move command.
-      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, "Move", m_MoveCommand);
+      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, m_MoveCommand);
+      if(filters.size() == 1)
+      {
+        cmd->setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg("Move").arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
+      }
+      else
+      {
+        cmd->setText(QObject::tr("\"%1 %2 filters to pipeline '%3'\"").arg("Move").arg(filters.size()).arg(pipeline->getName()));
+      }
 
       // Set the text of the drag command
       QString text = cmd->text();
@@ -943,7 +804,24 @@ void SVPipelineView::keyPressEvent(QKeyEvent* event)
   {
     if(getPipelineState() == PipelineViewState::Running)
     {
-      emit deleteKeyPressed();
+      QModelIndexList selectedIndexes = selectionModel()->selectedRows();
+      if(selectedIndexes.size() <= 0)
+      {
+        return;
+      }
+
+      qSort(selectedIndexes);
+
+      PipelineModel* model = getPipelineModel();
+
+      std::vector<AbstractFilter::Pointer> filters;
+      for(int i = 0; i < selectedIndexes.size(); i++)
+      {
+        AbstractFilter::Pointer filter = model->filter(selectedIndexes[i]);
+        filters.push_back(filter);
+      }
+
+      removeFilters(filters);
     }
   }
   else if(event->key() == Qt::Key_A && qApp->queryKeyboardModifiers() == Qt::ControlModifier)
@@ -959,10 +837,11 @@ void SVPipelineView::keyPressEvent(QKeyEvent* event)
 // -----------------------------------------------------------------------------
 int SVPipelineView::openPipeline(const QString& filePath, int insertIndex)
 {
+  int err = -1;
   if(getPipelineViewController())
   {
     QModelIndex originalPipelineRootIndex = m_PipelineRootIndex;
-    int err = getPipelineViewController()->openPipeline(filePath, m_PipelineRootIndex, insertIndex);
+    err = getPipelineViewController()->openPipeline(filePath, m_PipelineRootIndex, insertIndex);
     setRootIndex(m_PipelineRootIndex);
 
     if (err >= 0 && originalPipelineRootIndex.isValid() == false)
@@ -974,8 +853,9 @@ int SVPipelineView::openPipeline(const QString& filePath, int insertIndex)
         selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
       }
     }
-    return err;
   }
+
+  return err;
 }
 
 // -----------------------------------------------------------------------------
@@ -1023,17 +903,23 @@ void SVPipelineView::requestContextMenu(const QPoint& pos)
     mapped = mapToGlobal(pos);
   }
 
-  if(itemType == PipelineItem::ItemType::Filter)
+  if(getPipelineViewController())
   {
-    requestFilterItemContextMenu(mapped, index);
-  }
-  else if(itemType == PipelineItem::ItemType::PipelineRoot)
-  {
-    requestPipelineItemContextMenu(mapped);
-  }
-  else
-  {
-    requestDefaultContextMenu(mapped);
+    if(itemType == PipelineItem::ItemType::Filter)
+    {
+      QMenu* menu = getPipelineViewController()->getFilterItemContextMenu(index);
+      menu->exec(pos);
+    }
+    else if(itemType == PipelineItem::ItemType::PipelineRoot)
+    {
+      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu();
+      menu->exec(pos);
+    }
+    else
+    {
+      QMenu* menu = getPipelineViewController()->getDefaultContextMenu();
+      menu->exec(pos);
+    }
   }
 }
 
@@ -1047,12 +933,6 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
   {
     PipelineViewController* pipelineViewController = getPipelineViewController();
 
-    disconnect(oldModel, &PipelineModel::rowsInserted, 0, 0);
-
-    disconnect(oldModel, &PipelineModel::rowsRemoved, 0, 0);
-
-    disconnect(oldModel, &PipelineModel::rowsMoved, 0, 0);
-
     delete oldModel;
     pipelineViewController->setPipelineModel(nullptr);
   }
@@ -1065,14 +945,6 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
   {
     PipelineViewController* pipelineViewController = getPipelineViewController();
     pipelineViewController->setPipelineModel(pipelineModel);
-
-    connect(pipelineModel, &PipelineModel::rowsInserted, [=] { getActionClearPipeline()->setEnabled(true); });
-
-    connect(pipelineModel, &PipelineModel::rowsRemoved, [=] { getActionClearPipeline()->setEnabled(pipelineModel->rowCount() > 0); });
-
-    connect(pipelineModel, &PipelineModel::rowsMoved, [=] { getActionClearPipeline()->setEnabled(pipelineModel->rowCount() > 0); });
-
-    getActionClearPipeline()->setEnabled(pipelineModel->rowCount() > 0);
   }
 }
 
