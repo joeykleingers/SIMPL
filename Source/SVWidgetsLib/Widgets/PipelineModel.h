@@ -146,7 +146,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void setPipelineSaved(const QModelIndex &index, bool saved);
 
     bool hasActivePipeline();
-    QModelIndex getActivePipeline();
+    QModelIndex getActivePipeline() const;
     void clearActivePipeline();
 
     PipelineItem* getRootItem();

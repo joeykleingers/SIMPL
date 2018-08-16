@@ -147,19 +147,6 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   {
     return item->getPipelineFilePath();
   }
-  else if (role == Qt::FontRole)
-  {
-    if (item->getItemType() == PipelineItem::ItemType::PipelineRoot && item->isActivePipeline())
-    {
-      QFont font;
-      font.setBold(true);
-      return font;
-    }
-    else
-    {
-      return QVariant();
-    }
-  }
   else if(role == Qt::ForegroundRole)
   {
     QColor fgColor = getForegroundColor(index);
@@ -477,7 +464,7 @@ bool PipelineModel::hasActivePipeline()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QModelIndex PipelineModel::getActivePipeline()
+QModelIndex PipelineModel::getActivePipeline() const
 {
   return m_ActivePipelineIndex;
 }
@@ -524,7 +511,13 @@ Qt::ItemFlags PipelineModel::flags(const QModelIndex& index) const
     return Qt::ItemIsDropEnabled;
   }
 
-  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
+  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsDragEnabled;
+
+  PipelineItem* item = getItem(index);
+  if (item->getItemType() == PipelineItem::ItemType::Filter)
+  {
+    itemFlags = itemFlags | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+  }
 
   return itemFlags;
 }

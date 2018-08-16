@@ -59,7 +59,7 @@ namespace {
 // -----------------------------------------------------------------------------
 SVPipelineTreeViewDelegate::SVPipelineTreeViewDelegate(SVPipelineTreeView* view)
   : QStyledItemDelegate(nullptr)
-  , m_View(view)
+//  , m_View(view)
 {
 
 }
@@ -74,60 +74,74 @@ SVPipelineTreeViewDelegate::~SVPipelineTreeViewDelegate() = default;
 // -----------------------------------------------------------------------------
 void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  painter->save();
-
+  const PipelineModel* model = getPipelineModel(index);
   QStyleOptionViewItem opt = option;
-
-  PipelineModel* model = m_View->getPipelineModel();
+  initStyleOption(&opt, index);
   if (static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::PipelineRoot)
   {
     if (model->getActivePipeline() == index)
     {
-      QFont font = opt.font;
-      font.setBold(true);
-      opt.font = font;
+      opt.font.setWeight(QFont::Bold);
     }
+
+    SVStyle* style = SVStyle::Instance();
+//    painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
+    opt.backgroundBrush.setColor(style->getQDockWidgetTitle_background_color());
   }
 
   QStyledItemDelegate::paint(painter, opt, index);
-
-  painter->restore();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString SVPipelineTreeViewDelegate::getFilterIndexString(const QModelIndex &index) const
+QSize SVPipelineTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+  QSize size = QStyledItemDelegate::sizeHint(option, index);
+
   const PipelineModel* model = getPipelineModel(index);
-  int numFilters = model->rowCount();
-  int i = index.row() + 1;
-
-  if(numFilters < 10)
+  if (static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::PipelineRoot)
   {
-    numFilters = 11;
+    return QSize(size.width(), 28);
   }
-  QString numStr = QString::number(i);
 
-  if(numFilters > 9)
-  {
-    int mag = 0;
-    int max = numFilters;
-    while(max > 0)
-    {
-      mag++;
-      max = max / 10;
-    }
-    numStr = "";             // Clear the string
-    QTextStream ss(&numStr); // Create a QTextStream to set up the padding
-    ss.setFieldWidth(mag);
-    ss.setPadChar('0');
-    ss << i;
-  }
-  QString paddedIndex = numStr;
-
-  return paddedIndex;
+  return size;
 }
+
+//// -----------------------------------------------------------------------------
+////
+//// -----------------------------------------------------------------------------
+//QString SVPipelineTreeViewDelegate::getFilterIndexString(const QModelIndex &index) const
+//{
+//  const PipelineModel* model = getPipelineModel(index);
+//  int numFilters = model->rowCount();
+//  int i = index.row() + 1;
+
+//  if(numFilters < 10)
+//  {
+//    numFilters = 11;
+//  }
+//  QString numStr = QString::number(i);
+
+//  if(numFilters > 9)
+//  {
+//    int mag = 0;
+//    int max = numFilters;
+//    while(max > 0)
+//    {
+//      mag++;
+//      max = max / 10;
+//    }
+//    numStr = "";             // Clear the string
+//    QTextStream ss(&numStr); // Create a QTextStream to set up the padding
+//    ss.setFieldWidth(mag);
+//    ss.setPadChar('0');
+//    ss << i;
+//  }
+//  QString paddedIndex = numStr;
+
+//  return paddedIndex;
+//}
 
 // -----------------------------------------------------------------------------
 //

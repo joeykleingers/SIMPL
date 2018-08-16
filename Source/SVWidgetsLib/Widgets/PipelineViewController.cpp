@@ -968,7 +968,7 @@ void PipelineViewController::setPipelineToStoppedState(const QModelIndex &pipeli
 {
   if (m_PipelineModel)
   {
-    for(int i = 0; i < m_PipelineModel->rowCount(); i++)
+    for(int i = 0; i < m_PipelineModel->rowCount(pipelineRootIndex); i++)
     {
       QModelIndex index = m_PipelineModel->index(i, PipelineItem::Contents, pipelineRootIndex);
       m_PipelineModel->setData(index, static_cast<int>(PipelineItem::PipelineState::Stopped), PipelineModel::PipelineStateRole);
@@ -1268,6 +1268,12 @@ QMenu* PipelineViewController::getFilterItemContextMenu(const QModelIndex& index
 QMenu* PipelineViewController::getPipelineItemContextMenu(const QModelIndex &index)
 {
   QMenu* menu = new QMenu();
+
+  menu->addAction("Execute Pipeline", [=] {
+    executePipeline(index);
+  });
+
+  menu->addSeparator();
 
   menu->addAction(m_ActionPaste);
 
