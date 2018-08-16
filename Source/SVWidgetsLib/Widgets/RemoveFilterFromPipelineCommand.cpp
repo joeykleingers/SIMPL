@@ -43,23 +43,21 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, QUndoCommand* parent)
-: QUndoCommand(parent)
-, m_Pipeline(pipeline)
+RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, PipelineModel* pipelineModel, QUndoCommand* parent)
 {
-  FilterPipeline::FilterContainerType container = m_Pipeline->getFilterContainer();
-  int index = container.indexOf(filter);
-  m_RemovalRows.push_back(index);
+  std::vector<AbstractFilter::Pointer> filters;
+  filters.push_back(filter);
 
-  m_Filters.push_back(filter);
+  RemoveFilterFromPipelineCommand(filters, pipeline, pipelineModel, parent);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, QUndoCommand* parent)
+RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, PipelineModel* pipelineModel, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
+, m_PipelineModel(pipelineModel)
 , m_Filters(filters)
 {
   FilterPipeline::FilterContainerType container = m_Pipeline->getFilterContainer();
@@ -69,6 +67,9 @@ RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<Abs
     int index = container.indexOf(filter);
     m_RemovalRows.push_back(index);
   }
+
+  connect(this, &RemoveFilterFromPipelineCommand::statusMessageGenerated, m_PipelineModel, &PipelineModel::statusMessage);
+  connect(this, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, m_PipelineModel, &PipelineModel::stdOutMessage);
 }
 
 // -----------------------------------------------------------------------------

@@ -65,10 +65,9 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
       PipelineStateRole,
       ItemTypeRole,
       ExpandedRole,
-      PipelinePathRole
+      PipelinePathRole,
     };
 
-    SIMPL_INSTANCE_PROPERTY(int, MaxNumberOfPipelines)
     SIMPL_SET_PROPERTY(bool, UseModelDisplayText)
 
     /**
@@ -104,7 +103,11 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     FilterPipeline::Pointer tempPipeline(const QModelIndex &index) const;
     FilterPipeline::Pointer savedPipeline(const QModelIndex &index) const;
 
+    bool addPipeline(FilterPipeline::Pointer pipeline);
     bool setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline);
+
+    QString pipelineFilePath(const QModelIndex &index);
+    void setPipelineFilePath(const QModelIndex& index, const QString &filePath);
 
     AbstractFilter::Pointer filter(const QModelIndex &index) const;
 
@@ -142,8 +145,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     bool pipelineSaved(const QModelIndex &index);
     void setPipelineSaved(const QModelIndex &index, bool saved);
 
+    bool hasActivePipeline();
     QModelIndex getActivePipeline();
-    void setActivePipeline(const QModelIndex &index, bool value);
     void clearActivePipeline();
 
     PipelineItem* getRootItem();
@@ -155,6 +158,12 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     QModelIndex getPipelineRootIndexFromPipeline(FilterPipeline::Pointer pipeline);
 
   signals:
+    void pipelineAdded(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
+    void pipelineRemoved(FilterPipeline::Pointer pipeline);
+
+    void statusMessage(const QString& message);
+    void stdOutMessage(const QString& message);
+
     void clearIssuesTriggered();
 
     void preflightTriggered(const QModelIndex &pipelineRootIndex);
@@ -184,6 +193,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     QColor getForegroundColor(const QModelIndex &index) const;
 
     void addFilterData(AbstractFilter::Pointer filter, const QModelIndex &filterIndex);
+
+    void setActivePipeline(const QModelIndex &index);
 
     PipelineModel(const PipelineModel&);    // Copy Constructor Not Implemented
     void operator=(const PipelineModel&);  // Operator '=' Not Implemented

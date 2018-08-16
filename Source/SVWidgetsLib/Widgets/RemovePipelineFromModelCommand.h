@@ -50,10 +50,8 @@ class SVWidgetsLib_EXPORT RemovePipelineFromModelCommand : public QObject, publi
     Q_OBJECT
 
 public:
-  RemovePipelineFromModelCommand(PipelineModel* model, const QModelIndex &pipelineRootIndex, QString actionText, QUndoCommand* parent = 0);
+  RemovePipelineFromModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, QUndoCommand* parent = 0);
   virtual ~RemovePipelineFromModelCommand();
-
-  SIMPL_GET_BOOL_PROPERTY(ValidCommand)
 
   virtual void undo();
 
@@ -64,9 +62,8 @@ signals:
   void standardOutputMessageGenerated(const QString &msg);
 
 private:
-  PipelineModel* m_PipelineModel = nullptr;
   FilterPipeline::Pointer m_Pipeline;
-  QModelIndex m_PipelineRootIndex;
+  PipelineModel* m_PipelineModel = nullptr;
   std::vector<AbstractFilter::Pointer> m_Filters;
   int m_RemovalRow = -1;
   bool m_FirstRun = true;

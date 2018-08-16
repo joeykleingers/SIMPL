@@ -145,13 +145,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @brief requestPipelineContextMenu
      * @param pos
      */
-    QMenu* getPipelineItemContextMenu();
-
-    /**
-     * @brief requestSinglePipelineContextMenu
-     * @param menu
-     */
-    void addSinglePipelineContextMenu(QMenu* menu);
+    QMenu* getPipelineItemContextMenu(const QModelIndex &index);
 
     /**
      * @brief requestErrorHandlingContextMenu
@@ -203,19 +197,19 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param pipeline
      * @param insertIndex
      */
-    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
+    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1, const QString &pipelineFilePath = "", QString actionText = "Add");
 
     /**
      * @brief removePipeline
      * @param pipeline
      */
-    void removePipeline(FilterPipeline::Pointer pipeline);
+    void removePipeline(FilterPipeline::Pointer pipeline, QString actionText = "Remove");
 
     /**
      * @brief removePipeline
      * @param pipelineRootIndex
      */
-    void removePipeline(const QModelIndex &pipelineRootIndex);
+    void removePipeline(const QModelIndex &pipelineRootIndex, QString actionText = "Remove");
 
     /**
      * @brief Cuts filter from the current model
@@ -307,16 +301,16 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
 
     void preflightFinished(FilterPipeline::Pointer pipeline, int err);
 
+    void statusMessage(const QString& message);
+    void stdOutMessage(const QString& message);
+    void errorMessage(const QString& message);
+
     void pipelineStarted(const QModelIndex &pipelineRootIndex);
     void pipelineFilePathUpdated(const QString &name);
     void pipelineDataChanged(const QModelIndex &pipelineRootIndex);
     void pipelineCanceling(const QModelIndex &pipelineRootIndex);
     void pipelineCanceled(const QModelIndex &pipelineRootIndex);
     void pipelineFinished(const QModelIndex &pipelineRootIndex);
-
-    void statusMessage(const QString& message);
-    void stdOutMessage(const QString& message);
-    void errorMessage(const QString& message);
 
   private slots:
     /**

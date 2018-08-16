@@ -40,7 +40,7 @@
 #include <QtWidgets/QStylePainter>
 
 #include "SVWidgetsLib/Widgets/PipelineItem.h"
-#include "SVWidgetsLib/Widgets/PipelineItemDelegate.h"
+#include "SVWidgetsLib/Widgets/SVPipelineViewDelegate.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/SVPipelineView.h"
 #include "SVWidgetsLib/Widgets/SVStyle.h"
@@ -57,7 +57,7 @@ namespace {
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineItemDelegate::PipelineItemDelegate(SVPipelineView* view)
+SVPipelineViewDelegate::SVPipelineViewDelegate(SVPipelineView* view)
   : QStyledItemDelegate(nullptr)
   , m_View(view)
 {
@@ -67,12 +67,12 @@ PipelineItemDelegate::PipelineItemDelegate(SVPipelineView* view)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineItemDelegate::~PipelineItemDelegate() = default;
+SVPipelineViewDelegate::~SVPipelineViewDelegate() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void SVPipelineViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
   PipelineModel* model = m_View->getPipelineModel();
   if (model->isPipelineRootItem(index))
@@ -411,12 +411,12 @@ void PipelineItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool PipelineItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem &option, const QModelIndex &index)
+bool SVPipelineViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
   PipelineModel* pipelineModel = dynamic_cast<PipelineModel*>(model);
   if (pipelineModel->isPipelineRootItem(index))
   {
-    return PipelineItemDelegate::editorEvent(event, model, option, index);
+    return SVPipelineViewDelegate::editorEvent(event, model, option, index);
   }
 
   QRect deleteBtnRect;
@@ -514,7 +514,7 @@ bool PipelineItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QSize PipelineItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize SVPipelineViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   QSize size = QStyledItemDelegate::sizeHint(option, index);
   return QSize(size.width(), 28);
@@ -523,7 +523,7 @@ QSize PipelineItemDelegate::sizeHint(const QStyleOptionViewItem &option, const Q
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString PipelineItemDelegate::getFilterIndexString(const QModelIndex &index) const
+QString SVPipelineViewDelegate::getFilterIndexString(const QModelIndex &index) const
 {
   const PipelineModel* model = getPipelineModel(index);
   int numFilters = model->rowCount();
@@ -558,7 +558,7 @@ QString PipelineItemDelegate::getFilterIndexString(const QModelIndex &index) con
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap PipelineItemDelegate::createPixmap(const QModelIndex &index) const
+QPixmap SVPipelineViewDelegate::createPixmap(const QModelIndex &index) const
 {
   QRect indexRect = m_View->visualRect(index);
 
@@ -582,7 +582,7 @@ QPixmap PipelineItemDelegate::createPixmap(const QModelIndex &index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const PipelineModel* PipelineItemDelegate::getPipelineModel(const QModelIndex &index) const
+const PipelineModel* SVPipelineViewDelegate::getPipelineModel(const QModelIndex &index) const
 {
   return dynamic_cast<const PipelineModel*>(index.model());
 }

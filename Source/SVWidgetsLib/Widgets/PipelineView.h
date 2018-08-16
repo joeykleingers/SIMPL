@@ -40,6 +40,7 @@
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
 #include "SIMPLib/Filtering/AbstractFilter.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
@@ -122,11 +123,24 @@ class SVWidgetsLib_EXPORT PipelineView
     void addFilterFromClassName(const QString &filterClassName, int insertIndex = -1);
 
     /**
+     * @brief Adds a filter with the specified filterClassName to the current model
+     * @param filterClassName
+     */
+    void addFilterFromClassName(const QString &filterClassName, const QModelIndex &pipelineRootIndex, int insertIndex = -1);
+
+    /**
      * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
      * the filter gets appended to the end of the model
      * @param filter
      */
     void addFilter(AbstractFilter::Pointer filter, int insertIndex = -1);
+
+    /**
+     * @brief Adds a filter to the current model at insertIndex.  If insertIndex is < 0,
+     * the filter gets appended to the end of the model
+     * @param filter
+     */
+    void addFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex, int insertIndex = -1);
 
     /**
      * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
@@ -136,10 +150,30 @@ class SVWidgetsLib_EXPORT PipelineView
     void addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1);
 
     /**
+     * @brief Adds multiple filters to the current model.  If insertIndex is < 0,
+     * the filters get appended to the end of the model
+     * @param filters
+     */
+    void addFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex = -1);
+
+    /**
+     * @brief addPipeline
+     * @param pipeline
+     * @param insertIndex
+     */
+    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
+
+    /**
      * @brief Removes filter from the current model
      * @param filter
      */
     void removeFilter(AbstractFilter::Pointer filter);
+
+    /**
+     * @brief Removes filter from the current model
+     * @param filter
+     */
+    void removeFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex);
 
     /**
      * @brief Removes multiple filters from the current model
@@ -148,10 +182,39 @@ class SVWidgetsLib_EXPORT PipelineView
     void removeFilters(std::vector<AbstractFilter::Pointer> filters);
 
     /**
+     * @brief Removes multiple filters from the current model
+     * @param filters
+     */
+    void removeFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief removePipeline
+     */
+    void removePipeline();
+
+    /**
+     * @brief removePipeline
+     * @param pipelineRootIndex
+     */
+    void removePipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief removePipeline
+     * @param pipeline
+     */
+    void removePipeline(FilterPipeline::Pointer pipeline);
+
+    /**
      * @brief Cuts filter from the current model
      * @param filter
      */
     void cutFilter(AbstractFilter::Pointer filter);
+
+    /**
+     * @brief Cuts filter from the current model
+     * @param filter
+     */
+    void cutFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex);
 
     /**
      * @brief Cuts multiple filters from the current model
@@ -160,34 +223,66 @@ class SVWidgetsLib_EXPORT PipelineView
     void cutFilters(std::vector<AbstractFilter::Pointer> filters);
 
     /**
+     * @brief Cuts multiple filters from the current model
+     * @param filters
+     */
+    void cutFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex);
+
+    /**
      * @brief Pastes multiple filters from the system clipboard to the current model
      * @param insertIndex
      */
     void pasteFilters(int insertIndex = -1);
 
     /**
+     * @brief Pastes multiple filters from the system clipboard to the current model
+     * @param insertIndex
+     */
+    void pasteFilters(const QModelIndex &pipelineRootIndex, int insertIndex = -1);
+
+    /**
      * @brief preflightPipeline
-     * @param pipelineRootIndex
      */
     void preflightPipeline();
 
     /**
+     * @brief preflightPipeline
+     * @param pipelineIndex
+     */
+    void preflightPipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
      * @brief executePipeline
-     * @param pipelineRootIndex
      */
     void executePipeline();
+
+    /**
+     * @brief executePipeline
+     * @param pipelineIndex
+     */
+    void executePipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief cancelPipeline
+     */
+    void cancelPipeline();
 
     /**
      * @brief cancelPipeline
      * @param pipelineIndex
      */
-    void cancelPipeline();
+    void cancelPipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief clearPipeline
+     */
+    void clearPipeline();
 
     /**
      * @brief clearPipeline
      * @param pipelineRootIndex
      */
-    void clearPipeline();
+    void clearPipeline(const QModelIndex &pipelineRootIndex);
 
   protected:
     PipelineView();

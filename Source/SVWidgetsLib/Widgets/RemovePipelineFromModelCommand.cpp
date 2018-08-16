@@ -43,25 +43,23 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RemovePipelineFromModelCommand::RemovePipelineFromModelCommand(PipelineModel* model, const QModelIndex &pipelineRootIndex, QString actionText, QUndoCommand* parent)
+RemovePipelineFromModelCommand::RemovePipelineFromModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, QUndoCommand* parent)
 : QUndoCommand(parent)
+, m_Pipeline(pipeline)
 , m_PipelineModel(model)
-, m_PipelineRootIndex(pipelineRootIndex)
 {
-  if (model == nullptr)
+  if (m_PipelineModel == nullptr)
   {
-    m_ValidCommand = false;
     return;
   }
 
-  m_Pipeline = model->tempPipeline(pipelineRootIndex);
   if (m_Pipeline.get() == nullptr)
   {
-    m_ValidCommand = false;
     return;
   }
 
-  setText(QObject::tr("\"%1 '%2' Pipeline\"").arg(actionText).arg(m_Pipeline->getName()));
+  connect(this, &RemovePipelineFromModelCommand::statusMessageGenerated, m_PipelineModel, &PipelineModel::statusMessage);
+  connect(this, &RemovePipelineFromModelCommand::standardOutputMessageGenerated, m_PipelineModel, &PipelineModel::stdOutMessage);
 }
 
 // -----------------------------------------------------------------------------
@@ -74,7 +72,8 @@ RemovePipelineFromModelCommand::~RemovePipelineFromModelCommand() = default;
 // -----------------------------------------------------------------------------
 void RemovePipelineFromModelCommand::redo()
 {
-  m_RemovalRow = m_PipelineRootIndex.row();
+  QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+  m_RemovalRow = pipelineRootIndex.row();
   m_PipelineModel->removeRow(m_RemovalRow);
 
   QString statusMessage = getStatusMessage();

@@ -52,33 +52,42 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddFilterToPipelineCommand::AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, QUndoCommand* parent)
+AddFilterToPipelineCommand::AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
+, m_PipelineModel(model)
 {
   std::vector<AbstractFilter::Pointer> filters;
   filters.push_back(filter);
-  AddFilterToPipelineCommand(filters, pipeline, insertIndex, parent);
+  AddFilterToPipelineCommand(filters, pipeline, insertIndex, model, parent);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddFilterToPipelineCommand::AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, QUndoCommand* parent)
+AddFilterToPipelineCommand::AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Filters(filters)
 , m_Pipeline(pipeline)
+, m_PipelineModel(model)
 {
   for(size_t i = 0; i < m_Filters.size(); i++)
   {
     m_FilterRows.push_back(insertIndex + i);
   }
 
-  if(insertIndex < 0 || insertIndex > pipeline->size())
+  if (pipeline.get() == nullptr)
+  {
+    insertIndex = 0;
+  }
+  else if(insertIndex < 0 || insertIndex > pipeline->size())
   {
     insertIndex = pipeline->size();
   }
   m_InsertIndex = insertIndex;
+
+  connect(this, &AddFilterToPipelineCommand::statusMessageGenerated, m_PipelineModel, &PipelineModel::statusMessage);
+  connect(this, &AddFilterToPipelineCommand::standardOutputMessageGenerated, m_PipelineModel, &PipelineModel::stdOutMessage);
 }
 
 // -----------------------------------------------------------------------------
@@ -91,9 +100,17 @@ AddFilterToPipelineCommand::~AddFilterToPipelineCommand() = default;
 // -----------------------------------------------------------------------------
 void AddFilterToPipelineCommand::redo()
 {
-  if(m_Filters.size() <= 0 || m_Pipeline.get() == nullptr)
+  if(m_Filters.size() <= 0)
   {
     return;
+  }
+
+  if (m_Pipeline.get() == nullptr)
+  {
+    // The pipeline that these filters are being inserted into does not exist.  Creating one now.
+    m_Pipeline = FilterPipeline::New();
+    m_PipelineModel->addPipeline(m_Pipeline);
+    m_CreatedPipeline = true;
   }
 
   m_Pipeline->insert(m_InsertIndex, m_Filters);
@@ -129,6 +146,11 @@ void AddFilterToPipelineCommand::undo()
   {
     m_Pipeline->erase(m_InsertIndex);
     count--;
+  }
+
+  if (m_CreatedPipeline == true)
+  {
+    m_Pipeline = FilterPipeline::NullPointer();
   }
 
   QString statusMessage = getStatusMessage();

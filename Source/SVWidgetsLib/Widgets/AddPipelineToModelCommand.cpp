@@ -40,15 +40,14 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, int insertIndex, QString actionText, QUndoCommand* parent)
+AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, const QString &pipelineFilePath, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
-, m_ActionText(actionText)
-, m_ViewModel(model)
+, m_PipelineFilePath(pipelineFilePath)
+, m_PipelineModel(model)
 {
   if (pipeline.get() == nullptr || model == nullptr)
   {
-    m_ValidCommand = false;
     return;
   }
 
@@ -58,7 +57,10 @@ AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pip
   }
   m_InsertIndex = insertIndex;
 
-  setText(QObject::tr("\"%1 '%2' Pipeline\"").arg(actionText).arg(pipeline->getName()));
+  oldActivePipeline = m_PipelineModel->getActivePipeline();
+
+  connect(this, &AddPipelineToModelCommand::statusMessageGenerated, m_PipelineModel, &PipelineModel::statusMessage);
+  connect(this, &AddPipelineToModelCommand::standardOutputMessageGenerated, m_PipelineModel, &PipelineModel::stdOutMessage);
 }
 
 // -----------------------------------------------------------------------------
@@ -71,10 +73,11 @@ AddPipelineToModelCommand::~AddPipelineToModelCommand() = default;
 // -----------------------------------------------------------------------------
 void AddPipelineToModelCommand::redo()
 {
-  m_ViewModel->insertRow(m_InsertIndex);
-  QModelIndex pipelineRootIndex = m_ViewModel->index(m_InsertIndex, PipelineItem::Contents);
-  m_ViewModel->setData(pipelineRootIndex, static_cast<int>(PipelineItem::ItemType::PipelineRoot), PipelineModel::Roles::ItemTypeRole);
-  m_ViewModel->setPipeline(pipelineRootIndex, m_Pipeline);
+  m_PipelineModel->insertRow(m_InsertIndex);
+  QModelIndex pipelineRootIndex = m_PipelineModel->index(m_InsertIndex, PipelineItem::Contents);
+  m_PipelineModel->setData(pipelineRootIndex, static_cast<int>(PipelineItem::ItemType::PipelineRoot), PipelineModel::Roles::ItemTypeRole);
+  m_PipelineModel->setPipeline(pipelineRootIndex, m_Pipeline);
+  m_PipelineModel->setPipelineFilePath(pipelineRootIndex, m_PipelineFilePath);
 
   QString statusMessage = getStatusMessage();
 
@@ -88,6 +91,11 @@ void AddPipelineToModelCommand::redo()
     m_FirstRun = false;
   }
 
+  if (m_PipelineModel->hasActivePipeline() == false)
+  {
+    m_PipelineModel->updateActivePipeline(pipelineRootIndex);
+  }
+
   emit statusMessageGenerated(statusMessage);
   emit standardOutputMessageGenerated(statusMessage);
 }
@@ -97,12 +105,14 @@ void AddPipelineToModelCommand::redo()
 // -----------------------------------------------------------------------------
 void AddPipelineToModelCommand::undo()
 {
-  m_ViewModel->removeRow(m_InsertIndex);
+  m_PipelineModel->removeRow(m_InsertIndex);
 
   QString statusMessage = getStatusMessage();
 
   statusMessage.prepend("Undo \"");
   statusMessage.append('\"');
+
+  m_PipelineModel->updateActivePipeline(oldActivePipeline);
 
   emit statusMessageGenerated(statusMessage);
   emit standardOutputMessageGenerated(statusMessage);

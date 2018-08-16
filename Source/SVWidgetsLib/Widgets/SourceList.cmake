@@ -36,11 +36,12 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/FilterInputWidget.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ImportHDF5TreeModel.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListWidget.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItemDelegate.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineView.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineViewDelegate.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewDelegate.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeView.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.h
@@ -97,7 +98,6 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeView.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineFilterMimeData.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListWidget.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItemDelegate.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItem.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineView.cpp
@@ -106,6 +106,8 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarIssuesButton.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineViewDelegate.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewDelegate.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PopUpWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ProgressDialog.cpp
   

@@ -49,7 +49,6 @@
 // -----------------------------------------------------------------------------
 PipelineModel::PipelineModel(QObject* parent)
 : QAbstractItemModel(parent)
-, m_MaxNumberOfPipelines(std::numeric_limits<int>::max())
 {
   QVector<QVariant> vector;
   vector.push_back("");
@@ -71,8 +70,7 @@ void PipelineModel::updateActivePipeline(const QModelIndex &pipelineIdx)
 {
   emit clearIssuesTriggered();
 
-  setActivePipeline(m_ActivePipelineIndex, false);
-  setActivePipeline(pipelineIdx, true);
+  setActivePipeline(pipelineIdx);
 
   m_ActivePipelineIndex = pipelineIdx;
 
@@ -151,7 +149,7 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   }
   else if (role == Qt::FontRole)
   {
-    if (item->getItemType() == PipelineItem::ItemType::PipelineRoot)
+    if (item->getItemType() == PipelineItem::ItemType::PipelineRoot && item->isActivePipeline())
     {
       QFont font;
       font.setBold(true);
@@ -219,6 +217,24 @@ FilterPipeline::Pointer PipelineModel::savedPipeline(const QModelIndex &index) c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool PipelineModel::addPipeline(FilterPipeline::Pointer pipeline)
+{
+  if (pipeline.get() == nullptr)
+  {
+    return false;
+  }
+
+  int row = rowCount();
+  insertRow(row);
+  QModelIndex index = this->index(row, PipelineItem::Contents);
+  setData(index, static_cast<int>(PipelineItem::ItemType::PipelineRoot), Roles::ItemTypeRole);
+
+  return setPipeline(index, pipeline);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline)
 {
   QModelIndex pipelineRootIndex = index;
@@ -248,6 +264,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
   if (pipelineRootItem->getTempPipeline().get() != nullptr)
   {
     FilterPipeline::Pointer oldTempPipeline = pipelineRootItem->getTempPipeline();
+
     FilterPipeline::FilterContainerType oldTempContainer = oldTempPipeline->getFilterContainer();
     for (int i = 0; i < oldTempContainer.size(); i++)
     {
@@ -296,8 +313,37 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
   });
 
   emit dataChanged(index, index);
+  emit pipelineAdded(pipeline, pipelineRootIndex);
 
   return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString PipelineModel::pipelineFilePath(const QModelIndex &index)
+{
+  PipelineItem* item = getItem(index);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return QString();
+  }
+
+  return item->getPipelineFilePath();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::setPipelineFilePath(const QModelIndex& index, const QString &filePath)
+{
+  PipelineItem* item = getItem(index);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return;
+  }
+
+  item->setPipelineFilePath(filePath);
 }
 
 // -----------------------------------------------------------------------------
@@ -423,6 +469,14 @@ QModelIndex PipelineModel::indexOfFilter(AbstractFilter* filter, const QModelInd
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool PipelineModel::hasActivePipeline()
+{
+  return m_ActivePipelineIndex.isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QModelIndex PipelineModel::getActivePipeline()
 {
   return m_ActivePipelineIndex;
@@ -431,21 +485,25 @@ QModelIndex PipelineModel::getActivePipeline()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineModel::setActivePipeline(const QModelIndex &index, bool value)
+void PipelineModel::setActivePipeline(const QModelIndex &index)
 {
-  PipelineItem* item = getItem(index);
-  item->setActivePipeline(value);
-  
-  if (value)
+  PipelineItem* oldActiveItem = getItem(m_ActivePipelineIndex);
+  if (oldActiveItem)
   {
-    m_ActivePipelineIndex = index;
-  }
-  else
-  {
-    m_ActivePipelineIndex = QModelIndex();
+    oldActiveItem->setActivePipeline(false);
+
+    emit dataChanged(m_ActivePipelineIndex, m_ActivePipelineIndex);
   }
 
-  emit dataChanged(index, index);
+  PipelineItem* newActiveItem = getItem(index);
+  if (newActiveItem)
+  {
+    newActiveItem->setActivePipeline(true);
+
+    emit dataChanged(index, index);
+  }
+  
+  m_ActivePipelineIndex = index;
 }
 
 // -----------------------------------------------------------------------------
@@ -453,7 +511,7 @@ void PipelineModel::setActivePipeline(const QModelIndex &index, bool value)
 // -----------------------------------------------------------------------------
 void PipelineModel::clearActivePipeline()
 {
-
+  setActivePipeline(QModelIndex());
 }
 
 // -----------------------------------------------------------------------------

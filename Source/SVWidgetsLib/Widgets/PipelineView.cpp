@@ -72,7 +72,7 @@ PipelineView::~PipelineView()
 // -----------------------------------------------------------------------------
 void PipelineView::setupGui()
 {
-
+  m_PipelineViewController->setPipelineView(this);
 }
 
 // -----------------------------------------------------------------------------
@@ -91,9 +91,17 @@ void PipelineView::addPipelineMessageObserver(QObject* pipelineMessageObserver)
 // -----------------------------------------------------------------------------
 void PipelineView::addFilterFromClassName(const QString& filterClassName, int insertIndex)
 {
+  addFilterFromClassName(filterClassName, m_ActivePipelineIndex, insertIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::addFilterFromClassName(const QString& filterClassName, const QModelIndex &pipelineRootIndex, int insertIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->addFilterFromClassName(filterClassName, insertIndex, m_ActivePipelineIndex);
+    m_PipelineViewController->addFilterFromClassName(filterClassName, insertIndex, pipelineRootIndex);
   }
 }
 
@@ -102,9 +110,17 @@ void PipelineView::addFilterFromClassName(const QString& filterClassName, int in
 // -----------------------------------------------------------------------------
 void PipelineView::addFilter(AbstractFilter::Pointer filter, int insertIndex)
 {
+  addFilter(filter, m_ActivePipelineIndex, insertIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::addFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex, int insertIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->addFilter(filter, insertIndex, m_ActivePipelineIndex);
+    m_PipelineViewController->addFilter(filter, insertIndex, pipelineRootIndex);
   }
 }
 
@@ -113,9 +129,28 @@ void PipelineView::addFilter(AbstractFilter::Pointer filter, int insertIndex)
 // -----------------------------------------------------------------------------
 void PipelineView::addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex)
 {
+  addFilters(filters, m_ActivePipelineIndex, insertIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::addFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->addFilters(filters, insertIndex, m_ActivePipelineIndex);
+    m_PipelineViewController->addFilters(filters, insertIndex, pipelineRootIndex);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex)
+{
+  if(m_PipelineViewController)
+  {
+    m_PipelineViewController->addPipeline(pipeline, insertIndex);
   }
 }
 
@@ -124,9 +159,17 @@ void PipelineView::addFilters(std::vector<AbstractFilter::Pointer> filters, int 
 // -----------------------------------------------------------------------------
 void PipelineView::removeFilter(AbstractFilter::Pointer filter)
 {
+  removeFilter(filter, m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::removeFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->removeFilter(filter, m_ActivePipelineIndex);
+    m_PipelineViewController->removeFilter(filter, pipelineRootIndex);
   }
 }
 
@@ -135,9 +178,49 @@ void PipelineView::removeFilter(AbstractFilter::Pointer filter)
 // -----------------------------------------------------------------------------
 void PipelineView::removeFilters(std::vector<AbstractFilter::Pointer> filters)
 {
+  removeFilters(filters, m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::removeFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex)
+{
   if (m_PipelineViewController)
   {
-    m_PipelineViewController->removeFilters(filters);
+    m_PipelineViewController->removeFilters(filters, pipelineRootIndex);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::removePipeline()
+{
+  removePipeline(m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::removePipeline(const QModelIndex &pipelineRootIndex)
+{
+  if(m_PipelineViewController)
+  {
+    PipelineModel* pipelineModel = getPipelineModel();
+    FilterPipeline::Pointer pipeline = pipelineModel->tempPipeline(pipelineRootIndex);
+    m_PipelineViewController->removePipeline(pipeline);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::removePipeline(FilterPipeline::Pointer pipeline)
+{
+  if(m_PipelineViewController)
+  {
+    m_PipelineViewController->removePipeline(pipeline);
   }
 }
 
@@ -146,9 +229,17 @@ void PipelineView::removeFilters(std::vector<AbstractFilter::Pointer> filters)
 // -----------------------------------------------------------------------------
 void PipelineView::cutFilter(AbstractFilter::Pointer filter)
 {
+  cutFilter(filter, m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::cutFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->cutFilter(filter, m_ActivePipelineIndex);
+    m_PipelineViewController->cutFilter(filter, pipelineRootIndex);
   }
 }
 
@@ -157,9 +248,17 @@ void PipelineView::cutFilter(AbstractFilter::Pointer filter)
 // -----------------------------------------------------------------------------
 void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters)
 {
+  cutFilters(filters, m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->cutFilters(filters, m_ActivePipelineIndex);
+    m_PipelineViewController->cutFilters(filters, pipelineRootIndex);
   }
 }
 
@@ -168,9 +267,17 @@ void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters)
 // -----------------------------------------------------------------------------
 void PipelineView::pasteFilters(int insertIndex)
 {
+  pasteFilters(m_ActivePipelineIndex, insertIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::pasteFilters(const QModelIndex &pipelineRootIndex, int insertIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->pasteFilters(insertIndex, m_ActivePipelineIndex);
+    m_PipelineViewController->pasteFilters(insertIndex, pipelineRootIndex);
   }
 }
 
@@ -179,9 +286,17 @@ void PipelineView::pasteFilters(int insertIndex)
 // -----------------------------------------------------------------------------
 void PipelineView::preflightPipeline()
 {
+  preflightPipeline(m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::preflightPipeline(const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->preflightPipeline(m_ActivePipelineIndex);
+    m_PipelineViewController->preflightPipeline(pipelineRootIndex);
   }
 }
 
@@ -190,9 +305,17 @@ void PipelineView::preflightPipeline()
 // -----------------------------------------------------------------------------
 void PipelineView::executePipeline()
 {
+  executePipeline(m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::executePipeline(const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->executePipeline(m_ActivePipelineIndex);
+    m_PipelineViewController->executePipeline(pipelineRootIndex);
   }
 }
 
@@ -201,9 +324,17 @@ void PipelineView::executePipeline()
 // -----------------------------------------------------------------------------
 void PipelineView::cancelPipeline()
 {
+  cancelPipeline(m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::cancelPipeline(const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->cancelPipeline(m_ActivePipelineIndex);
+    m_PipelineViewController->cancelPipeline(pipelineRootIndex);
   }
 }
 
@@ -212,9 +343,17 @@ void PipelineView::cancelPipeline()
 // -----------------------------------------------------------------------------
 void PipelineView::clearPipeline()
 {
+  clearPipeline(m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::clearPipeline(const QModelIndex &pipelineRootIndex)
+{
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->clearPipeline(m_ActivePipelineIndex);
+    m_PipelineViewController->clearPipeline(pipelineRootIndex);
   }
 }
 

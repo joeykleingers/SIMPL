@@ -88,7 +88,7 @@
 #include "SVWidgetsLib/Widgets/DataStructureWidget.h"
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
-#include "SVWidgetsLib/Widgets/PipelineItemDelegate.h"
+#include "SVWidgetsLib/Widgets/SVPipelineTreeViewDelegate.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineViewController.h"
 #include "SVWidgetsLib/Widgets/ProgressDialog.h"
@@ -124,6 +124,9 @@ void SVPipelineTreeView::setupGui()
   setContextMenuPolicy(Qt::CustomContextMenu);
   setFocusPolicy(Qt::StrongFocus);
 
+  SVPipelineTreeViewDelegate* delegate = new SVPipelineTreeViewDelegate(this);
+  setItemDelegate(delegate);
+
   // Create the model
   PipelineModel* model = new PipelineModel(this);
   setModel(model);
@@ -152,28 +155,6 @@ void SVPipelineTreeView::addPipelineMessageObserver(QObject* pipelineMessageObse
   if(getPipelineViewController())
   {
     getPipelineViewController()->addPipelineMessageObserver(pipelineMessageObserver);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineTreeView::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->addPipeline(pipeline, insertIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineTreeView::removePipeline(FilterPipeline::Pointer pipeline)
-{
-  if(getPipelineViewController())
-  {
-    getPipelineViewController()->removePipeline(pipeline);
   }
 }
 
@@ -210,33 +191,33 @@ QPixmap SVPipelineTreeView::getDraggingPixmap(QModelIndexList indexes)
     return QPixmap();
   }
 
-  PipelineItemDelegate* delegate = dynamic_cast<PipelineItemDelegate*>(itemDelegate());
-  if(delegate == nullptr)
-  {
-    return QPixmap();
-  }
+//  SVPipelineTreeViewDelegate* delegate = dynamic_cast<SVPipelineTreeViewDelegate*>(itemDelegate());
+//  if(delegate == nullptr)
+//  {
+//    return QPixmap();
+//  }
 
-  QPixmap indexPixmap = delegate->createPixmap(indexes[0]);
+//  QPixmap indexPixmap = delegate->createPixmap(indexes[0]);
 
-  int dragPixmapWidth = indexPixmap.size().width();
-  int dragPixmapHeight = indexPixmap.size().height() * indexes.size() + ((indexes.size() - 1));
+//  int dragPixmapWidth = indexPixmap.size().width();
+//  int dragPixmapHeight = indexPixmap.size().height() * indexes.size() + ((indexes.size() - 1));
 
-  QPixmap dragPixmap(dragPixmapWidth, dragPixmapHeight);
-  dragPixmap.fill(Qt::transparent);
+//  QPixmap dragPixmap(dragPixmapWidth, dragPixmapHeight);
+//  dragPixmap.fill(Qt::transparent);
 
-  QPainter p;
-  p.begin(&dragPixmap);
-  p.setOpacity(0.70);
-  int offset = 0;
-  for(int i = 0; i < indexes.size(); i++)
-  {
-    QPixmap currentPixmap = delegate->createPixmap(indexes[i]);
-    p.drawPixmap(0, offset, currentPixmap);
-    offset = offset + indexPixmap.size().height();
-  }
-  p.end();
+//  QPainter p;
+//  p.begin(&dragPixmap);
+//  p.setOpacity(0.70);
+//  int offset = 0;
+//  for(int i = 0; i < indexes.size(); i++)
+//  {
+//    QPixmap currentPixmap = delegate->createPixmap(indexes[i]);
+//    p.drawPixmap(0, offset, currentPixmap);
+//    offset = offset + indexPixmap.size().height();
+//  }
+//  p.end();
 
-  return dragPixmap;
+  return QPixmap();
 }
 
 // -----------------------------------------------------------------------------
@@ -303,8 +284,8 @@ void SVPipelineTreeView::beginDrag(QMouseEvent* event)
   {
     m_MoveCommand = new QUndoCommand();
 
-    FilterPipeline::Pointer pipeline = model->tempPipeline(m_ActivePipelineRootIndex);
-    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, m_MoveCommand);
+    FilterPipeline::Pointer pipeline = model->tempPipeline(getPipelineModel()->getActivePipeline());
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, getPipelineModel(), m_MoveCommand);
     if(filters.size() == 1)
     {
       cmd->setText(QObject::tr("\"%1 '%2' from pipeline '%3'\"").arg("Remove").arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
@@ -581,10 +562,10 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
     Qt::KeyboardModifiers modifiers = QApplication::queryKeyboardModifiers();
     if(event->source() == this && modifiers.testFlag(Qt::AltModifier) == false)
     {
-      FilterPipeline::Pointer pipeline = model->tempPipeline(m_ActivePipelineRootIndex);
+      FilterPipeline::Pointer pipeline = model->tempPipeline(getPipelineModel()->getActivePipeline());
 
       // This is an internal move, so we need to create an Add command and add it as a child to the overall move command.
-      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, m_MoveCommand);
+      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, model, m_MoveCommand);
       if(filters.size() == 1)
       {
         cmd->setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg("Move").arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
@@ -745,10 +726,6 @@ int SVPipelineTreeView::openPipeline(const QString& filePath, int insertIndex)
   {
     QModelIndex pipelineRootIndex;
     int err = getPipelineViewController()->openPipeline(filePath, pipelineRootIndex, insertIndex);
-    if (m_ActivePipelineRootIndex.isValid() == false)
-    {
-      m_ActivePipelineRootIndex = pipelineRootIndex;
-    }
     expand(pipelineRootIndex);
     return err;
   }
@@ -806,17 +783,17 @@ void SVPipelineTreeView::requestContextMenu(const QPoint& pos)
     if(itemType == PipelineItem::ItemType::Filter)
     {
       QMenu* menu = getPipelineViewController()->getFilterItemContextMenu(index);
-      menu->exec(pos);
+      menu->exec(mapped);
     }
     else if(itemType == PipelineItem::ItemType::PipelineRoot)
     {
-      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu();
-      menu->exec(pos);
+      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu(index);
+      menu->exec(mapped);
     }
     else
     {
       QMenu* menu = getPipelineViewController()->getDefaultContextMenu();
-      menu->exec(pos);
+      menu->exec(mapped);
     }
   }
 }
@@ -843,6 +820,11 @@ void SVPipelineTreeView::setModel(QAbstractItemModel* model)
   {
     PipelineViewController* pipelineViewController = getPipelineViewController();
     pipelineViewController->setPipelineModel(pipelineModel);
+
+    connect(pipelineModel, &PipelineModel::pipelineAdded, [=](FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex) {
+      Q_UNUSED(pipeline)
+      expand(pipelineRootIndex);
+    });
   }
 }
 

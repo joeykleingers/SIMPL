@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include <QtCore/QModelIndex>
+
 #include <QtWidgets/QUndoCommand>
 
 #include <SIMPLib/Filtering/FilterPipeline.h>
@@ -48,11 +50,9 @@ class SVWidgetsLib_EXPORT AddPipelineToModelCommand : public QObject, public QUn
     Q_OBJECT
 
 public:
-  AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, PipelineModel* model, int insertIndex, QString actionText, QUndoCommand* parent = nullptr);
+  AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, const QString &pipelineFilePath = "", QUndoCommand* parent = nullptr);
 
   ~AddPipelineToModelCommand() override;
-
-  SIMPL_GET_BOOL_PROPERTY(ValidCommand)
 
   void undo() override;
 
@@ -64,11 +64,12 @@ signals:
 
 private:
   FilterPipeline::Pointer m_Pipeline;
-  QString m_ActionText;
+  QString m_PipelineFilePath;
   int m_InsertIndex = 0;
-  PipelineModel* m_ViewModel = nullptr;
+  PipelineModel* m_PipelineModel = nullptr;
   bool m_FirstRun = true;
   bool m_ValidCommand = true;
+  QModelIndex oldActivePipeline;
 
   const QString m_StatusMessage = "Added '%1' pipeline at root index %2";
 

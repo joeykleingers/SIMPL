@@ -122,20 +122,6 @@ public:
    */
   bool isPipelineCurrentlyRunning();
 
-public slots:
-  /**
-   * @brief addPipeline
-   * @param pipeline
-   * @param insertIndex
-   */
-  void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
-
-  /**
-   * @brief removePipeline
-   * @param pipeline
-   */
-  void removePipeline(FilterPipeline::Pointer pipeline);
-
 signals:
   void pipelineFinished();
 
@@ -185,12 +171,7 @@ protected:
   void dropEvent(QDropEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
 
-protected slots:  
-  /**
-   * @brief updatePasteAvailability
-   */
-  void updatePasteAvailability();
-
+protected slots:
   /**
    * @brief requestContextMenu
    * @param pos
@@ -207,8 +188,6 @@ private:
   QModelIndex m_DropIndicatorIndex;
 
   QString m_CurrentPipelineFilePath;
-
-  QModelIndex m_ActivePipelineRootIndex;
 
   /**
    * @brief getSelectedRows

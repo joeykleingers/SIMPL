@@ -373,26 +373,10 @@ void FilterPipeline::insert(size_t index, AbstractFilter::Pointer f)
 // -----------------------------------------------------------------------------
 void FilterPipeline::insert(size_t index, std::vector<AbstractFilter::Pointer> filters)
 {
-  FilterContainerType::iterator it = m_Pipeline.begin();
-  for(size_t i = 0; i < index; ++i)
+  for(size_t i = index; i < index + filters.size(); ++i)
   {
-    ++it;
+    insert(i, filters[i]);
   }
-
-  int currentIndex = index;
-  for (int i = 0; i < filters.size(); i++)
-  {
-    AbstractFilter::Pointer f = filters[i];
-    m_Pipeline.insert(it, f);
-    updatePrevNextFilters();
-
-    emit filterWasAdded(f, currentIndex);
-
-    ++it;
-    currentIndex++;
-  }
-
-  emit pipelineWasEdited();
 }
 // -----------------------------------------------------------------------------
 //

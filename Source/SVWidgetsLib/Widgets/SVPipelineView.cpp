@@ -88,7 +88,7 @@
 #include "SVWidgetsLib/Widgets/DataStructureWidget.h"
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
-#include "SVWidgetsLib/Widgets/PipelineItemDelegate.h"
+#include "SVWidgetsLib/Widgets/SVPipelineViewDelegate.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineViewController.h"
 #include "SVWidgetsLib/Widgets/ProgressDialog.h"
@@ -126,7 +126,7 @@ void SVPipelineView::setupGui()
   setFocusPolicy(Qt::StrongFocus);
   setDropIndicatorShown(false);
 
-  PipelineItemDelegate* delegate = new PipelineItemDelegate(this);
+  SVPipelineViewDelegate* delegate = new SVPipelineViewDelegate(this);
   setItemDelegate(delegate);
 
   // Create the model
@@ -236,7 +236,7 @@ QPixmap SVPipelineView::getDraggingPixmap(QModelIndexList indexes)
     return QPixmap();
   }
 
-  PipelineItemDelegate* delegate = dynamic_cast<PipelineItemDelegate*>(itemDelegate());
+  SVPipelineViewDelegate* delegate = dynamic_cast<SVPipelineViewDelegate*>(itemDelegate());
   if(delegate == nullptr)
   {
     return QPixmap();
@@ -330,7 +330,7 @@ void SVPipelineView::beginDrag(QMouseEvent* event)
     m_MoveCommand = new QUndoCommand();
 
     FilterPipeline::Pointer pipeline = model->tempPipeline(m_PipelineRootIndex);
-    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, m_MoveCommand);
+    RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, getPipelineModel(), m_MoveCommand);
     if(filters.size() == 1)
     {
       cmd->setText(QObject::tr("\"%1 '%2' from pipeline '%3'\"").arg("Remove").arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
@@ -681,7 +681,7 @@ void SVPipelineView::dropEvent(QDropEvent* event)
       FilterPipeline::Pointer pipeline = model->tempPipeline(m_PipelineRootIndex);
 
       // This is an internal move, so we need to create an Add command and add it as a child to the overall move command.
-      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, m_MoveCommand);
+      AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, model, m_MoveCommand);
       if(filters.size() == 1)
       {
         cmd->setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg("Move").arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
@@ -912,7 +912,7 @@ void SVPipelineView::requestContextMenu(const QPoint& pos)
     }
     else if(itemType == PipelineItem::ItemType::PipelineRoot)
     {
-      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu();
+      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu(index);
       menu->exec(pos);
     }
     else

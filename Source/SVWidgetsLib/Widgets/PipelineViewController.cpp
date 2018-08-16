@@ -186,7 +186,7 @@ void PipelineViewController::connectSignalsSlots()
   QObject::connect(m_ActionCopy, &QAction::triggered, [=] { m_PipelineView->copySelectedFilters(); });
   QObject::connect(m_ActionPaste, &QAction::triggered, [=] { m_PipelineView->pasteFilters(); });
 
-  connect(this, &PipelineViewController::pipelineFilePathUpdated, [=](const QString& name) { m_CurrentPipelineFilePath = name; });
+//  connect(this, &PipelineViewController::pipelineFilePathUpdated, [=](const QString& name) { m_CurrentPipelineFilePath = name; });
 
   connect(m_ActionCut, &QAction::triggered, this, &PipelineViewController::listenCutTriggered);
   connect(m_ActionCopy, &QAction::triggered, this, &PipelineViewController::listenCopyTriggered);
@@ -279,6 +279,15 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
     }
 
     FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    if (pipeline.get() == nullptr)
+    {
+      pipeline = FilterPipeline::New();
+      pipeline->insert(0, filters);
+      pipeline->setName("Untitled");
+      addPipeline(pipeline, -1, actionText);
+      return;
+    }
+
     QString lcActionText = actionText.toLower();
 
     if (filters.size() > 0)
@@ -294,7 +303,7 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
 
       if (allFiltersValid == true)
       {
-        AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, insertIndex);
+        AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, insertIndex, m_PipelineModel);
         if(filters.size() == 1)
         {
           cmd->setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg(actionText).arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
@@ -303,9 +312,6 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
         {
           cmd->setText(QObject::tr("\"%1 %2 filters to pipeline '%3'\"").arg(actionText).arg(filters.size()).arg(pipeline->getName()));
         }
-
-        connect(cmd, &AddFilterToPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
-        connect(cmd, &AddFilterToPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
         addUndoCommand(cmd);
       }
       else
@@ -319,6 +325,19 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
       emit errorMessage(tr("Could not %1 filters to pipeline '%2' because the vector of filters is empty.\n"
                            "Please contact the DREAM.3D developers for more information.").arg(lcActionText).arg(pipeline->getName()));
     }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex, const QString &pipelineFilePath, QString actionText)
+{
+  if (m_PipelineModel)
+  {
+    AddPipelineToModelCommand* cmd = new AddPipelineToModelCommand(pipeline, insertIndex, m_PipelineModel, pipelineFilePath);
+    cmd->setText(QObject::tr("\"%1 '%2' Pipeline\"").arg(actionText).arg(pipeline->getName()));
+    addUndoCommand(cmd);
   }
 }
 
@@ -361,7 +380,7 @@ void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> 
 
         if (allFiltersValid == true)
         {
-          RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline);
+          RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, m_PipelineModel);
           if(filters.size() == 1)
           {
             cmd->setText(QObject::tr("\"%1 '%2' from pipeline '%3'\"").arg(actionText).arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
@@ -370,23 +389,24 @@ void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> 
           {
             cmd->setText(QObject::tr("\"%1 %2 filters from pipeline '%3'\"").arg(actionText).arg(filters.size()).arg(pipeline->getName()));
           }
-          connect(cmd, &RemoveFilterFromPipelineCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
-          connect(cmd, &RemoveFilterFromPipelineCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
           addUndoCommand(cmd);
         }
         else
         {
-          emit errorMessage(tr("Could not %1 filters from pipeline '%2' because some of the filter objects are invalid.\nPlease contact the DREAM.3D developers for more information."));
+          emit errorMessage(tr("Could not %1 filters from pipeline '%2' because some of the filter objects are invalid.\n"
+                               "Please contact the DREAM.3D developers for more information.").arg(lcActionText).arg(pipeline->getName()));
         }
       }
       else
       {
-        emit errorMessage(tr("Could not %1 filters from pipeline '%2' because the vector of filters is empty.\nPlease contact the DREAM.3D developers for more information."));
+        emit errorMessage(tr("Could not %1 filters from pipeline '%2' because the vector of filters is empty.\n"
+                             "Please contact the DREAM.3D developers for more information.").arg(lcActionText).arg(pipeline->getName()));
       }
     }
     else
     {
-      emit errorMessage(tr("Could not %1 filters from pipeline '%2' because the pipeline object is invalid.\nPlease contact the DREAM.3D developers for more information."));
+      emit errorMessage(tr("Could not %1 filters from pipeline '%2' because the pipeline object is invalid.\n"
+                           "Please contact the DREAM.3D developers for more information."));
     }
   }
 }
@@ -394,54 +414,25 @@ void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex)
+void PipelineViewController::removePipeline(const QModelIndex &pipelineRootIndex, QString actionText)
 {
   if (m_PipelineModel)
   {
-    AddPipelineToModelCommand* cmd = new AddPipelineToModelCommand(pipeline, m_PipelineModel, insertIndex, "Add");
-    if (cmd->isValidCommand())
-    {
-      connect(cmd, &AddPipelineToModelCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
-      connect(cmd, &AddPipelineToModelCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
-      addUndoCommand(cmd);
-    }
-    else
-    {
-      delete cmd;
-    }
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    removePipeline(pipeline, actionText);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::removePipeline(FilterPipeline::Pointer pipeline)
+void PipelineViewController::removePipeline(FilterPipeline::Pointer pipeline, QString actionText)
 {
   if (m_PipelineModel)
   {
-    QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(pipeline);
-    removePipeline(pipelineRootIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineViewController::removePipeline(const QModelIndex &pipelineRootIndex)
-{
-  if (m_PipelineModel)
-  {
-    RemovePipelineFromModelCommand* cmd = new RemovePipelineFromModelCommand(m_PipelineModel, pipelineRootIndex, "Add");
-    if (cmd->isValidCommand())
-    {
-      connect(cmd, &RemovePipelineFromModelCommand::statusMessageGenerated, this, &PipelineViewController::statusMessage);
-      connect(cmd, &RemovePipelineFromModelCommand::standardOutputMessageGenerated, this, &PipelineViewController::stdOutMessage);
-      addUndoCommand(cmd);
-    }
-    else
-    {
-      delete cmd;
-    }
+    RemovePipelineFromModelCommand* cmd = new RemovePipelineFromModelCommand(pipeline, m_PipelineModel);
+    cmd->setText(QObject::tr("\"%1 '%2' Pipeline\"").arg(actionText).arg(pipeline->getName()));
+    addUndoCommand(cmd);
   }
 }
 
@@ -758,22 +749,22 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
     emit statusMessage(tr("Opened \"%1\" Pipeline").arg(baseName));
     emit stdOutMessage(tr("Opened \"%1\" Pipeline").arg(baseName));
 
-    QList<AbstractFilter::Pointer> pipelineFilters = pipeline->getFilterContainer();
-    std::vector<AbstractFilter::Pointer> filters;
-    for(int i = 0; i < pipelineFilters.size(); i++)
-    {
-      filters.push_back(pipelineFilters[i]);
-    }
-
     // Populate the pipeline view
-    if (pipelineRootIndex.isValid())
+    FilterPipeline::Pointer insertPipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+    if (insertPipeline.get() == nullptr)
     {
-      addFilters(filters, insertIndex, pipelineRootIndex);
+      addPipeline(pipeline);
     }
     else
-    { 
-      addPipeline(pipeline, insertIndex);
-      pipelineRootIndex = m_PipelineModel->index(insertIndex, PipelineItem::Contents);
+    {
+      QList<AbstractFilter::Pointer> pipelineFilters = pipeline->getFilterContainer();
+      std::vector<AbstractFilter::Pointer> filters;
+      for(int i = 0; i < pipelineFilters.size(); i++)
+      {
+        filters.push_back(pipelineFilters[i]);
+      }
+
+      addFilters(filters, insertIndex, pipelineRootIndex);
     }
 
     emit pipelineFilePathUpdated(filePath);
@@ -1079,14 +1070,16 @@ void PipelineViewController::setPipelineModel(PipelineModel* model)
   {
     disconnect(m_PipelineModel, &PipelineModel::preflightTriggered, this, &PipelineViewController::preflightPipeline);
 
-    disconnect(m_PipelineModel, &PipelineModel::rowsInserted, 0, 0);
+    disconnect(m_PipelineModel, &PipelineModel::rowsInserted, nullptr, nullptr);
 
-    disconnect(m_PipelineModel, &PipelineModel::rowsRemoved, 0, 0);
+    disconnect(m_PipelineModel, &PipelineModel::rowsRemoved, nullptr, nullptr);
 
-    disconnect(m_PipelineModel, &PipelineModel::rowsMoved, 0, 0);
+    disconnect(m_PipelineModel, &PipelineModel::rowsMoved, nullptr, nullptr);
   }
 
-  connect(model, &PipelineModel::preflightTriggered, this, &PipelineViewController::preflightPipeline);
+  m_PipelineModel = model;
+
+  connect(m_PipelineModel, &PipelineModel::preflightTriggered, this, &PipelineViewController::preflightPipeline);
 
   connect(m_ActionClearPipeline, &QAction::triggered, this, &PipelineViewController::listenClearPipelineTriggered);
 
@@ -1097,8 +1090,6 @@ void PipelineViewController::setPipelineModel(PipelineModel* model)
   connect(m_PipelineModel, &PipelineModel::rowsMoved, [=] { m_ActionClearPipeline->setEnabled(m_PipelineModel->rowCount() > 0); });
 
   m_ActionClearPipeline->setEnabled(m_PipelineModel->rowCount() > 0);
-
-  m_PipelineModel = model;
 }
 
 // -----------------------------------------------------------------------------
@@ -1188,12 +1179,12 @@ QMenu* PipelineViewController::getFilterItemContextMenu(const QModelIndex& index
       widgetEnabled = filter->getEnabled();
     }
 
-    QObject::disconnect(m_ActionEnableFilter, &QAction::toggled, 0, 0);
+    QObject::disconnect(m_ActionEnableFilter, &QAction::toggled, nullptr, nullptr);
     QObject::connect(m_ActionEnableFilter, &QAction::toggled, [=] { setFiltersEnabled(toggledIndices); });
   }
   else
   {
-    QObject::disconnect(m_ActionEnableFilter, &QAction::toggled, 0, 0);
+    QObject::disconnect(m_ActionEnableFilter, &QAction::toggled, nullptr, nullptr);
     QObject::connect(m_ActionEnableFilter, &QAction::toggled, [=] { setFiltersEnabled(selectedIndexes); });
   }
 
@@ -1274,27 +1265,27 @@ QMenu* PipelineViewController::getFilterItemContextMenu(const QModelIndex& index
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QMenu* PipelineViewController::getPipelineItemContextMenu()
+QMenu* PipelineViewController::getPipelineItemContextMenu(const QModelIndex &index)
 {
   QMenu* menu = new QMenu();
 
   menu->addAction(m_ActionPaste);
 
-  addSinglePipelineContextMenu(menu);
+  menu->addSeparator();
+
+  menu->addAction("Clear Pipeline", [=] {
+    m_PipelineView->clearPipeline(index);
+  });
+
+  menu->addSeparator();
+
+  menu->addAction("Remove Pipeline", [=] {
+    m_PipelineView->removePipeline(index);
+  });
 
   addErrorHandlingContextMenu(menu);
 
   return menu;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineViewController::addSinglePipelineContextMenu(QMenu* menu)
-{
-  menu->addSeparator();
-
-  menu->addAction(m_ActionClearPipeline);
 }
 
 // -----------------------------------------------------------------------------

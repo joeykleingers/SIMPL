@@ -45,14 +45,16 @@
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
+class PipelineModel;
+
 class SVWidgetsLib_EXPORT AddFilterToPipelineCommand : public QObject, public QUndoCommand
 {
     Q_OBJECT
 
 public:
-  AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, QUndoCommand* parent = nullptr);
+  AddFilterToPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, QUndoCommand* parent = nullptr);
 
-  AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, QUndoCommand* parent = nullptr);
+  AddFilterToPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, QUndoCommand* parent = nullptr);
 
   ~AddFilterToPipelineCommand() override;
 
@@ -67,9 +69,11 @@ signals:
 private:
   std::vector<AbstractFilter::Pointer> m_Filters;
   FilterPipeline::Pointer m_Pipeline;
+  PipelineModel* m_PipelineModel = nullptr;
   std::vector<int> m_FilterRows;
   int m_InsertIndex = -1;
   bool m_FirstRun = true;
+  bool m_CreatedPipeline = false;
 
   const QString m_MultipleFiltersStatusMessage = "Added %1 filters starting at index %2 to pipeline '%3'";
   const QString m_SingleFilterStatusMessage = "Added '%1' filter at index %2 to pipeline '%3'";

@@ -47,13 +47,15 @@
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
+class PipelineModel;
+
 class SVWidgetsLib_EXPORT RemoveFilterFromPipelineCommand : public QObject, public QUndoCommand
 {
     Q_OBJECT
 
 public:
-  RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, QUndoCommand* parent = nullptr);
-  RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, QUndoCommand* parent = nullptr);
+  RemoveFilterFromPipelineCommand(AbstractFilter::Pointer filter, FilterPipeline::Pointer pipeline, PipelineModel* pipelineModel, QUndoCommand* parent = nullptr);
+  RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, PipelineModel* pipelineModel, QUndoCommand* parent = nullptr);
   virtual ~RemoveFilterFromPipelineCommand();
 
   virtual void undo();
@@ -68,6 +70,7 @@ signals:
 
 private:
   FilterPipeline::Pointer m_Pipeline;
+  PipelineModel* m_PipelineModel = nullptr;
   std::vector<AbstractFilter::Pointer> m_Filters;
   std::vector<int> m_RemovalRows;
   bool m_FirstRun = true;
