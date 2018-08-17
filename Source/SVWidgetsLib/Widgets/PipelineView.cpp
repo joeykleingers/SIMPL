@@ -89,6 +89,36 @@ void PipelineView::addPipelineMessageObserver(QObject* pipelineMessageObserver)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool PipelineView::arePipelinesRunning()
+{
+  PipelineModel* pipelineModel = getPipelineModel();
+  if (!pipelineModel)
+  {
+    return false;
+  }
+
+  for (int i = 0; i < pipelineModel->rowCount(); i++)
+  {
+    QModelIndex pipelineRootIndex = pipelineModel->index(i, PipelineItem::Contents);
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(pipelineModel->data(pipelineRootIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType != PipelineItem::ItemType::PipelineRoot)
+    {
+      continue;
+    }
+
+    FilterPipeline::Pointer pipeline = pipelineModel->tempPipeline(pipelineRootIndex);
+    if (pipeline->isExecuting())
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void PipelineView::addFilterFromClassName(const QString& filterClassName, int insertIndex)
 {
   addFilterFromClassName(filterClassName, m_ActivePipelineIndex, insertIndex);

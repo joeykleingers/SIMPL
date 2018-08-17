@@ -73,6 +73,7 @@ RemovePipelineFromModelCommand::~RemovePipelineFromModelCommand() = default;
 void RemovePipelineFromModelCommand::redo()
 {
   QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+  m_PipelineModel->setPipeline(pipelineRootIndex, FilterPipeline::NullPointer());
   m_RemovalRow = pipelineRootIndex.row();
   m_PipelineModel->removeRow(m_RemovalRow);
 

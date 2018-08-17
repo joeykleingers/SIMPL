@@ -261,46 +261,59 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
 
       disconnect(oldFilter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
     }
+
+    disconnect(oldTempPipeline.get(), &FilterPipeline::filterWasAdded, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::filterWasRemoved, nullptr, nullptr);
   }
 
-  bool success = insertRows(0, pipeline->size(), pipelineRootIndex);
-  if (!success)
+  if (pipeline != FilterPipeline::NullPointer())
   {
-    return false;
+    bool success = insertRows(0, pipeline->size(), pipelineRootIndex);
+    if (!success)
+    {
+      return false;
+    }
+
+    pipelineRootItem->setTempPipeline(pipeline);
+    pipelineRootItem->setSavedPipeline(pipeline->deepCopy());
+
+    FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+    for (int i = 0; i < rowCount(pipelineRootIndex); i++)
+    {
+      AbstractFilter::Pointer filter = container[i];
+      QModelIndex filterIndex = this->index(i, PipelineItem::Contents, pipelineRootIndex);
+      addFilterData(filter, filterIndex);
+    }
+
+    if (getActivePipeline() == pipelineRootIndex)
+    {
+      emit clearIssuesTriggered();
+      emit preflightTriggered(pipelineRootIndex);
+    }
+
+    // Connection that automatically updates the model when a filter gets added to the FilterPipeline
+    connect(pipeline.get(), &FilterPipeline::filterWasAdded, [=] (AbstractFilter::Pointer filter, int index) {
+      insertRow(index, pipelineRootIndex);
+      QModelIndex filterIndex = this->index(index, PipelineItem::Contents, pipelineRootIndex);
+      addFilterData(filter, filterIndex);
+      emit clearIssuesTriggered();
+      emit preflightTriggered(pipelineRootIndex);
+    });
+
+    // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
+    connect(pipeline.get(), &FilterPipeline::filterWasRemoved, [=] (int index) {
+      removeRow(index, pipelineRootIndex);
+      emit clearIssuesTriggered();
+      emit preflightTriggered(pipelineRootIndex);
+    });
+
+    emit dataChanged(index, index);
+    emit pipelineAdded(pipeline, pipelineRootIndex);
   }
-
-  pipelineRootItem->setTempPipeline(pipeline);
-  pipelineRootItem->setSavedPipeline(pipeline->deepCopy());
-
-  FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
-  for (int i = 0; i < rowCount(pipelineRootIndex); i++)
+  else if (getActivePipeline() == pipelineRootIndex)
   {
-    AbstractFilter::Pointer filter = container[i];
-    QModelIndex filterIndex = this->index(i, PipelineItem::Contents, pipelineRootIndex);
-    addFilterData(filter, filterIndex);
+    emit clearIssuesTriggered();
   }
-
-  emit clearIssuesTriggered();
-  emit preflightTriggered(pipelineRootIndex);
-
-  // Connection that automatically updates the model when a filter gets added to the FilterPipeline
-  connect(pipeline.get(), &FilterPipeline::filterWasAdded, [=] (AbstractFilter::Pointer filter, int index) {
-    insertRow(index, pipelineRootIndex);
-    QModelIndex filterIndex = this->index(index, PipelineItem::Contents, pipelineRootIndex);
-    addFilterData(filter, filterIndex);
-    emit clearIssuesTriggered();
-    emit preflightTriggered(pipelineRootIndex);
-  });
-
-  // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
-  connect(pipeline.get(), &FilterPipeline::filterWasRemoved, [=] (int index) {
-    removeRow(index, pipelineRootIndex);
-    emit clearIssuesTriggered();
-    emit preflightTriggered(pipelineRootIndex);
-  });
-
-  emit dataChanged(index, index);
-  emit pipelineAdded(pipeline, pipelineRootIndex);
 
   return true;
 }

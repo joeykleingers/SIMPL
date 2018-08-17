@@ -89,6 +89,7 @@ public:
 
   SIMPL_INSTANCE_PROPERTY(int, ErrorCondition)
   SIMPL_INSTANCE_PROPERTY(AbstractFilter::Pointer, CurrentFilter)
+  SIMPL_GET_BOOL_PROPERTY(Executing)
 
   /**
    * @brief Cancel the operation
@@ -251,6 +252,7 @@ private:
   bool m_Cancel;
   FilterContainerType m_Pipeline;
   QString m_PipelineName;
+  bool m_Executing = false;
 
   QVector<QObject*> m_MessageReceivers;
 

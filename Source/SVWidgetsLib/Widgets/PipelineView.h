@@ -104,6 +104,12 @@ class SVWidgetsLib_EXPORT PipelineView
     PipelineModel* getPipelineModel();
 
     /**
+     * @brief arePipelinesRunning
+     * @return
+     */
+    bool arePipelinesRunning();
+
+    /**
      * @brief getSelectedFilters
      * @return
      */

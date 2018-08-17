@@ -373,9 +373,11 @@ void FilterPipeline::insert(size_t index, AbstractFilter::Pointer f)
 // -----------------------------------------------------------------------------
 void FilterPipeline::insert(size_t index, std::vector<AbstractFilter::Pointer> filters)
 {
-  for(size_t i = index; i < index + filters.size(); ++i)
+  int insertPos = index;
+  for(size_t i = 0; i < filters.size(); ++i)
   {
-    insert(i, filters[i]);
+    insert(insertPos, filters[i]);
+    insertPos++;
   }
 }
 // -----------------------------------------------------------------------------
@@ -664,6 +666,8 @@ int FilterPipeline::preflightPipeline()
 // -----------------------------------------------------------------------------
 DataContainerArray::Pointer FilterPipeline::execute()
 {
+  m_Executing = true;
+
   int err = 0;
 
   // Clear pipeline cancel state
@@ -747,6 +751,7 @@ DataContainerArray::Pointer FilterPipeline::execute()
   PipelineMessage completeMessage("", "Pipeline Complete", 0, PipelineMessage::MessageType::StatusMessage, -1);
   emit pipelineGeneratedMessage(completeMessage);
 
+  m_Executing = false;
   return m_Dca;
 }
 

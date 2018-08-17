@@ -105,6 +105,8 @@ void AddPipelineToModelCommand::redo()
 // -----------------------------------------------------------------------------
 void AddPipelineToModelCommand::undo()
 {
+  QModelIndex pipelineRootIndex = m_PipelineModel->index(m_InsertIndex, PipelineItem::Contents);
+  m_PipelineModel->setPipeline(pipelineRootIndex, FilterPipeline::NullPointer());
   m_PipelineModel->removeRow(m_InsertIndex);
 
   QString statusMessage = getStatusMessage();
