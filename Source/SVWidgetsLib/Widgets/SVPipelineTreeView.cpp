@@ -129,6 +129,7 @@ void SVPipelineTreeView::setupGui()
 
   // Create the model
   PipelineModel* model = new PipelineModel(this);
+  model->setUseModelDisplayText(false);
   setModel(model);
 
   connectSignalsSlots();

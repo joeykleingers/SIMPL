@@ -53,7 +53,7 @@
 //
 // -----------------------------------------------------------------------------
 FilterLibraryTreeWidget::FilterLibraryTreeWidget(QWidget* parent)
-: QTreeWidget(parent)
+: SVTreeWidget(parent)
 {
   setAcceptDrops(false);
   setAttribute(Qt::WA_MacShowFocusRect, false);

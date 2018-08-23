@@ -59,6 +59,15 @@ class SVWidgetsLib_EXPORT PipelineView
 
     SIMPL_POINTER_PROPERTY(PipelineViewController, PipelineViewController)
 
+    enum class PipelineViewState : int
+    {
+      Idle = 0,
+      Running,
+      Cancelling
+    };
+
+    SIMPL_INSTANCE_PROPERTY(PipelineViewState, PipelineState)
+
     /**
      * @brief addPipelineMessageObserver
      * @param pipelineMessageObserver
@@ -247,6 +256,32 @@ class SVWidgetsLib_EXPORT PipelineView
     void pasteFilters(const QModelIndex &pipelineRootIndex, int insertIndex = -1);
 
     /**
+     * @brief savePipeline
+     * @return
+     */
+    bool savePipeline();
+
+    /**
+     * @brief savePipeline
+     * @param pipelineRootIndex
+     * @return
+     */
+    bool savePipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief savePipelineAs
+     * @return
+     */
+    bool savePipelineAs();
+
+    /**
+     * @brief savePipelineAs
+     * @param pipelineRootIndex
+     * @return
+     */
+    bool savePipelineAs(const QModelIndex &pipelineRootIndex);
+
+    /**
      * @brief preflightPipeline
      */
     void preflightPipeline();
@@ -305,7 +340,6 @@ class SVWidgetsLib_EXPORT PipelineView
     void setSelectedFiltersEnabled();
 
   private:
-    QModelIndex m_ActivePipelineIndex;
 
     PipelineView(const PipelineView&) = delete;   // Copy Constructor Not Implemented
     void operator=(const PipelineView&) = delete; // Move assignment Not Implemented

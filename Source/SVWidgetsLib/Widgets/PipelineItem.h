@@ -57,6 +57,7 @@ class SVWidgetsLib_EXPORT PipelineItem
     SIMPL_INSTANCE_PROPERTY(bool, FilterEnabled)
     SIMPL_BOOL_PROPERTY(ActivePipeline)
     SIMPL_BOOL_PROPERTY(PipelineSaved)
+    SIMPL_BOOL_PROPERTY(PipelineModified)
     SIMPL_INSTANCE_PROPERTY(QIcon, Icon)
     SIMPL_INSTANCE_PROPERTY(bool, Expanded)
     SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)

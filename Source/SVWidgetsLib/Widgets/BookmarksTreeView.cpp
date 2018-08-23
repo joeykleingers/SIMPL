@@ -59,7 +59,7 @@
 //
 // -----------------------------------------------------------------------------
 BookmarksTreeView::BookmarksTreeView(QWidget* parent)
-: QTreeView(parent)
+: SVTreeView(parent)
 , m_ActiveIndexBeingDragged(QPersistentModelIndex())
 , m_TopLevelItemPlaceholder(QModelIndex())
 {

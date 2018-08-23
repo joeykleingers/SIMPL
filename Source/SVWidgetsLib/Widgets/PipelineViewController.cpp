@@ -45,6 +45,7 @@
 #include <QtWidgets/QUndoCommand>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QFileDialog>
 
 #include "SIMPLib/Common/DocRequestManager.h"
 #include "SIMPLib/CoreFilters/DataContainerReader.h"
@@ -66,12 +67,15 @@
 #include "SVWidgetsLib/Widgets/RemoveFilterFromPipelineCommand.h"
 #include "SVWidgetsLib/Widgets/RemovePipelineFromModelCommand.h"
 #include "SVWidgetsLib/QtSupport/QtSFileDragMessageBox.h"
+#include "SVWidgetsLib/QtSupport/QtSRecentFileList.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 PipelineViewController::PipelineViewController(QObject* parent) :
   QObject(parent)
+, m_LastOpenedFilePath(QDir::homePath())
+
 {
   initialize();
 }
@@ -150,6 +154,101 @@ void PipelineViewController::setupActions()
 
 // -----------------------------------------------------------------------------
 //
+// -----------------------------------------------------------------------------
+bool PipelineViewController::savePipeline(const QModelIndex &pipelineRootIndex)
+{
+  PipelineModel* model = getPipelineModel();
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(pipelineRootIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+  if (model == nullptr || itemType != PipelineItem::ItemType::PipelineRoot)
+  {
+    return false;
+  }
+
+  QString filePath = model->data(pipelineRootIndex, PipelineModel::Roles::PipelinePathRole).toString();
+  if(filePath.isEmpty())
+  {
+    // When the file hasn't been saved before, the same functionality as a "Save As" occurs...
+    return savePipelineAs(pipelineRootIndex);
+  }
+
+  // Write the pipeline
+  int err = writePipeline(pipelineRootIndex, filePath);
+
+  if(err >= 0)
+  {
+    QFileInfo fi(filePath);
+    model->savePipeline(pipelineRootIndex, fi.baseName());
+    model->setData(pipelineRootIndex, filePath, PipelineModel::Roles::PipelinePathRole);
+    model->setData(pipelineRootIndex, false, PipelineModel::Roles::PipelineModifiedRole);
+
+    // Cache the last directory
+    m_LastOpenedFilePath = filePath;
+
+    // Add file to the recent files list
+    QtSRecentFileList* list = QtSRecentFileList::Instance();
+    list->addFile(filePath);
+
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineViewController::savePipelineAs(const QModelIndex &pipelineRootIndex)
+{
+  PipelineModel* model = getPipelineModel();
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(pipelineRootIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+  if (model == nullptr || itemType != PipelineItem::ItemType::PipelineRoot)
+  {
+    return false;
+  }
+
+  QString proposedFile = m_LastOpenedFilePath + QDir::separator() + "Untitled.json";
+  QString filePath = QFileDialog::getSaveFileName(nullptr, tr("Save Pipeline To File"), proposedFile, tr("Json File (*.json);;SIMPLView File (*.dream3d);;All Files (*.*)"));
+  if(true == filePath.isEmpty())
+  {
+    return false;
+  }
+
+  filePath = QDir::toNativeSeparators(filePath);
+
+  // If the filePath already exists - delete it so that we get a clean write to the file
+  QFileInfo fi(filePath);
+  if(fi.suffix().isEmpty())
+  {
+    filePath.append(".json");
+    fi.setFile(filePath);
+  }
+
+  // Write the pipeline
+  int err = writePipeline(pipelineRootIndex, filePath);
+
+  if(err >= 0)
+  {
+    model->savePipeline(pipelineRootIndex, fi.baseName());
+    model->setData(pipelineRootIndex, filePath, PipelineModel::Roles::PipelinePathRole);
+    model->setData(pipelineRootIndex, false, PipelineModel::Roles::PipelineModifiedRole);
+
+    // Cache the last directory
+    m_LastOpenedFilePath = filePath;
+
+    // Add file to the recent files list
+    QtSRecentFileList* list = QtSRecentFileList::Instance();
+    list->addFile(filePath);
+
+    emit pipelineSavedAs(pipelineRootIndex, filePath);
+
+    return true;
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
 // -----------------------------------------------------------------------------s
 void PipelineViewController::updatePasteAvailability()
 {
@@ -184,7 +283,9 @@ void PipelineViewController::connectSignalsSlots()
   });
 
   QObject::connect(m_ActionCopy, &QAction::triggered, [=] { m_PipelineView->copySelectedFilters(); });
-  QObject::connect(m_ActionPaste, &QAction::triggered, [=] { m_PipelineView->pasteFilters(); });
+  QObject::connect(m_ActionPaste, &QAction::triggered, [=] {
+    m_PipelineView->pasteFilters();
+  });
 
 //  connect(this, &PipelineViewController::pipelineFilePathUpdated, [=](const QString& name) { m_CurrentPipelineFilePath = name; });
 
@@ -753,7 +854,7 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
     FilterPipeline::Pointer insertPipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
     if (insertPipeline.get() == nullptr)
     {
-      addPipeline(pipeline);
+      addPipeline(pipeline, -1, filePath);
     }
     else
     {

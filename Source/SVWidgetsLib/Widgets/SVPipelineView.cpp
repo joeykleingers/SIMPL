@@ -105,7 +105,6 @@ SVPipelineView::SVPipelineView(QWidget* parent)
 : QListView(parent)
 , PipelineView()
 , m_PipelineIsRunning(false)
-, m_PipelineState(PipelineViewState::Idle)
 {
   setupGui();
 }
@@ -161,7 +160,7 @@ void SVPipelineView::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void SVPipelineView::setPipelineViewState(SVPipelineView::PipelineViewState state)
 {
-  m_PipelineState = state;
+  setPipelineState(state);
 
   if (state == PipelineViewState::Idle)
   {

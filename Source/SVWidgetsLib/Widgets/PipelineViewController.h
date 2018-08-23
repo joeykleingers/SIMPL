@@ -107,6 +107,19 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     int openPipeline(const QString& filePath, QModelIndex &pipelineRootIndex, int insertIndex = -1);
 
     /**
+     * @brief savePipeline
+     * @param pipelineRootIndex
+     * @return
+     */
+    bool savePipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief savePipelineAs
+     * @return
+     */
+    bool savePipelineAs(const QModelIndex &pipelineRootIndex);
+
+    /**
      * @brief readPipelineFromFile
      * @param filePath
      * @return FilterPipeline::Pointer
@@ -305,6 +318,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     void stdOutMessage(const QString& message);
     void errorMessage(const QString& message);
 
+    void pipelineSavedAs(const QModelIndex &pipelineRootIndex, const QString &filePath);
     void pipelineStarted(const QModelIndex &pipelineRootIndex);
     void pipelineFilePathUpdated(const QString &name);
     void pipelineDataChanged(const QModelIndex &pipelineRootIndex);
@@ -332,6 +346,8 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
 
     bool m_BlockPreflight = false;
     std::stack<bool> m_BlockPreflightStack;
+
+    QString m_LastOpenedFilePath;
 
     QAction* m_ActionEnableFilter = nullptr;
     QAction* m_ActionCut = nullptr;

@@ -77,7 +77,7 @@ void SVPipelineViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem
   PipelineModel* model = m_View->getPipelineModel();
   if (model->isPipelineRootItem(index))
   {
-    return paint(painter, option, index);
+    return QStyledItemDelegate::paint(painter, option, index);
   }
 
   painter->save();

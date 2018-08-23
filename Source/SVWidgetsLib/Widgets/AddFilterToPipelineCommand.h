@@ -74,6 +74,7 @@ private:
   int m_InsertIndex = -1;
   bool m_FirstRun = true;
   bool m_CreatedPipeline = false;
+  bool m_PreviousModifiedState = false;
 
   const QString m_MultipleFiltersStatusMessage = "Added %1 filters starting at index %2 to pipeline '%3'";
   const QString m_SingleFilterStatusMessage = "Added '%1' filter at index %2 to pipeline '%3'";

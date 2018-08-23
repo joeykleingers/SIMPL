@@ -73,7 +73,12 @@ RemovePipelineFromModelCommand::~RemovePipelineFromModelCommand() = default;
 void RemovePipelineFromModelCommand::redo()
 {
   QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+  m_PreviousModifiedState = m_PipelineModel->data(pipelineRootIndex, PipelineModel::Roles::PipelineModifiedRole).toBool();
   m_PipelineModel->setPipeline(pipelineRootIndex, FilterPipeline::NullPointer());
+  if (m_PipelineModel->getActivePipeline() == pipelineRootIndex)
+  {
+    m_PipelineModel->updateActivePipeline(QModelIndex());
+  }
   m_RemovalRow = pipelineRootIndex.row();
   m_PipelineModel->removeRow(m_RemovalRow);
 
@@ -100,8 +105,14 @@ void RemovePipelineFromModelCommand::undo()
 {
   m_PipelineModel->insertRow(m_RemovalRow);
   QModelIndex pipelineRootIndex = m_PipelineModel->index(m_RemovalRow, PipelineItem::Contents);
+  m_PipelineModel->setData(pipelineRootIndex, m_PreviousModifiedState, PipelineModel::Roles::PipelineModifiedRole);
   m_PipelineModel->setData(pipelineRootIndex, static_cast<int>(PipelineItem::ItemType::PipelineRoot), PipelineModel::Roles::ItemTypeRole);
   m_PipelineModel->setPipeline(pipelineRootIndex, m_Pipeline);
+
+  if (m_PipelineModel->hasActivePipeline() == false)
+  {
+    m_PipelineModel->updateActivePipeline(pipelineRootIndex);
+  }
 
   QString statusMessage = getStatusMessage();
 

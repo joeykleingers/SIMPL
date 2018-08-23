@@ -42,6 +42,7 @@
 #include "SVWidgetsLib/Widgets/PipelineItem.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
+#include "SVWidgetsLib/Widgets/SVStyle.h"
 #include "SVWidgetsLib/QtSupport/QtSSettings.h"
 
 // -----------------------------------------------------------------------------
@@ -61,6 +62,25 @@ PipelineModel::PipelineModel(QObject* parent)
 PipelineModel::~PipelineModel()
 {
   delete m_RootItem;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineModel::savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineName)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return false;
+  }
+
+  FilterPipeline::Pointer tempPipeline = item->getTempPipeline();
+  FilterPipeline::Pointer savedPipeline = tempPipeline->deepCopy();
+  item->setSavedPipeline(savedPipeline);
+  tempPipeline->setName(pipelineName);
+  savedPipeline->setName(pipelineName);
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -99,6 +119,7 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   }
 
   PipelineItem* item = getItem(index);
+  SVStyle* style = SVStyle::Instance();
 
   if (role == PipelineModel::Roles::WidgetStateRole)
   {
@@ -111,6 +132,10 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   else if (role == PipelineModel::Roles::PipelineStateRole)
   {
     return static_cast<int>(item->getPipelineState());
+  }
+  else if (role == PipelineModel::Roles::PipelineModifiedRole)
+  {
+    return item->isPipelineModified();
   }
   else if (role == PipelineModel::Roles::ItemTypeRole)
   {
@@ -527,10 +552,10 @@ Qt::ItemFlags PipelineModel::flags(const QModelIndex& index) const
   Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsDragEnabled;
 
   PipelineItem* item = getItem(index);
-  if (item->getItemType() == PipelineItem::ItemType::Filter)
-  {
-    itemFlags = itemFlags | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-  }
+//  if (item->getItemType() == PipelineItem::ItemType::Filter)
+//  {
+    itemFlags = itemFlags | Qt::ItemIsSelectable;
+//  }
 
   return itemFlags;
 }
@@ -778,6 +803,10 @@ bool PipelineModel::setData(const QModelIndex& index, const QVariant& value, int
   else if (role == PipelineModel::Roles::PipelinePathRole)
   {
     item->setPipelineFilePath(value.toString());
+  }
+  else if (role == PipelineModel::Roles::PipelineModifiedRole)
+  {
+    item->setPipelineModified(value.toBool());
   }
   else if (role == PipelineModel::Roles::ExpandedRole)
   {

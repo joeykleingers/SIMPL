@@ -37,14 +37,13 @@
 #pragma once
 
 #include <QtCore/QPoint>
-#include <QtWidgets/QTreeWidget>
 
-
+#include "SVWidgetsLib/Widgets/SVControlWidgets.h"
 #include "SVWidgetsLib/SVWidgetsLib.h"
 /*
  *
  */
-class SVWidgetsLib_EXPORT FilterLibraryTreeWidget: public QTreeWidget
+class SVWidgetsLib_EXPORT FilterLibraryTreeWidget: public SVTreeWidget
 {
     Q_OBJECT
 

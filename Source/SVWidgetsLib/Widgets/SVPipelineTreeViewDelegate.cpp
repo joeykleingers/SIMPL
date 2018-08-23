@@ -59,7 +59,7 @@ namespace {
 // -----------------------------------------------------------------------------
 SVPipelineTreeViewDelegate::SVPipelineTreeViewDelegate(SVPipelineTreeView* view)
   : QStyledItemDelegate(nullptr)
-//  , m_View(view)
+  , m_View(view)
 {
 
 }
@@ -74,22 +74,285 @@ SVPipelineTreeViewDelegate::~SVPipelineTreeViewDelegate() = default;
 // -----------------------------------------------------------------------------
 void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  const PipelineModel* model = getPipelineModel(index);
-  QStyleOptionViewItem opt = option;
-  initStyleOption(&opt, index);
-  if (static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::PipelineRoot)
-  {
-    if (model->getActivePipeline() == index)
-    {
-      opt.font.setWeight(QFont::Bold);
-    }
+  QStyledItemDelegate::paint(painter, option, index);
 
-    SVStyle* style = SVStyle::Instance();
-//    painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
-    opt.backgroundBrush.setColor(style->getQDockWidgetTitle_background_color());
+  PipelineModel* model = m_View->getPipelineModel();
+
+  painter->save();
+
+  painter->setRenderHint(QPainter::Antialiasing);
+
+  PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(model->data(index, PipelineModel::WidgetStateRole).toInt());
+  PipelineItem::PipelineState pState = static_cast<PipelineItem::PipelineState>(model->data(index, PipelineModel::PipelineStateRole).toInt());
+  PipelineItem::ErrorState eState = static_cast<PipelineItem::ErrorState>(model->data(index, PipelineModel::ErrorStateRole).toInt());
+
+  AbstractFilter::Pointer filter = model->filter(index);
+  QColor grpColor;
+  if (filter.get() != nullptr)
+  {
+    QString grpName = filter->getGroupName();
+    grpColor = SVStyle::Instance()->GetFilterBackgroundColor();
   }
 
-  QStyledItemDelegate::paint(painter, opt, index);
+  QColor widgetBackgroundColor;
+  QColor labelColor = SVStyle::Instance()->GetFilterFontColor();
+  QColor indexBackgroundColor;
+  QColor bgColor = grpColor;
+  #if 1
+    QColor selectedBgColor = SVStyle::Instance()->GetFilterSelectionColor();
+  #else
+  QColor selectedBgColor = m_View->palette().color(QPalette::Highlight);
+  #endif
+  QColor disabledBgColor = QColor(124, 124, 124);
+
+  bool drawButtons = false;
+  if(option.state & QStyle::State_Selected)
+  {
+    bgColor = selectedBgColor;
+  }
+
+  QColor indexFontColor(230, 230, 230);
+
+  if((option.state & QStyle::State_MouseOver))
+  {
+    if((option.state & QStyle::State_Selected) == false)
+    {
+      QColor hoveredColor = bgColor;
+      hoveredColor.setRedF((hoveredColor.redF() * 1.10 > 1.0) ? 1.0 : hoveredColor.redF() * 1.10);
+      hoveredColor.setGreenF((hoveredColor.greenF() * 1.10 > 1.0) ? 1.0 : hoveredColor.greenF() * 1.10);
+      hoveredColor.setBlueF((hoveredColor.blueF() * 1.10 > 1.0) ? 1.0 : hoveredColor.blueF() * 1.10);
+      bgColor = hoveredColor;
+    }
+
+    drawButtons = true;
+  }
+
+  switch(wState)
+  {
+    case PipelineItem::WidgetState::Ready:
+      widgetBackgroundColor = bgColor;
+      //labelColor = QColor(240, 240, 240);
+      indexBackgroundColor = QColor(48, 48, 48);
+      break;
+    case PipelineItem::WidgetState::Executing:
+      widgetBackgroundColor = QColor(130, 130, 130);
+      //labelColor = QColor(20, 20, 20);
+      indexBackgroundColor = QColor(6, 140, 190);
+      break;
+    case PipelineItem::WidgetState::Completed:
+      widgetBackgroundColor = bgColor.name();
+      //labelColor = QColor(240, 240, 240);
+      indexBackgroundColor = QColor(6, 118, 6);
+      break;
+    case PipelineItem::WidgetState::Disabled:
+      bgColor = disabledBgColor;
+      widgetBackgroundColor = disabledBgColor.name();
+      //labelColor = QColor(240, 240, 240);
+      indexBackgroundColor = QColor(96, 96, 96);
+      break;
+  }
+  QColor selectedColor = QColor::fromHsv(bgColor.hue(), 100, 120);
+
+  // Do not change the background color if the widget is disabled.
+  if(wState != PipelineItem::WidgetState::Disabled)
+  {
+    switch(pState)
+    {
+      case PipelineItem::PipelineState::Running:
+        widgetBackgroundColor = selectedColor.name();
+        labelColor = QColor(20, 20, 20);
+        break;
+      case PipelineItem::PipelineState::Stopped:
+        widgetBackgroundColor = bgColor.name();
+        labelColor = QColor(48, 48, 48);
+        break;
+      case PipelineItem::PipelineState::Paused:
+        widgetBackgroundColor = QColor(160, 160, 160);
+        labelColor = QColor(0, 0, 0);
+        break;
+    }
+
+    switch(eState)
+    {
+      case PipelineItem::ErrorState::Ok:
+
+        break;
+      case PipelineItem::ErrorState::Error:
+        indexBackgroundColor = QColor(179, 2, 5);
+        break;
+      case PipelineItem::ErrorState::Warning:
+        indexBackgroundColor = QColor(232, 189, 0);
+        break;
+    }
+  }
+
+  if(option.state & QStyle::State_Selected)
+  {
+    labelColor = m_View->palette().color(QPalette::HighlightedText);
+  }
+
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
+  if (itemType == PipelineItem::ItemType::DropIndicator)
+  {
+    indexBackgroundColor = k_DropIndicatorIndexBackgroundColor;
+    widgetBackgroundColor = k_DropIndicatorWidgetBackgroundColor;
+    labelColor = k_DropIndicatorLabelColor;
+    indexFontColor = k_DropIndicatorLabelColor;
+
+    drawButtons = false;
+  }
+  else if(m_View->getPipelineState() == PipelineView::PipelineViewState::Running)
+  {
+    drawButtons = false;
+  }
+
+  QFont font = SVStyle::Instance()->GetHumanLabelFont();
+
+#if defined(Q_OS_MAC)
+  font.setPointSize(font.pointSize() - 4);
+#elif defined(Q_OS_WIN)
+  font.setPointSize(font.pointSize() - 3);
+#else
+  font.setPointSize(font.pointSize() - 1);
+#endif
+
+  QFontMetrics fontMetrics(font);
+  int fontHeight = fontMetrics.height();
+  int fontMargin = ((option.rect.height() - fontHeight) / 2) - 1;
+
+  int indexFontWidth = fontMetrics.width(QString::number(model->getMaxFilterCount()));
+
+  painter->setFont(font);
+
+  // back fill with RED so we know if we missed something
+  // painter->fillRect(rect(), QColor(255, 0, 0));
+
+  const int textMargin = 6;
+  const int indexBoxWidth = 10;
+
+  QRect rect = option.rect;
+
+  if (itemType == PipelineItem::ItemType::Filter)
+  {
+    // Draw the Title area
+    QRect coloredRect(rect.x() + 2 * textMargin + indexFontWidth, rect.y(), rect.width() - (2 * textMargin + indexFontWidth), rect.height()); // +4? without it it does not paint to the edge
+//    painter->fillRect(coloredRect, widgetBackgroundColor);
+
+    QRect indexRect = option.rect;
+    indexRect.setWidth(2 * textMargin + indexFontWidth);
+
+    // Draw the Index area
+//    QPainterPath path;
+//    path.addRoundedRect(indexRect, 3, 3);
+//    QPen pen(Qt::white, 1);
+//    painter->setPen(pen);
+//    painter->fillPath(path, indexBackgroundColor);
+//    painter->drawPath(path);
+
+    // Draw the Index number
+    painter->setPen(QPen(QColor(120, 120, 120)));
+    QString number = getFilterIndexString(index); // format the index number with a leading zero
+    if (fontHeight <= indexRect.height())
+    {
+      painter->drawText(rect.x() + textMargin, rect.y() + fontMargin + fontHeight, "|");
+    }
+  }
+  else if (itemType == PipelineItem::ItemType::PipelineRoot)
+  {
+//    QPainterPath path;
+//    path.addRoundedRect(option.rect, 3, 3);
+//    QPen pen(Qt::white, 1);
+//    painter->setPen(pen);
+//    painter->fillPath(path, indexBackgroundColor);
+//    painter->drawPath(path);
+  }
+
+  // Compute the Width to draw the text based on the visibility of the various buttons
+  int fullWidth = rect.width() - indexBoxWidth;
+  int allowableWidth = fullWidth;
+
+  int humanLabelWidth = 0;
+  if (itemType == PipelineItem::ItemType::DropIndicator)
+  {
+    QString dropIndicatorText = model->dropIndicatorText(index);
+    humanLabelWidth = fontMetrics.width(dropIndicatorText);
+  }
+  else if (itemType == PipelineItem::ItemType::Filter)
+  {
+    humanLabelWidth = fontMetrics.width(filter->getHumanLabel());
+  }
+  else if (itemType == PipelineItem::ItemType::PipelineRoot)
+  {
+    FilterPipeline::Pointer pipeline = model->tempPipeline(index);
+    if (pipeline != nullptr)
+    {
+      humanLabelWidth = fontMetrics.width(pipeline->getName());
+    }
+  }
+
+  // Draw the filter human label
+  painter->setPen(QPen(labelColor));
+  font.setWeight(QFont::Normal);
+  painter->setFont(font);
+
+  // Compute a Fade out of the text if it is too long to fit in the widget
+  if(humanLabelWidth > allowableWidth)
+  {
+    QRect fadedRect = rect;
+    fadedRect.setWidth(fullWidth);
+    if(option.state & QStyle::State_MouseOver)
+    {
+      fadedRect.setWidth(allowableWidth);
+    }
+
+    QLinearGradient gradient(fadedRect.topLeft(), fadedRect.topRight());
+    gradient.setColorAt(0.8, labelColor);
+    gradient.setColorAt(1.0, QColor(0, 0, 0, 10));
+
+    QPen pen;
+    pen.setBrush(QBrush(gradient));
+    painter->setPen(pen);
+  }
+
+  if (fontHeight <= rect.height())
+  {
+    if (itemType == PipelineItem::ItemType::DropIndicator)
+    {
+      QString text = model->dropIndicatorText(index);
+      painter->drawText(rect.x() + indexBoxWidth + textMargin, rect.y() + fontMargin + fontHeight, text);
+    }
+    else if (itemType == PipelineItem::ItemType::Filter)
+    {
+      painter->setPen(QPen(indexBackgroundColor));
+
+//      painter->drawText(rect.x() + textMargin, rect.y() + fontMargin + fontHeight, filter->getHumanLabel());
+      painter->drawText(rect.x() + indexBoxWidth + textMargin, rect.y() + fontMargin + fontHeight, filter->getHumanLabel());
+    }
+    else if (itemType == PipelineItem::ItemType::PipelineRoot)
+    {
+      painter->setPen(QPen(labelColor));
+
+      if (model->getActivePipeline() == index)
+      {
+        font.setWeight(QFont::Bold);
+        painter->setFont(font);
+      }
+
+      QString pipelineName = "";
+      FilterPipeline::Pointer pipeline = model->tempPipeline(index);
+      if (pipeline != nullptr)
+      {
+        pipelineName = pipeline->getName();
+      }
+      if (model->data(index, PipelineModel::Roles::PipelineModifiedRole).toBool())
+      {
+        pipelineName.append("*");
+      }
+      painter->drawText(rect.x() + textMargin, rect.y() + fontMargin + fontHeight, pipelineName);
+    }
+  }
+
+  painter->restore();
 }
 
 // -----------------------------------------------------------------------------
@@ -98,50 +361,43 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
 QSize SVPipelineTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   QSize size = QStyledItemDelegate::sizeHint(option, index);
-
-  const PipelineModel* model = getPipelineModel(index);
-  if (static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt()) == PipelineItem::ItemType::PipelineRoot)
-  {
-    return QSize(size.width(), 28);
-  }
-
-  return size;
+  return QSize(size.width(), 20);
 }
 
-//// -----------------------------------------------------------------------------
-////
-//// -----------------------------------------------------------------------------
-//QString SVPipelineTreeViewDelegate::getFilterIndexString(const QModelIndex &index) const
-//{
-//  const PipelineModel* model = getPipelineModel(index);
-//  int numFilters = model->rowCount();
-//  int i = index.row() + 1;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString SVPipelineTreeViewDelegate::getFilterIndexString(const QModelIndex &index) const
+{
+  const PipelineModel* model = getPipelineModel(index);
+  int numFilters = model->rowCount();
+  int i = index.row() + 1;
 
-//  if(numFilters < 10)
-//  {
-//    numFilters = 11;
-//  }
-//  QString numStr = QString::number(i);
+  if(numFilters < 10)
+  {
+    numFilters = 11;
+  }
+  QString numStr = QString::number(i);
 
-//  if(numFilters > 9)
-//  {
-//    int mag = 0;
-//    int max = numFilters;
-//    while(max > 0)
-//    {
-//      mag++;
-//      max = max / 10;
-//    }
-//    numStr = "";             // Clear the string
-//    QTextStream ss(&numStr); // Create a QTextStream to set up the padding
-//    ss.setFieldWidth(mag);
-//    ss.setPadChar('0');
-//    ss << i;
-//  }
-//  QString paddedIndex = numStr;
+  if(numFilters > 9)
+  {
+    int mag = 0;
+    int max = numFilters;
+    while(max > 0)
+    {
+      mag++;
+      max = max / 10;
+    }
+    numStr = "";             // Clear the string
+    QTextStream ss(&numStr); // Create a QTextStream to set up the padding
+    ss.setFieldWidth(mag);
+    ss.setPadChar('0');
+    ss << i;
+  }
+  QString paddedIndex = numStr;
 
-//  return paddedIndex;
-//}
+  return paddedIndex;
+}
 
 // -----------------------------------------------------------------------------
 //

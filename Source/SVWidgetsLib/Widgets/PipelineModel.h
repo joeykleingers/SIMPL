@@ -66,9 +66,16 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
       ItemTypeRole,
       ExpandedRole,
       PipelinePathRole,
+      PipelineModifiedRole
     };
 
     SIMPL_SET_PROPERTY(bool, UseModelDisplayText)
+
+    /**
+     * @brief savePipeline
+     * @param pipelineRootIndex
+     */
+    bool savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineName);
 
     /**
      * @brief updateActivePipeline

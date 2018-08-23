@@ -113,6 +113,10 @@ void AddFilterToPipelineCommand::redo()
     m_CreatedPipeline = true;
   }
 
+  QModelIndex rootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+  m_PreviousModifiedState = m_PipelineModel->data(rootIndex, PipelineModel::Roles::PipelineModifiedRole).toBool();
+  m_PipelineModel->setData(rootIndex, true, PipelineModel::Roles::PipelineModifiedRole);
+
   m_Pipeline->insert(m_InsertIndex, m_Filters);
 
   QString statusMessage = getStatusMessage();
@@ -151,6 +155,11 @@ void AddFilterToPipelineCommand::undo()
   if (m_CreatedPipeline == true)
   {
     m_Pipeline = FilterPipeline::NullPointer();
+  }
+  else
+  {
+    QModelIndex rootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+    m_PipelineModel->setData(rootIndex, m_PreviousModifiedState, PipelineModel::Roles::PipelineModifiedRole);
   }
 
   QString statusMessage = getStatusMessage();

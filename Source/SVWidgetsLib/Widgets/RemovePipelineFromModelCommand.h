@@ -68,6 +68,7 @@ private:
   int m_RemovalRow = -1;
   bool m_FirstRun = true;
   bool m_ValidCommand = true;
+  bool m_PreviousModifiedState = false;
 
   const QString m_StatusMessage = "Removed '%1' pipeline at root index %2";
 

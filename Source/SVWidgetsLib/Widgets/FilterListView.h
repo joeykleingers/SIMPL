@@ -42,13 +42,14 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
+#include "SVWidgetsLib/Widgets/SVControlWidgets.h"
 
 class FilterListModel;
 
 /**
  * @brief The FilterListView class
  */
-class SVWidgetsLib_EXPORT FilterListView : public QTreeView
+class SVWidgetsLib_EXPORT FilterListView : public SVTreeView
 {
     Q_OBJECT
 

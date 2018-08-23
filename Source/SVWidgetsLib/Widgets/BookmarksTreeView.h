@@ -45,6 +45,7 @@
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QTreeWidgetItem>
 
+#include "SVWidgetsLib/Widgets/SVControlWidgets.h"
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
 #include "SVWidgetsLib/Widgets/BookmarksModel.h"
@@ -54,7 +55,7 @@ class PipelineBuilderWidget;
 class QAction;
 class QTreeWidgetItem;
 
-class SVWidgetsLib_EXPORT BookmarksTreeView : public QTreeView
+class SVWidgetsLib_EXPORT BookmarksTreeView : public SVTreeView
 {
     Q_OBJECT
 

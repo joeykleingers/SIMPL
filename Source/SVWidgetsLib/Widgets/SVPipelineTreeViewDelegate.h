@@ -67,17 +67,17 @@ class SVWidgetsLib_EXPORT SVPipelineTreeViewDelegate : public QStyledItemDelegat
       Unknown
     };
 
-//    SVPipelineTreeView* m_View = nullptr;
+    SVPipelineTreeView* m_View = nullptr;
 //    int m_MousePressIndex = -1;
 //    HoverItem m_CurrentlyHoveredItem = HoverItem::Unknown;
-//    const qreal m_BorderSize = 1;
+    const qreal m_BorderSize = 1;
 
-//    /**
-//     * @brief Gets the proper filter index string that refers to the specified index
-//     * @param index
-//     * @return
-//     */
-//    QString getFilterIndexString(const QModelIndex &index) const;
+    /**
+     * @brief Gets the proper filter index string that refers to the specified index
+     * @param index
+     * @return
+     */
+    QString getFilterIndexString(const QModelIndex &index) const;
 
     /**
      * @brief Convenience method to get the PipelineModel instance

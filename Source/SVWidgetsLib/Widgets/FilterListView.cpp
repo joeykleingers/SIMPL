@@ -57,7 +57,7 @@
 //
 // -----------------------------------------------------------------------------
 FilterListView::FilterListView(QWidget* parent)
-: QTreeView(parent)
+: SVTreeView(parent)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
 
