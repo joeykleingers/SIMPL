@@ -51,8 +51,7 @@ class SVWidgetsLib_EXPORT SVPipelineViewDelegate : public QStyledItemDelegate
 
   public:    
     explicit SVPipelineViewDelegate(SVPipelineView* view);
-
-    virtual ~SVPipelineViewDelegate();
+    ~SVPipelineViewDelegate() override;
 
     QPixmap createPixmap(const QModelIndex &index) const;
 

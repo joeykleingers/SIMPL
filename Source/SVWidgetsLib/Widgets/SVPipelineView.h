@@ -84,7 +84,7 @@ public:
   using IndexedFilterObject = std::pair<int, PipelineFilterObject*>;
 
   SVPipelineView(QWidget* parent = nullptr);
-  virtual ~SVPipelineView();
+  ~SVPipelineView() override;
 
   /**
    * @brief filterCount

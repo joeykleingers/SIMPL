@@ -86,7 +86,7 @@ class SVWidgetsLib_EXPORT BookmarksTreeView : public SVTreeView
     /**
     * @brief ~BookmarksTreeView()
     */
-    ~BookmarksTreeView();
+    ~BookmarksTreeView() override;
 
     /**
     * @brief setModel

@@ -63,7 +63,7 @@ class SVWidgetsLib_EXPORT FilterListView : public SVTreeView
     /**
     * @brief ~FilterListView()
     */
-    ~FilterListView();
+    ~FilterListView() override;
 
     enum class SearchGroup : unsigned int
     {
@@ -117,7 +117,7 @@ class SVWidgetsLib_EXPORT FilterListView : public SVTreeView
     /**
     * @brief Detect a key press
     */
-    void keyPressEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
 
     /**
     * @brief mousePressEvent

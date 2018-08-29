@@ -46,7 +46,7 @@ class SVWidgetsLib_EXPORT PipelineFilterMimeData : public QMimeData
 
   public:
     PipelineFilterMimeData();
-    virtual ~PipelineFilterMimeData();
+    ~PipelineFilterMimeData() override;
 
     typedef std::pair<AbstractFilter::Pointer, int> FilterDragMetadata;
 

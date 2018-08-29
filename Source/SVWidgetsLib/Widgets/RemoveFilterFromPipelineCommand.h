@@ -58,9 +58,9 @@ public:
   RemoveFilterFromPipelineCommand(std::vector<AbstractFilter::Pointer> filters, FilterPipeline::Pointer pipeline, PipelineModel* pipelineModel, QUndoCommand* parent = nullptr);
   virtual ~RemoveFilterFromPipelineCommand();
 
-  virtual void undo();
+  void undo() override;
 
-  virtual void redo();
+  void redo() override;
 
 signals:
   void pipelineChanged(FilterPipeline::Pointer pipeline);
