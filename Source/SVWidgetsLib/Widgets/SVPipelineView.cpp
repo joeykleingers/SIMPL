@@ -123,7 +123,6 @@ void SVPipelineView::setupGui()
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
   setFocusPolicy(Qt::StrongFocus);
-  setDropIndicatorShown(false);
 
   SVPipelineViewDelegate* delegate = new SVPipelineViewDelegate(this);
   setItemDelegate(delegate);

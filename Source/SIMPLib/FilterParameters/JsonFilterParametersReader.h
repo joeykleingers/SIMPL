@@ -95,6 +95,14 @@ class SIMPLib_EXPORT JsonFilterParametersReader : public AbstractFilterParameter
      FilterPipeline::Pointer readPipelineFromString(QString contents, IObserver* obs = nullptr);
 
      /**
+      * @brief readPipelineFromObject
+      * @param obj
+      * @param obs
+      * @return
+      */
+     FilterPipeline::Pointer readPipelineFromObject(QJsonObject obj, IObserver* obs = nullptr);
+
+     /**
       * @brief Gets the name of the pipeline from a pipeline file
       * @param filePath The absolute path to the pipeline file.
       * @param name Sets the name of the pipeline into this variable

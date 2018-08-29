@@ -90,11 +90,6 @@ class SVWidgetsLib_EXPORT PipelineView
     int writePipeline(const QModelIndex &pipelineRootIndex, const QString &outputPath);
 
     /**
-     * @brief Copies the currently selected filters from the current model into the system clipboard
-     */
-    void copySelectedFilters();
-
-    /**
      * @brief getActionUndo
      * @return
      */
@@ -244,16 +239,40 @@ class SVWidgetsLib_EXPORT PipelineView
     void cutFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex);
 
     /**
-     * @brief Pastes multiple filters from the system clipboard to the current model
-     * @param insertIndex
+     * @brief cutPipeline
+     * @param pipeline
      */
-    void pasteFilters(int insertIndex = -1);
+    void cutPipeline(FilterPipeline::Pointer pipeline);
+
+    /**
+     * @brief cutPipeline
+     * @param pipelineRootIndex
+     */
+    void cutPipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
+     * @brief Copies the currently selected filters from the current model into the system clipboard
+     */
+    void copySelection();
 
     /**
      * @brief Pastes multiple filters from the system clipboard to the current model
      * @param insertIndex
      */
-    void pasteFilters(const QModelIndex &pipelineRootIndex, int insertIndex = -1);
+    void pasteFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex = -1);
+
+    /**
+     * @brief Pastes multiple filters from the system clipboard to the current model
+     * @param insertIndex
+     */
+    void pasteFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex = -1);
+
+    /**
+     * @brief pastePipeline
+     * @param pipeline
+     * @param insertIndex
+     */
+    void pastePipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
 
     /**
      * @brief savePipeline

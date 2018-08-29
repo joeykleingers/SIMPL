@@ -35,6 +35,8 @@
 
 #include "PipelineView.h"
 
+#include <QtCore/QJsonDocument>
+
 #include <QtGui/QClipboard>
 
 #include <QtWidgets/QApplication>
@@ -136,7 +138,7 @@ void PipelineView::addFilterFromClassName(const QString& filterClassName, const 
 {
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->addFilterFromClassName(filterClassName, insertIndex, pipelineRootIndex);
+    m_PipelineViewController->addFilterFromClassName(filterClassName, pipelineRootIndex, insertIndex);
   }
 }
 
@@ -159,7 +161,7 @@ void PipelineView::addFilter(AbstractFilter::Pointer filter, const QModelIndex &
 {
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->addFilter(filter, insertIndex, pipelineRootIndex);
+    m_PipelineViewController->addFilter(filter, pipelineRootIndex, insertIndex);
   }
 }
 
@@ -182,7 +184,7 @@ void PipelineView::addFilters(std::vector<AbstractFilter::Pointer> filters, cons
 {
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->addFilters(filters, insertIndex, pipelineRootIndex);
+    m_PipelineViewController->addFilters(filters, pipelineRootIndex, insertIndex);
   }
 }
 
@@ -317,6 +319,28 @@ void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void PipelineView::cutPipeline(FilterPipeline::Pointer pipeline)
+{
+  if(m_PipelineViewController)
+  {
+    m_PipelineViewController->cutPipeline(pipeline);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::cutPipeline(const QModelIndex &pipelineRootIndex)
+{
+  if(m_PipelineViewController)
+  {
+    m_PipelineViewController->cutPipeline(pipelineRootIndex);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex)
 {
   if(m_PipelineViewController)
@@ -328,23 +352,34 @@ void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters, cons
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineView::pasteFilters(int insertIndex)
+void PipelineView::pasteFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex)
 {
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    pasteFilters(model->getActivePipeline(), insertIndex);
+    pasteFilters(filters, model->getActivePipeline(), insertIndex);
   }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineView::pasteFilters(const QModelIndex &pipelineRootIndex, int insertIndex)
+void PipelineView::pasteFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex)
 {
   if(m_PipelineViewController)
   {
-    m_PipelineViewController->pasteFilters(insertIndex, pipelineRootIndex);
+    m_PipelineViewController->pasteFilters(filters, pipelineRootIndex, insertIndex);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::pastePipeline(FilterPipeline::Pointer pipeline, int insertIndex)
+{
+  if(m_PipelineViewController)
+  {
+    m_PipelineViewController->pastePipeline(pipeline, insertIndex);
   }
 }
 
@@ -508,20 +543,12 @@ int PipelineView::writePipeline(const QModelIndex& pipelineRootIndex, const QStr
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineView::copySelectedFilters()
+void PipelineView::copySelection()
 {
-  FilterPipeline::Pointer pipeline = FilterPipeline::New();
-  std::vector<AbstractFilter::Pointer> filters = getSelectedFilters();
-  for(int i = 0; i < filters.size(); i++)
+  if(m_PipelineViewController)
   {
-    pipeline->pushBack(filters[i]);
+    return m_PipelineViewController->copySelection();
   }
-
-  JsonFilterParametersWriter::Pointer jsonWriter = JsonFilterParametersWriter::New();
-  QString jsonString = jsonWriter->writePipelineToString(pipeline, "Pipeline");
-
-  QClipboard* clipboard = QApplication::clipboard();
-  clipboard->setText(jsonString);
 }
 
 // -----------------------------------------------------------------------------
@@ -560,7 +587,14 @@ std::vector<AbstractFilter::Pointer> PipelineView::getSelectedFilters()
   PipelineModel* model = getPipelineModel();
   for(int i = 0; i < selectedIndexes.size(); i++)
   {
-    AbstractFilter::Pointer filter = model->filter(selectedIndexes[i]);
+    QModelIndex selectedIndex = selectedIndexes[i];
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(selectedIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType != PipelineItem::ItemType::Filter)
+    {
+      continue;
+    }
+
+    AbstractFilter::Pointer filter = model->filter(selectedIndex);
     filters.push_back(filter);
   }
 

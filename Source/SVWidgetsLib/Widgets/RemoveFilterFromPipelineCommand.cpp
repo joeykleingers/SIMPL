@@ -97,6 +97,10 @@ void RemoveFilterFromPipelineCommand::redo()
     }
   }
 
+  QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+  m_PreviousModifiedState = m_PipelineModel->data(pipelineRootIndex, PipelineModel::Roles::PipelineModifiedRole).toBool();
+  m_PipelineModel->setData(pipelineRootIndex, true, PipelineModel::Roles::PipelineModifiedRole);
+
   QString statusMessage = getStatusMessage();
 
   if(m_FirstRun == false)
@@ -130,6 +134,9 @@ void RemoveFilterFromPipelineCommand::undo()
     AbstractFilter::Pointer filter = m_Filters[i];
     m_Pipeline->insert(m_RemovalRows[i], filter);
   }
+
+  QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
+  m_PipelineModel->setData(pipelineRootIndex, m_PreviousModifiedState, PipelineModel::Roles::PipelineModifiedRole);
 
   QString statusMessage = getStatusMessage();
 

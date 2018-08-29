@@ -145,12 +145,7 @@ void AddFilterToPipelineCommand::undo()
     return;
   }
 
-  int count = m_Filters.size();
-  while (count > 0)
-  {
-    m_Pipeline->erase(m_InsertIndex);
-    count--;
-  }
+  m_Pipeline->erase(m_InsertIndex, m_Filters.size());
 
   if (m_CreatedPipeline == true)
   {

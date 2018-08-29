@@ -293,6 +293,19 @@ FilterPipeline::Pointer JsonFilterParametersReader::readPipelineFromString(QStri
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+FilterPipeline::Pointer JsonFilterParametersReader::readPipelineFromObject(QJsonObject obj, IObserver* obs)
+{
+  m_Root = obj;
+
+  FilterPipeline::Pointer pipeline = readPipeline(obs);
+  closeFile();
+
+  return pipeline;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 FilterPipeline::Pointer JsonFilterParametersReader::readPipeline(IObserver* obs)
 {
   FilterManager* filtManager = FilterManager::Instance();

@@ -78,18 +78,24 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
 
   PipelineModel* model = m_View->getPipelineModel();
 
-  painter->save();
-
   painter->setRenderHint(QPainter::Antialiasing);
 
   PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(model->data(index, PipelineModel::WidgetStateRole).toInt());
   PipelineItem::PipelineState pState = static_cast<PipelineItem::PipelineState>(model->data(index, PipelineModel::PipelineStateRole).toInt());
   PipelineItem::ErrorState eState = static_cast<PipelineItem::ErrorState>(model->data(index, PipelineModel::ErrorStateRole).toInt());
 
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
+
   AbstractFilter::Pointer filter = model->filter(index);
   QColor grpColor;
-  if (filter.get() != nullptr)
+
+  if (itemType == PipelineItem::ItemType::Filter)
   {
+    if (filter.get() == nullptr)
+    {
+      return;
+    }
+
     QString grpName = filter->getGroupName();
     grpColor = SVStyle::Instance()->GetFilterBackgroundColor();
   }
@@ -191,7 +197,6 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
     labelColor = m_View->palette().color(QPalette::HighlightedText);
   }
 
-  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
   if (itemType == PipelineItem::ItemType::DropIndicator)
   {
     indexBackgroundColor = k_DropIndicatorIndexBackgroundColor;
@@ -351,8 +356,6 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
       painter->drawText(rect.x() + textMargin, rect.y() + fontMargin + fontHeight, pipelineName);
     }
   }
-
-  painter->restore();
 }
 
 // -----------------------------------------------------------------------------

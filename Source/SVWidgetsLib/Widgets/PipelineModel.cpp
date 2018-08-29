@@ -287,8 +287,8 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
       disconnect(oldFilter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
     }
 
-    disconnect(oldTempPipeline.get(), &FilterPipeline::filterWasAdded, nullptr, nullptr);
-    disconnect(oldTempPipeline.get(), &FilterPipeline::filterWasRemoved, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereAdded, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereRemoved, nullptr, nullptr);
   }
 
   if (pipeline != FilterPipeline::NullPointer())
@@ -316,18 +316,28 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
       emit preflightTriggered(pipelineRootIndex);
     }
 
-    // Connection that automatically updates the model when a filter gets added to the FilterPipeline
-    connect(pipeline.get(), &FilterPipeline::filterWasAdded, [=] (AbstractFilter::Pointer filter, int index) {
-      insertRow(index, pipelineRootIndex);
-      QModelIndex filterIndex = this->index(index, PipelineItem::Contents, pipelineRootIndex);
-      addFilterData(filter, filterIndex);
+    connect(pipeline.get(), &FilterPipeline::filtersWereAdded, [=] (std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices) {
+      if (filters.size() != indices.size())
+      {
+        return;
+      }
+
+      for (int i = 0; i < filters.size(); i++)
+      {
+        insertFilter(filters[i], indices[i], pipelineRootIndex);
+      }
       emit clearIssuesTriggered();
       emit preflightTriggered(pipelineRootIndex);
     });
 
     // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
-    connect(pipeline.get(), &FilterPipeline::filterWasRemoved, [=] (int index) {
-      removeRow(index, pipelineRootIndex);
+    connect(pipeline.get(), &FilterPipeline::filtersWereRemoved, [=] (std::vector<size_t> indices) {
+      size_t offset = 0;
+      for (int i = 0; i < indices.size(); i++)
+      {
+        removeRow(indices[i] - offset, pipelineRootIndex);
+        offset++;
+      }
       emit clearIssuesTriggered();
       emit preflightTriggered(pipelineRootIndex);
     });
@@ -341,6 +351,16 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
   }
 
   return true;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::insertFilter(AbstractFilter::Pointer filter, int index, const QModelIndex &pipelineRootIndex)
+{
+  insertRow(index, pipelineRootIndex);
+  QModelIndex filterIndex = this->index(index, PipelineItem::Contents, pipelineRootIndex);
+  addFilterData(filter, filterIndex);
 }
 
 // -----------------------------------------------------------------------------
@@ -381,7 +401,10 @@ AbstractFilter::Pointer PipelineModel::filter(const QModelIndex &index) const
     QModelIndex parentIndex = index.parent();
     FilterPipeline::Pointer pipeline = tempPipeline(parentIndex);
     FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
-    return container[index.row()];
+    if (index.row() < container.size())
+    {
+      return container[index.row()];
+    }
   }
 
   return AbstractFilter::NullPointer();
@@ -549,13 +572,9 @@ Qt::ItemFlags PipelineModel::flags(const QModelIndex& index) const
     return Qt::ItemIsDropEnabled;
   }
 
-  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsDragEnabled;
+  Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
 
-  PipelineItem* item = getItem(index);
-//  if (item->getItemType() == PipelineItem::ItemType::Filter)
-//  {
-    itemFlags = itemFlags | Qt::ItemIsSelectable;
-//  }
+  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
 
   return itemFlags;
 }

@@ -119,6 +119,8 @@ public:
   virtual void insert(size_t index, AbstractFilter::Pointer f);
   virtual void insert(size_t index, std::vector<AbstractFilter::Pointer> filters);
   virtual void erase(size_t index);
+  virtual void erase(std::vector<size_t> indices);
+  virtual void erase(size_t start, size_t count);
   virtual void clear();
   virtual size_t size();
   virtual bool empty();
@@ -222,11 +224,11 @@ signals:
   void pipelineWasEdited();
 
   /**
-   * @brief The signal is emitted when a filter is added to the FilterPipeline
-   * @param filter The filter that was added
-   * @param index The index in the FilterPipeline where the filter is located
+   * @brief The signal is emitted when filters are added to the FilterPipeline
+   * @param filters The filters that were added
+   * @param indices The indices in the FilterPipeline where the filters are located
    */
-  void filterWasAdded(AbstractFilter::Pointer filter, int index);
+  void filtersWereAdded(std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices);
 
   /**
    * @brief The signal is emitted when a filter is edited in the FilterPipeline
@@ -236,10 +238,10 @@ signals:
   void filterWasEdited(AbstractFilter::Pointer filter, int index);
 
   /**
-   * @brief The signal is emitted when a filter is removed from the FilterPipeline
-   * @param index The index in the FilterPipeline where the filter was originally located
+   * @brief The signal is emitted when filters are removed from the FilterPipeline
+   * @param indices The indices in the FilterPipeline where the filters were originally located
    */
-  void filterWasRemoved(int index);
+  void filtersWereRemoved(std::vector<size_t> indices);
 
   /**
   * @brief This signal is emitted when the pipeline name changes

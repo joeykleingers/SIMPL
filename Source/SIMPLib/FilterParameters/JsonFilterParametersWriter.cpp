@@ -107,6 +107,20 @@ QString JsonFilterParametersWriter::writePipelineToString(FilterPipeline::Pointe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QJsonObject JsonFilterParametersWriter::writePipelineToObject(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver*> obs)
+{
+  populateWriter(pipeline, pipelineName, obs);
+
+  QJsonDocument doc = toDocument();
+
+  clearWriter();
+
+  return doc.object();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 int JsonFilterParametersWriter::populateWriter(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver*> obs)
 {
   if(nullptr == pipeline.get())

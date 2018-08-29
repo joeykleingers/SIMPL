@@ -321,7 +321,12 @@ void FilterPipeline::pushFront(AbstractFilter::Pointer f)
   m_Pipeline.push_front(f);
   updatePrevNextFilters();
   emit pipelineWasEdited();
-  emit filterWasAdded(f, 0);
+
+  std::vector<AbstractFilter::Pointer> filters;
+  filters.push_back(f);
+  std::vector<size_t> indices;
+  indices.push_back(0);
+  emit filtersWereAdded(filters, indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -331,7 +336,10 @@ void FilterPipeline::popFront()
   m_Pipeline.pop_front();
   updatePrevNextFilters();
   emit pipelineWasEdited();
-  emit filterWasRemoved(0);
+
+  std::vector<size_t> indices;
+  indices.push_back(0);
+  emit filtersWereRemoved(indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -341,7 +349,12 @@ void FilterPipeline::pushBack(AbstractFilter::Pointer f)
   m_Pipeline.push_back(f);
   updatePrevNextFilters();
   emit pipelineWasEdited();
-  emit filterWasAdded(f, m_Pipeline.size() - 1);
+
+  std::vector<AbstractFilter::Pointer> filters;
+  filters.push_back(f);
+  std::vector<size_t> indices;
+  indices.push_back(m_Pipeline.size() - 1);
+  emit filtersWereAdded(filters, indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -351,7 +364,10 @@ void FilterPipeline::popBack()
   m_Pipeline.pop_back();
   updatePrevNextFilters();
   emit pipelineWasEdited();
-  emit filterWasRemoved(m_Pipeline.size());
+
+  std::vector<size_t> indices;
+  indices.push_back(m_Pipeline.size());
+  emit filtersWereRemoved(indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -366,19 +382,30 @@ void FilterPipeline::insert(size_t index, AbstractFilter::Pointer f)
   m_Pipeline.insert(it, f);
   updatePrevNextFilters();
   emit pipelineWasEdited();
-  emit filterWasAdded(f, index);
+
+  std::vector<AbstractFilter::Pointer> filters;
+  filters.push_back(f);
+  std::vector<size_t> indices;
+  indices.push_back(index);
+  emit filtersWereAdded(filters, indices);
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void FilterPipeline::insert(size_t index, std::vector<AbstractFilter::Pointer> filters)
 {
+  blockSignals(true);
+  std::vector<size_t> indices;
   int insertPos = index;
   for(size_t i = 0; i < filters.size(); ++i)
   {
     insert(insertPos, filters[i]);
+    indices.push_back(insertPos);
     insertPos++;
   }
+  blockSignals(false);
+  emit pipelineWasEdited();
+  emit filtersWereAdded(filters, indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -393,26 +420,70 @@ void FilterPipeline::erase(size_t index)
   m_Pipeline.erase(it);
   updatePrevNextFilters();
   emit pipelineWasEdited();
-  emit filterWasRemoved(index);
+
+  std::vector<size_t> indices;
+  indices.push_back(index);
+  emit filtersWereRemoved(indices);
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void FilterPipeline::erase(std::vector<size_t> indices)
+{
+  blockSignals(true);
+  size_t offset = 0;
+  for(size_t i = 0; i < indices.size(); i++)
+  {
+    erase(indices[i] - offset);
+    offset++;
+  }
+  blockSignals(false);
+
+  emit pipelineWasEdited();
+  emit filtersWereRemoved(indices);
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void FilterPipeline::erase(size_t start, size_t count)
+{
+  if (start > m_Pipeline.size() - 1 || count == 0)
+  {
+    return;
+  }
+
+  std::vector<size_t> indices;
+
+  blockSignals(true);
+  size_t offset = 0;
+  for(size_t i = start; i < start + count && start + count - offset - 1 < m_Pipeline.size(); i++)
+  {
+    erase(i - offset);
+    indices.push_back(i);
+    offset++;
+  }
+  blockSignals(false);
+
+  emit pipelineWasEdited();
+  emit filtersWereRemoved(indices);
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void FilterPipeline::clear()
 {
-  int count = m_Pipeline.size();
+  int index = 0;
+  std::vector<size_t> indices;
   for(FilterContainerType::iterator iter = m_Pipeline.begin(); iter != m_Pipeline.end(); ++iter)
   {
     (*iter)->setPreviousFilter(AbstractFilter::NullPointer());
     (*iter)->setNextFilter(AbstractFilter::NullPointer());
+    indices.push_back(index);
+    index++;
   }
   m_Pipeline.clear();
 
-  for (int i = 0; i < count; i++)
-  {
-    emit filterWasRemoved(0);
-  }
-
+  emit filtersWereRemoved(indices);
   emit pipelineWasEdited();
 }
 // -----------------------------------------------------------------------------
@@ -453,19 +524,25 @@ AbstractFilter::Pointer FilterPipeline::removeFirstFilterByName(const QString& n
 {
   AbstractFilter::Pointer f = AbstractFilter::NullPointer();
   int index = 0;
+  std::vector<size_t> indices;
   for(FilterContainerType::iterator it = m_Pipeline.begin(); it != m_Pipeline.end(); ++it)
   {
     if((*it)->getHumanLabel().compare(name) == 0)
     {
       f = *it;
       m_Pipeline.erase(it);
-      emit filterWasRemoved(index);
+      indices.push_back(index);
       break;
     }
     index++;
   }
   updatePrevNextFilters();
   emit pipelineWasEdited();
+
+  if (indices.empty() == false)
+  {
+    emit filtersWereRemoved(indices);
+  }
 
   return f;
 }

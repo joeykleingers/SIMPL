@@ -158,6 +158,12 @@ protected:
   void connectSignalsSlots();
 
   /**
+   * @brief paintEvent
+   * @param event
+   */
+  void paintEvent(QPaintEvent* event) override;
+
+  /**
    * @brief beginDrag
    * @param event
    */
@@ -183,7 +189,6 @@ private:
 
   bool m_PipelineRunning = false;
 
-  QUndoCommand* m_MoveCommand = nullptr;
   QPoint m_DragStartPosition;
   QModelIndex m_DropIndicatorIndex;
 
@@ -200,7 +205,7 @@ private:
    * @param text
    * @param insertIndex
    */
-  void addDropIndicator(const QString& text, int insertIndex);
+  void addDropIndicator(const QString& text, const QModelIndex &pipelineRootIndex, int insertIndex);
 
   /**
    * @brief removeDropIndicator

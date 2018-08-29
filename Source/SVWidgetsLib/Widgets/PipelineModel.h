@@ -199,6 +199,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     QColor getForegroundColor(const QModelIndex &index) const;
 
+    void insertFilter(AbstractFilter::Pointer filter, int index, const QModelIndex &pipelineRootIndex);
+
     void addFilterData(AbstractFilter::Pointer filter, const QModelIndex &filterIndex);
 
     void setActivePipeline(const QModelIndex &index);

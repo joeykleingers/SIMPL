@@ -253,19 +253,40 @@ bool PipelineViewController::savePipelineAs(const QModelIndex &pipelineRootIndex
 void PipelineViewController::updatePasteAvailability()
 {
   QClipboard* clipboard = QApplication::clipboard();
-  QString text = clipboard->text();
+  QString jsonString = clipboard->text();
+  if (jsonString.isEmpty())
+  {
+    return;
+  }
 
-  JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
-  FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromString(text);
+  QJsonParseError parseError;
+  QByteArray byteArray = QByteArray::fromStdString(jsonString.toStdString());
+  QJsonDocument doc = QJsonDocument::fromJson(byteArray, &parseError);
+  if(parseError.error != QJsonParseError::NoError)
+  {
+    return;
+  }
+  QJsonArray pipelinesArray = doc.array();
 
-  if(text.isEmpty() || FilterPipeline::NullPointer() == pipeline)
+  if (pipelinesArray.size() <= 0)
   {
     m_ActionPaste->setDisabled(true);
+    return;
   }
-  else
+
+  JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
+  for (int i = 0; i < pipelinesArray.size(); i++)
   {
-    m_ActionPaste->setEnabled(true);
+    QJsonObject obj = pipelinesArray[i].toObject();
+    FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromObject(obj);
+    if(FilterPipeline::NullPointer() == pipeline)
+    {
+      m_ActionPaste->setDisabled(true);
+      return;
+    }
   }
+
+  m_ActionPaste->setEnabled(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -274,18 +295,6 @@ void PipelineViewController::updatePasteAvailability()
 void PipelineViewController::connectSignalsSlots()
 {
   QObject::connect(m_ActionClearPipeline, &QAction::triggered, [=] { m_PipelineView->clearPipeline(); });
-
-  QObject::connect(m_ActionCut, &QAction::triggered, [=] {
-    m_PipelineView->copySelectedFilters();
-
-    std::vector<AbstractFilter::Pointer> filters = m_PipelineView->getSelectedFilters();
-    m_PipelineView->cutFilters(filters);
-  });
-
-  QObject::connect(m_ActionCopy, &QAction::triggered, [=] { m_PipelineView->copySelectedFilters(); });
-  QObject::connect(m_ActionPaste, &QAction::triggered, [=] {
-    m_PipelineView->pasteFilters();
-  });
 
 //  connect(this, &PipelineViewController::pipelineFilePathUpdated, [=](const QString& name) { m_CurrentPipelineFilePath = name; });
 
@@ -299,10 +308,44 @@ void PipelineViewController::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 void PipelineViewController::listenCutTriggered()
 {
-  m_PipelineView->copySelectedFilters();
+  m_PipelineView->copySelection();
 
-  std::vector<AbstractFilter::Pointer> filters = m_PipelineView->getSelectedFilters();
-  m_PipelineView->cutFilters(filters);
+  QJsonArray pipelineArray;
+  QModelIndexList selectedIndexes = m_PipelineView->getSelectedRows();
+
+  QMultiMap<QModelIndex, AbstractFilter::Pointer> cutFilterMap;
+  for (int i = 0; i < selectedIndexes.size(); i++)
+  {
+    QModelIndex selectedIndex = selectedIndexes[i];
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(m_PipelineModel->data(selectedIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType == PipelineItem::ItemType::PipelineRoot)
+    {
+      m_PipelineView->cutPipeline(selectedIndex);
+    }
+    else
+    {
+      AbstractFilter::Pointer filter = m_PipelineModel->filter(selectedIndex);
+      cutFilterMap.insert(selectedIndex.parent(), filter);
+    }
+  }
+
+  QModelIndexList pipelineRootIndexes = cutFilterMap.keys();
+  if (pipelineRootIndexes.size() > 0)
+  {
+    m_UndoStack->beginMacro(tr("\"Cut %1 Filters\""));
+    for (int i = 0; i < pipelineRootIndexes.size(); i++)
+    {
+      QModelIndex pipelineRootIndex = pipelineRootIndexes[i];
+      QList<AbstractFilter::Pointer> filters = cutFilterMap.values(pipelineRootIndex);
+      std::vector<AbstractFilter::Pointer> filterVector;
+      for (int j = 0; j < filters.size(); j++)
+      {
+        filterVector.push_back(filters[j]);
+      }
+      m_PipelineView->cutFilters(filterVector, pipelineRootIndex);
+    }
+    m_UndoStack->endMacro();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -310,15 +353,84 @@ void PipelineViewController::listenCutTriggered()
 // -----------------------------------------------------------------------------
 void PipelineViewController::listenCopyTriggered()
 {
-  m_PipelineView->copySelectedFilters();
+  m_PipelineView->copySelection();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void PipelineViewController::listenPasteTriggered()
-{
-  m_PipelineView->pasteFilters();
+{  
+  QClipboard* clipboard = QApplication::clipboard();
+  QString jsonString = clipboard->text();
+  if (jsonString.isEmpty())
+  {
+    return;
+  }
+
+  QJsonParseError parseError;
+  QByteArray byteArray = QByteArray::fromStdString(jsonString.toStdString());
+  QJsonDocument doc = QJsonDocument::fromJson(byteArray, &parseError);
+  if(parseError.error != QJsonParseError::NoError)
+  {
+    return;
+  }
+  QJsonArray pipelinesArray = doc.array();
+
+  if (pipelinesArray.size() == 1)
+  {
+    QJsonObject pipelineObj = pipelinesArray[0].toObject();
+    bool hasPipelineRootNode = pipelineObj["Pipeline Root Node"].toBool();
+    if (hasPipelineRootNode)
+    {
+      QJsonObject meta = pipelineObj[SIMPL::Settings::PipelineBuilderGroup].toObject();
+      m_UndoStack->beginMacro(tr("\"Paste pipeline '%1'\"").arg(meta[SIMPL::Settings::PipelineName].toString()));
+    }
+    else
+    {
+      JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
+      FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromObject(pipelineObj);
+      FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+      if (pipeline->size() > 1)
+      {
+        m_UndoStack->beginMacro(tr("\"Paste '%1'\"").arg(container[0]->getHumanLabel()));
+      }
+      else
+      {
+        m_UndoStack->beginMacro(tr("\"Paste %1 filters\"").arg(pipeline->size()));
+      }
+    }
+  }
+  else
+  {
+    m_UndoStack->beginMacro(tr("\"Paste %1 pipelines\"").arg(pipelinesArray.size()));
+  }
+
+  JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
+  for (int i = 0; i < pipelinesArray.size(); i++)
+  {
+    QJsonObject obj = pipelinesArray[i].toObject();
+    bool hasPipelineRootNode = obj["Pipeline Root Node"].toBool();
+    FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromObject(obj);
+
+    if (hasPipelineRootNode)
+    {
+      m_PipelineView->pastePipeline(pipeline);
+    }
+    else
+    {
+      FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+      std::vector<AbstractFilter::Pointer> filters;
+      for(int i = 0; i < container.size(); i++)
+      {
+        filters.push_back(container[i]);
+      }
+
+      m_PipelineView->pasteFilters(filters);
+    }
+  }
+
+  m_UndoStack->endMacro();
 }
 
 // -----------------------------------------------------------------------------
@@ -340,7 +452,7 @@ void PipelineViewController::addPipelineMessageObserver(QObject* pipelineMessage
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::addFilterFromClassName(const QString& filterClassName, int insertIndex, const QModelIndex &pipelineRootIndex, QString actionText)
+void PipelineViewController::addFilterFromClassName(const QString& filterClassName, const QModelIndex &pipelineRootIndex, int insertIndex, QString actionText)
 {
   if (m_PipelineModel)
   {
@@ -351,7 +463,7 @@ void PipelineViewController::addFilterFromClassName(const QString& filterClassNa
       if(factory.get() != nullptr)
       {
         AbstractFilter::Pointer filter = factory->create();
-        addFilter(filter, insertIndex, pipelineRootIndex, actionText);
+        addFilter(filter, pipelineRootIndex, insertIndex, actionText);
       }
     }
   }
@@ -360,17 +472,17 @@ void PipelineViewController::addFilterFromClassName(const QString& filterClassNa
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::addFilter(AbstractFilter::Pointer filter, int insertIndex, const QModelIndex &pipelineRootIndex, QString actionText)
+void PipelineViewController::addFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex, int insertIndex, QString actionText)
 {
   std::vector<AbstractFilter::Pointer> filters;
   filters.push_back(filter);
-  addFilters(filters, insertIndex, pipelineRootIndex, actionText);
+  addFilters(filters, pipelineRootIndex, insertIndex, actionText);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> filters, int insertIndex, const QModelIndex &pipelineRootIndex, QString actionText)
+void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex, QString actionText)
 {
   if (m_PipelineModel)
   {
@@ -407,11 +519,11 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
         AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, insertIndex, m_PipelineModel);
         if(filters.size() == 1)
         {
-          cmd->setText(QObject::tr("\"%1 '%2' to pipeline '%3'\"").arg(actionText).arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
+          cmd->setText(QObject::tr("\"%1 '%2' to '%3'\"").arg(actionText).arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
         }
         else
         {
-          cmd->setText(QObject::tr("\"%1 %2 filters to pipeline '%3'\"").arg(actionText).arg(filters.size()).arg(pipeline->getName()));
+          cmd->setText(QObject::tr("\"%1 %2 filters to '%3'\"").arg(actionText).arg(filters.size()).arg(pipeline->getName()));
         }
         addUndoCommand(cmd);
       }
@@ -484,11 +596,11 @@ void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> 
           RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, m_PipelineModel);
           if(filters.size() == 1)
           {
-            cmd->setText(QObject::tr("\"%1 '%2' from pipeline '%3'\"").arg(actionText).arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
+            cmd->setText(QObject::tr("\"%1 '%2' from '%3'\"").arg(actionText).arg(filters[0]->getHumanLabel()).arg(pipeline->getName()));
           }
           else
           {
-            cmd->setText(QObject::tr("\"%1 %2 filters from pipeline '%3'\"").arg(actionText).arg(filters.size()).arg(pipeline->getName()));
+            cmd->setText(QObject::tr("\"%1 %2 filters from '%3'\"").arg(actionText).arg(filters.size()).arg(pipeline->getName()));
           }
           addUndoCommand(cmd);
         }
@@ -558,22 +670,76 @@ void PipelineViewController::cutFilters(std::vector<AbstractFilter::Pointer> fil
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::pasteFilters(int insertIndex, const QModelIndex &pipelineRootIndex)
+void PipelineViewController::cutPipeline(FilterPipeline::Pointer pipeline)
 {
-  QClipboard* clipboard = QApplication::clipboard();
-  QString jsonString = clipboard->text();
+  removePipeline(pipeline, "Cut");
+}
 
-  JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
-  FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromString(jsonString);
-  FilterPipeline::FilterContainerType container = pipeline->getFilterContainer();
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::cutPipeline(const QModelIndex &pipelineRootIndex)
+{
+  removePipeline(pipelineRootIndex, "Cut");
+}
 
-  std::vector<AbstractFilter::Pointer> filters;
-  for(int i = 0; i < container.size(); i++)
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::copySelection()
+{
+  QJsonArray pipelineArray;
+  QModelIndexList selectedIndexes = m_PipelineView->getSelectedRows();
+
+  JsonFilterParametersWriter::Pointer jsonWriter = JsonFilterParametersWriter::New();
+  FilterPipeline::Pointer filtersPipeline = FilterPipeline::New();
+  for (int i = 0; i < selectedIndexes.size(); i++)
   {
-    filters.push_back(container[i]);
+    QModelIndex selectedIndex = selectedIndexes[i];
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(m_PipelineModel->data(selectedIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType == PipelineItem::ItemType::PipelineRoot)
+    {
+      FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(selectedIndex);
+      QString filePath = m_PipelineModel->data(selectedIndex, PipelineModel::Roles::PipelinePathRole).toString();
+      QJsonObject obj = jsonWriter->writePipelineToObject(pipeline, pipeline->getName());
+      obj["Pipeline Root Node"] = true;
+      pipelineArray.push_back(obj);
+    }
+    else
+    {
+      AbstractFilter::Pointer filter = m_PipelineModel->filter(selectedIndex);
+      filtersPipeline->pushBack(filter);
+    }
   }
 
-  addFilters(filters, insertIndex, pipelineRootIndex, "Paste");
+  if (filtersPipeline->size() > 0)
+  {
+    QJsonObject obj = jsonWriter->writePipelineToObject(filtersPipeline, "Untitled");
+    obj["Pipeline Root Node"] = false;
+    pipelineArray.push_back(obj);
+  }
+
+  QJsonDocument doc(pipelineArray);
+  QString jsonString = QString::fromStdString(doc.toJson().toStdString());
+
+  QClipboard* clipboard = QApplication::clipboard();
+  clipboard->setText(jsonString);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::pasteFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex)
+{
+  addFilters(filters, pipelineRootIndex, insertIndex, "Paste");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::pastePipeline(FilterPipeline::Pointer pipeline, int insertIndex)
+{
+  addPipeline(pipeline, insertIndex, "", "Paste");
 }
 
 // -----------------------------------------------------------------------------
@@ -829,7 +995,7 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
           DataContainerReader::Pointer reader = DataContainerReader::New();
           reader->setInputFile(filePath);
 
-          addFilter(reader, insertIndex, pipelineRootIndex);
+          addFilter(reader, pipelineRootIndex, insertIndex);
           return true;
         }
       }
@@ -865,7 +1031,7 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
         filters.push_back(pipelineFilters[i]);
       }
 
-      addFilters(filters, insertIndex, pipelineRootIndex);
+      addFilters(filters, pipelineRootIndex, insertIndex);
     }
 
     emit pipelineFilePathUpdated(filePath);
@@ -1204,6 +1370,19 @@ void PipelineViewController::addUndoCommand(QUndoCommand* cmd)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void PipelineViewController::addUndoCommandMacro(std::vector<QUndoCommand*> cmds, const QString &cmdText)
+{
+  m_UndoStack->beginMacro(cmdText);
+  for (int i = 0; i < cmds.size(); i++)
+  {
+    m_UndoStack->push(cmds[i]);
+  }
+  m_UndoStack->endMacro();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void PipelineViewController::setupUndoStack()
 {
   m_UndoStack = QSharedPointer<QUndoStack>(new QUndoStack());
@@ -1245,16 +1424,16 @@ QMenu* PipelineViewController::getFilterItemContextMenu(const QModelIndex& index
   menu->addAction(m_ActionCopy);
   menu->addSeparator();
 
-  QAction* actionPasteAbove = new QAction("Paste Above");
-  QAction* actionPasteBelow = new QAction("Paste Below");
+//  QAction* actionPasteAbove = new QAction("Paste Above");
+//  QAction* actionPasteBelow = new QAction("Paste Below");
 
-  QObject::connect(actionPasteAbove, &QAction::triggered, [=] { pasteFilters(index.row()); });
+//  QObject::connect(actionPasteAbove, &QAction::triggered, [=] { pasteFilters(index.parent(), index.row()); });
 
-  QObject::connect(actionPasteBelow, &QAction::triggered, [=] { pasteFilters(index.row() + 1); });
+//  QObject::connect(actionPasteBelow, &QAction::triggered, [=] { pasteFilters(index.parent(), index.row() + 1); });
 
-  menu->addAction(actionPasteAbove);
-  menu->addAction(actionPasteBelow);
-  menu->addSeparator();
+//  menu->addAction(actionPasteAbove);
+//  menu->addAction(actionPasteBelow);
+//  menu->addSeparator();
 
   int count = selectedIndexes.size();
   bool widgetEnabled = true;
@@ -1306,7 +1485,7 @@ QMenu* PipelineViewController::getFilterItemContextMenu(const QModelIndex& index
     removeAction = new QAction("Delete Filter", menu);
     QObject::connect(removeAction, &QAction::triggered, [=] {
       AbstractFilter::Pointer filter = m_PipelineModel->filter(index);
-      removeFilter(filter);
+      removeFilter(filter, index.parent());
     });
   }
   else
@@ -1326,7 +1505,7 @@ QMenu* PipelineViewController::getFilterItemContextMenu(const QModelIndex& index
         filters.push_back(filter);
       }
 
-      removeFilters(filters);
+      removeFilters(filters, index.parent());
     });
   }
   removeAction->setShortcuts(shortcutList);

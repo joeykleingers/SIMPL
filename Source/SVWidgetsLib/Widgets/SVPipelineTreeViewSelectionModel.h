@@ -1,5 +1,5 @@
 /* ============================================================================
-* Copyright (c) 2017 BlueQuartz Software, LLC
+* Copyright (c) 2009-2016 BlueQuartz Software, LLC
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
@@ -25,36 +25,61 @@
 * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* The code contained herein was partially funded by the followig contracts:
+*    United States Air Force Prime Contract FA8650-07-D-5800
+*    United States Air Force Prime Contract FA8650-10-D-5210
+*    United States Prime Contract Navy N00173-07-C-2068
+*
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
-#include <QtCore/QMimeData>
-
-#include <QtWidgets/QUndoCommand>
-
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
-#include "SIMPLib/Filtering/AbstractFilter.h"
-
-#include "SVWidgetsLib/Widgets/PipelineViewController.h"
-
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
-class SVWidgetsLib_EXPORT PipelineFilterMimeData : public QMimeData
+#include <QtCore/QItemSelectionModel>
+
+class PipelineModel;
+
+/**
+ * @brief The SVPipelineTreeViewSelectionModel class primarily exists so that
+ * it is not possible to select filter indexes and pipeline root indexes at the same time
+ */
+class SVWidgetsLib_EXPORT SVPipelineTreeViewSelectionModel : public QItemSelectionModel
 {
     Q_OBJECT
 
   public:
-    PipelineFilterMimeData();
-    virtual ~PipelineFilterMimeData();
+    /**
+   * @brief SVPipelineTreeViewSelectionModel
+   * @param parent
+   */
+    SVPipelineTreeViewSelectionModel(PipelineModel* model);
 
-    typedef std::pair<AbstractFilter::Pointer, int> FilterDragMetadata;
+    /**
+  * @brief Destructor
+  * @return
+  */
+    virtual ~SVPipelineTreeViewSelectionModel();
 
-    SIMPL_INSTANCE_PROPERTY(std::vector<FilterDragMetadata>, FilterDragData)
-    SIMPL_POINTER_PROPERTY(PipelineViewController, SourceController)
-    SIMPL_POINTER_PROPERTY(QUndoCommand, SourceUndoCommand)
+    /**
+     * @brief QItemSelectionModel::select
+     * @param index
+     * @param command
+     */
+    void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command) override;
+
+    /**
+     * @brief select
+     * @param selection
+     * @param command
+     */
+    void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command) override;
 
   private:
-    PipelineFilterMimeData(const PipelineFilterMimeData&) = delete; // Copy Constructor Not Implemented
-    void operator=(const PipelineFilterMimeData&) = delete;  // Operator '=' Not Implemented
+    PipelineModel* m_PipelineModel = nullptr;
+
+    SVPipelineTreeViewSelectionModel(const SVPipelineTreeViewSelectionModel&) = delete; // Copy Constructor Not Implemented
+    void operator=(const SVPipelineTreeViewSelectionModel&) = delete;     // Move assignment Not Implemented
 };
+
