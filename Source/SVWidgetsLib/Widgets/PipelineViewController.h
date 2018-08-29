@@ -159,25 +159,25 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param index
      * @return
      */
-    QMenu* getFilterItemContextMenu(const QModelIndex& index);
+    void getFilterItemContextMenu(QMenu &menu, const QModelIndex& index);
 
     /**
      * @brief requestPipelineContextMenu
      * @param pos
      */
-    QMenu* getPipelineItemContextMenu(const QModelIndex &index);
+    void getPipelineItemContextMenu(QMenu &menu, const QModelIndex &index);
 
     /**
      * @brief requestErrorHandlingContextMenu
      * @param menu
      */
-    void addErrorHandlingContextMenu(QMenu* menu);
+    void addErrorHandlingContextMenu(QMenu &menu);
 
     /**
      * @brief requestDefaultContextMenu
      * @param pos
      */
-    QMenu* getDefaultContextMenu();
+    void getDefaultContextMenu(QMenu &menu);
 
   public slots:
     /**
@@ -404,6 +404,29 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @brief setupControllerActions
      */
     void setupControllerActions();
+
+    /**
+     * @brief handleActionPasteAbove
+     */
+    void handleActionPasteAbove(QJsonArray pipelinesArray, const QModelIndex &index);
+
+    /**
+     * @brief handleActionPasteBelow
+     */
+    void handleActionPasteBelow(QJsonArray pipelinesArray, const QModelIndex& index);
+
+    /**
+     * @brief getPipelinesArrayFromClipboard
+     * @return
+     */
+    QJsonArray getPipelinesArrayFromClipboard();
+
+    /**
+     * @brief getPipelineFromClipboard
+     * @param index
+     * @return
+     */
+    FilterPipeline::Pointer getPipelineFromClipboard(size_t index);
 
     /**
      * @brief setPipelineToReadyState

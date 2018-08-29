@@ -72,7 +72,7 @@ private:
   FilterPipeline::Pointer m_Pipeline;
   PipelineModel* m_PipelineModel = nullptr;
   std::vector<AbstractFilter::Pointer> m_Filters;
-  std::vector<int> m_RemovalRows;
+  std::vector<size_t> m_Indices;
   bool m_FirstRun = true;
   bool m_PreviousModifiedState = false;
 

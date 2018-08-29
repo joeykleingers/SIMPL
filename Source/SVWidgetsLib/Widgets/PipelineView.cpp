@@ -547,7 +547,7 @@ void PipelineView::copySelection()
 {
   if(m_PipelineViewController)
   {
-    return m_PipelineViewController->copySelection();
+    m_PipelineViewController->copySelection();
   }
 }
 

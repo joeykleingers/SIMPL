@@ -58,14 +58,26 @@ RemoveFilterFromPipelineCommand::RemoveFilterFromPipelineCommand(std::vector<Abs
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
 , m_PipelineModel(pipelineModel)
-, m_Filters(filters)
 {
+  QMap<size_t, AbstractFilter::Pointer> map;
   FilterPipeline::FilterContainerType container = m_Pipeline->getFilterContainer();
-  for (int i = 0; i < m_Filters.size(); i++)
+  for (int i = 0; i < filters.size(); i++)
   {
-    AbstractFilter::Pointer filter = m_Filters[i];
+    AbstractFilter::Pointer filter = filters[i];
     int index = container.indexOf(filter);
-    m_RemovalRows.push_back(index);
+    map.insert(index, filter);
+  }
+
+  QList<size_t> keys = map.keys();
+  for (int i = 0; i < keys.size(); i++)
+  {
+    m_Indices.push_back(keys[i]);
+  }
+
+  QList<AbstractFilter::Pointer> values = map.values();
+  for (int i = 0; i < values.size(); i++)
+  {
+    m_Filters.push_back(values[i]);
   }
 
   connect(this, &RemoveFilterFromPipelineCommand::statusMessageGenerated, m_PipelineModel, &PipelineModel::statusMessage);
@@ -87,15 +99,7 @@ void RemoveFilterFromPipelineCommand::redo()
     return;
   }
 
-  for (int i = 0; i < m_Filters.size(); i++)
-  {
-    AbstractFilter::Pointer filter = m_Filters[i];
-    int index = m_Pipeline->findFilterPosition(filter);
-    if (index >= 0)
-    {
-      m_Pipeline->erase(index);
-    }
-  }
+  m_Pipeline->erase(m_Indices);
 
   QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
   m_PreviousModifiedState = m_PipelineModel->data(pipelineRootIndex, PipelineModel::Roles::PipelineModifiedRole).toBool();
@@ -129,11 +133,15 @@ void RemoveFilterFromPipelineCommand::undo()
     return;
   }
 
+  m_Pipeline->blockSignals(true);
   for (int i = 0; i < m_Filters.size(); i++)
   {
-    AbstractFilter::Pointer filter = m_Filters[i];
-    m_Pipeline->insert(m_RemovalRows[i], filter);
+    m_Pipeline->insert(m_Indices[i], m_Filters[i]);
   }
+  m_Pipeline->blockSignals(false);
+
+  emit m_Pipeline->pipelineWasEdited();
+  emit m_Pipeline->filtersWereAdded(m_Filters, m_Indices);
 
   QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
   m_PipelineModel->setData(pipelineRootIndex, m_PreviousModifiedState, PipelineModel::Roles::PipelineModifiedRole);
@@ -155,11 +163,11 @@ QString RemoveFilterFromPipelineCommand::getStatusMessage()
   QString statusMessage;
   if(m_Filters.size() > 1)
   {
-    statusMessage = QObject::tr(m_MultipleFiltersStatusMsg.toStdString().c_str()).arg(m_Filters.size()).arg(m_RemovalRows[0] + 1).arg(m_Pipeline->getName());
+    statusMessage = QObject::tr(m_MultipleFiltersStatusMsg.toStdString().c_str()).arg(m_Filters.size()).arg(m_Indices[0] + 1).arg(m_Pipeline->getName());
   }
   else
   {
-    statusMessage = QObject::tr(m_SingleFilterStatusMsg.toStdString().c_str()).arg(m_Filters[0]->getHumanLabel()).arg(m_RemovalRows[0] + 1).arg(m_Pipeline->getName());
+    statusMessage = QObject::tr(m_SingleFilterStatusMsg.toStdString().c_str()).arg(m_Filters[0]->getHumanLabel()).arg(m_Indices[0] + 1).arg(m_Pipeline->getName());
   }
   return statusMessage;
 }

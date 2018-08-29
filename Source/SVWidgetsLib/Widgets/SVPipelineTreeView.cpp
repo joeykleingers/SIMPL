@@ -668,21 +668,21 @@ void SVPipelineTreeView::requestContextMenu(const QPoint& pos)
 
   if(getPipelineViewController())
   {
+    QMenu menu;
     if(itemType == PipelineItem::ItemType::Filter)
     {
-      QMenu* menu = getPipelineViewController()->getFilterItemContextMenu(index);
-      menu->exec(mapped);
+      getPipelineViewController()->getFilterItemContextMenu(menu, index);
     }
     else if(itemType == PipelineItem::ItemType::PipelineRoot)
     {
-      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu(index);
-      menu->exec(mapped);
+      getPipelineViewController()->getPipelineItemContextMenu(menu, index);
     }
     else
     {
-      QMenu* menu = getPipelineViewController()->getDefaultContextMenu();
-      menu->exec(mapped);
+      getPipelineViewController()->getDefaultContextMenu(menu);
     }
+
+    menu.exec(mapped);
   }
 }
 

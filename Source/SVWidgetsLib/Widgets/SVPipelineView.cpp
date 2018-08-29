@@ -903,20 +903,21 @@ void SVPipelineView::requestContextMenu(const QPoint& pos)
 
   if(getPipelineViewController())
   {
+    QMenu menu;
     if(itemType == PipelineItem::ItemType::Filter)
     {
-      QMenu* menu = getPipelineViewController()->getFilterItemContextMenu(index);
-      menu->exec(pos);
+      getPipelineViewController()->getFilterItemContextMenu(menu, index);
+      menu.exec(pos);
     }
     else if(itemType == PipelineItem::ItemType::PipelineRoot)
     {
-      QMenu* menu = getPipelineViewController()->getPipelineItemContextMenu(index);
-      menu->exec(pos);
+      getPipelineViewController()->getPipelineItemContextMenu(menu, index);
+      menu.exec(pos);
     }
     else
     {
-      QMenu* menu = getPipelineViewController()->getDefaultContextMenu();
-      menu->exec(pos);
+      getPipelineViewController()->getDefaultContextMenu(menu);
+      menu.exec(pos);
     }
   }
 }
