@@ -326,8 +326,12 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
       {
         insertFilter(filters[i], indices[i], pipelineRootIndex);
       }
-      emit clearIssuesTriggered();
-      emit preflightTriggered(pipelineRootIndex);
+
+      if (getActivePipeline() == pipelineRootIndex)
+      {
+        emit clearIssuesTriggered();
+        emit preflightTriggered(pipelineRootIndex);
+      }
     });
 
     // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
@@ -338,8 +342,12 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
         removeRow(indices[i] - offset, pipelineRootIndex);
         offset++;
       }
-      emit clearIssuesTriggered();
-      emit preflightTriggered(pipelineRootIndex);
+
+      if (getActivePipeline() == pipelineRootIndex)
+      {
+        emit clearIssuesTriggered();
+        emit preflightTriggered(pipelineRootIndex);
+      }
     });
 
     emit dataChanged(index, index);

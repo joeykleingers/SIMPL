@@ -75,6 +75,12 @@ class SVWidgetsLib_EXPORT PipelineView
     void addPipelineMessageObserver(QObject* pipelineMessageObserver);
 
     /**
+     * @brief filterCount
+     * @return
+     */
+    int filterCount(const QModelIndex &pipelineRootIndex);
+
+    /**
      * @brief openPipeline
      * @param filePath
      * @param insertIndex

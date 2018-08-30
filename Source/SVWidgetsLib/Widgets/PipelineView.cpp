@@ -92,6 +92,26 @@ void PipelineView::addPipelineMessageObserver(QObject* pipelineMessageObserver)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+int PipelineView::filterCount(const QModelIndex &pipelineRootIndex)
+{
+  PipelineModel* pipelineModel = getPipelineModel();
+  int count = 0;
+
+  for (int i = 0; i < pipelineModel->rowCount(); i++)
+  {
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(pipelineModel->data(pipelineRootIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType != PipelineItem::ItemType::Filter)
+    {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool PipelineView::arePipelinesRunning()
 {
   PipelineModel* pipelineModel = getPipelineModel();

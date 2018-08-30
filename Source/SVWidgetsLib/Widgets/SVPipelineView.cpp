@@ -212,21 +212,6 @@ QModelIndexList SVPipelineView::getSelectedRows()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineView::filterCount()
-{
-  PipelineModel* model = getPipelineModel();
-  int count = model->rowCount();
-  if(m_DropIndicatorIndex.isValid())
-  {
-    count--;
-  }
-
-  return count;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 QPixmap SVPipelineView::getDraggingPixmap(QModelIndexList indexes)
 {
   if(indexes.size() <= 0)
@@ -487,7 +472,7 @@ void SVPipelineView::dragMoveEvent(QDragMoveEvent* event)
     if(mousePos.y() > lastIndexRect.y())
     {
       // The drag is occurring in an empty space at the end of the view
-      dropIndicatorRow = filterCount();
+      dropIndicatorRow = filterCount(m_PipelineRootIndex);
     }
     else
     {
@@ -552,7 +537,7 @@ void SVPipelineView::dragLeaveEvent(QDragLeaveEvent* event)
 // -----------------------------------------------------------------------------
 int SVPipelineView::findNextRow(const QPoint& pos)
 {
-  if(filterCount() == 0)
+  if(filterCount(m_PipelineRootIndex) == 0)
   {
     return 0;
   }
@@ -578,7 +563,7 @@ int SVPipelineView::findNextRow(const QPoint& pos)
   }
   else
   {
-    nextRow = filterCount();
+    nextRow = filterCount(m_PipelineRootIndex);
   }
 
   return nextRow;
@@ -589,7 +574,7 @@ int SVPipelineView::findNextRow(const QPoint& pos)
 // -----------------------------------------------------------------------------
 int SVPipelineView::findPreviousRow(const QPoint& pos)
 {
-  if(filterCount() == 0)
+  if(filterCount(m_PipelineRootIndex) == 0)
   {
     return 0;
   }

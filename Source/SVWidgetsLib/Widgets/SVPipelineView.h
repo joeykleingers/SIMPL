@@ -87,12 +87,6 @@ public:
   ~SVPipelineView() override;
 
   /**
-   * @brief filterCount
-   * @return
-   */
-  int filterCount();
-
-  /**
    * @brief openPipeline
    * @param filePath
    * @param insertIndex

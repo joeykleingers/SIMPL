@@ -35,66 +35,23 @@
 
 #pragma once
 
-#include <stack>
-#include <vector>
-
-#include <QtCore/QSharedPointer>
-
-#include <QtGui/QPainter>
-
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QTreeView>
-#include <QtWidgets/QStatusBar>
-#include <QtWidgets/QTableWidget>
-#include <QtWidgets/QTextEdit>
-#include <QtWidgets/QUndoCommand>
-#include <QtWidgets/QVBoxLayout>
 
-#include "SIMPLib/Common/PipelineMessage.h"
-#include "SIMPLib/CoreFilters/DataContainerReader.h"
-#include "SIMPLib/FilterParameters/H5FilterParametersReader.h"
-#include "SIMPLib/FilterParameters/H5FilterParametersWriter.h"
+#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
-#include "SVWidgetsLib/QtSupport/QtSFileDragMessageBox.h"
 #include "SVWidgetsLib/SVWidgetsLib.h"
 #include "SVWidgetsLib/Widgets/PipelineView.h"
 
-class QScrollArea;
-class QContextMenuEvent;
-class QLabel;
-class QEvent;
-class QMenu;
-class QAction;
-class PipelineFilterObject;
-class DataStructureWidget;
-class PipelineModel;
-class QSignalMapper;
-class PipelineViewController;
-
-/*
- *
+/**
+ * @brief The SVPipelineTreeView class
  */
 class SVWidgetsLib_EXPORT SVPipelineTreeView : public QTreeView, public PipelineView
 {
   Q_OBJECT
 
 public:
-  SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
-
   SVPipelineTreeView(QWidget* parent = nullptr);
   virtual ~SVPipelineTreeView();
-
-  /**
-   * @brief addPipelineMessageObserver
-   * @param pipelineMessageObserver
-   */
-  void addPipelineMessageObserver(QObject* pipelineMessageObserver);
-
-  /**
-   * @brief filterCount
-   * @return
-   */
-  int filterCount();
 
   /**
    * @brief openPipeline
@@ -109,48 +66,6 @@ public:
    * @param model
    */
   void setModel(QAbstractItemModel* model) override;
-
-  /**
-   * @brief getPipelineModel
-   * @return
-   */
-  PipelineModel* getPipelineModel();
-
-  /**
-   * @brief isPipelineCurrentlyRunning
-   * @return
-   */
-  bool isPipelineCurrentlyRunning();
-
-signals:
-  void pipelineFinished();
-
-  void pipelineDataChanged();
-
-  void filePathOpened(const QString& filePath);
-
-  void filterInputWidgetNeedsCleared();
-
-  void filterEnabledStateChanged();
-
-  void displayIssuesTriggered();
-  void clearIssuesTriggered();
-
-  void writeSIMPLViewSettingsTriggered();
-
-  void addPlaceHolderFilter(QPoint p);
-  void removePlaceHolderFilter();
-
-  void filterParametersChanged(AbstractFilter::Pointer filter);
-
-  void pipelineStarted();
-
-  void pipelineHasMessage(const PipelineMessage& msg);
-  void pipelineFilePathUpdated(const QString& name);
-  void pipelineChanged();
-
-  void statusMessage(const QString& message);
-  void stdOutMessage(const QString& message);
 
 protected:
   void setupGui();
@@ -172,22 +87,10 @@ protected:
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
   void dragMoveEvent(QDragMoveEvent* event) override;
-  void dragEnterEvent(QDragEnterEvent* event) override;
-  void dragLeaveEvent(QDragLeaveEvent* event) override;
   void dropEvent(QDropEvent* event) override;
-  void keyPressEvent(QKeyEvent* event) override;
-
-protected slots:
-  /**
-   * @brief requestContextMenu
-   * @param pos
-   */
-  void requestContextMenu(const QPoint& pos);
 
 private:
   QVector<DataContainerArray::Pointer> m_PreflightDataContainerArrays;
-
-  bool m_PipelineRunning = false;
 
   QPoint m_DragStartPosition;
   QModelIndex m_DropIndicatorIndex;
@@ -199,18 +102,6 @@ private:
    * @return
    */
   QModelIndexList getSelectedRows() override;
-
-  /**
-   * @brief addDropIndicator
-   * @param text
-   * @param insertIndex
-   */
-  void addDropIndicator(const QString& text, const QModelIndex &pipelineRootIndex, int insertIndex);
-
-  /**
-   * @brief removeDropIndicator
-   */
-  void removeDropIndicator();
 
   /**
    * @brief getDraggingPixmap
