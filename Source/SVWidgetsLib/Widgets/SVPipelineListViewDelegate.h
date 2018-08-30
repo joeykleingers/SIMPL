@@ -41,17 +41,17 @@
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
-class SVPipelineView;
+class SVPipelineListView;
 class QPushButton;
 class PipelineModel;
 
-class SVWidgetsLib_EXPORT SVPipelineViewDelegate : public QStyledItemDelegate
+class SVWidgetsLib_EXPORT SVPipelineListViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
   public:    
-    explicit SVPipelineViewDelegate(SVPipelineView* view);
-    ~SVPipelineViewDelegate() override;
+    explicit SVPipelineListViewDelegate(SVPipelineListView* view);
+    ~SVPipelineListViewDelegate() override;
 
     QPixmap createPixmap(const QModelIndex &index) const;
 
@@ -69,7 +69,7 @@ class SVWidgetsLib_EXPORT SVPipelineViewDelegate : public QStyledItemDelegate
       Unknown
     };
 
-    SVPipelineView* m_View = nullptr;
+    SVPipelineListView* m_View = nullptr;
     int m_MousePressIndex = -1;
     HoverItem m_CurrentlyHoveredItem = HoverItem::Unknown;
     const qreal m_BorderSize = 1;
@@ -88,6 +88,6 @@ class SVWidgetsLib_EXPORT SVPipelineViewDelegate : public QStyledItemDelegate
      */
     const PipelineModel* getPipelineModel(const QModelIndex &index) const;
 
-    SVPipelineViewDelegate(const SVPipelineViewDelegate&) = delete; // Copy Constructor Not Implemented
-    void operator=(const SVPipelineViewDelegate&) = delete;        // Operator '=' Not Implemented
+    SVPipelineListViewDelegate(const SVPipelineListViewDelegate&) = delete; // Copy Constructor Not Implemented
+    void operator=(const SVPipelineListViewDelegate&) = delete;        // Operator '=' Not Implemented
 };

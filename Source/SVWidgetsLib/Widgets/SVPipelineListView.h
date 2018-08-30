@@ -74,7 +74,7 @@ class PipelineViewController;
 /*
  *
  */
-class SVWidgetsLib_EXPORT SVPipelineView : public QListView, public PipelineView
+class SVWidgetsLib_EXPORT SVPipelineListView : public QListView, public PipelineView
 {
   Q_OBJECT
 
@@ -83,8 +83,8 @@ public:
 
   using IndexedFilterObject = std::pair<int, PipelineFilterObject*>;
 
-  SVPipelineView(QWidget* parent = nullptr);
-  ~SVPipelineView() override;
+  SVPipelineListView(QWidget* parent = nullptr);
+  ~SVPipelineListView() override;
 
   /**
    * @brief openPipeline
@@ -338,6 +338,6 @@ private:
    */
   QPixmap setPixmapColor(QPixmap pixmap, QColor pixmapColor);
 
-  SVPipelineView(const SVPipelineView&) = delete; // Copy Constructor Not Implemented
-  void operator=(const SVPipelineView&) = delete; // Move assignment Not Implemented
+  SVPipelineListView(const SVPipelineListView&) = delete; // Copy Constructor Not Implemented
+  void operator=(const SVPipelineListView&) = delete; // Move assignment Not Implemented
 };

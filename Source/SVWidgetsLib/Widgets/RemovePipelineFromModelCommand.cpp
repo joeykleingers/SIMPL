@@ -38,7 +38,7 @@
 #include "SVWidgetsLib/Animations/PipelineItemSlideAnimation.h"
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
-#include "SVWidgetsLib/Widgets/SVPipelineView.h"
+#include "SVWidgetsLib/Widgets/SVPipelineListView.h"
 
 // -----------------------------------------------------------------------------
 //

@@ -40,9 +40,9 @@
 #include <QtWidgets/QStylePainter>
 
 #include "SVWidgetsLib/Widgets/PipelineItem.h"
-#include "SVWidgetsLib/Widgets/SVPipelineViewDelegate.h"
+#include "SVWidgetsLib/Widgets/SVPipelineListViewDelegate.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
-#include "SVWidgetsLib/Widgets/SVPipelineView.h"
+#include "SVWidgetsLib/Widgets/SVPipelineListView.h"
 #include "SVWidgetsLib/Widgets/SVStyle.h"
 
 namespace {
@@ -57,7 +57,7 @@ namespace {
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineViewDelegate::SVPipelineViewDelegate(SVPipelineView* view)
+SVPipelineListViewDelegate::SVPipelineListViewDelegate(SVPipelineListView* view)
   : QStyledItemDelegate(nullptr)
   , m_View(view)
 {
@@ -67,12 +67,12 @@ SVPipelineViewDelegate::SVPipelineViewDelegate(SVPipelineView* view)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineViewDelegate::~SVPipelineViewDelegate() = default;
+SVPipelineListViewDelegate::~SVPipelineListViewDelegate() = default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
   PipelineModel* model = m_View->getPipelineModel();
   if (model->isPipelineRootItem(index))
@@ -203,7 +203,7 @@ void SVPipelineViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem
 
     drawButtons = false;
   }
-  else if(m_View->getPipelineState() == SVPipelineView::PipelineViewState::Running)
+  else if(m_View->getPipelineState() == SVPipelineListView::PipelineViewState::Running)
   {
     drawButtons = false;
   }
@@ -411,7 +411,7 @@ void SVPipelineViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool SVPipelineViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem &option, const QModelIndex &index)
+bool SVPipelineListViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
   PipelineModel* pipelineModel = dynamic_cast<PipelineModel*>(model);
   if (pipelineModel->isPipelineRootItem(index))
@@ -479,13 +479,13 @@ bool SVPipelineViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* mode
         m_MousePressIndex = -1;
         //qDebug() << "Clicked the Pipeline Filter delete button on: " << index.data(Qt::DisplayRole).toString();
 
-        if(deleteBtnRect.contains(mouseEvent->pos()) && m_View->getPipelineState() != SVPipelineView::PipelineViewState::Running)
+        if(deleteBtnRect.contains(mouseEvent->pos()) && m_View->getPipelineState() != SVPipelineListView::PipelineViewState::Running)
         {
           AbstractFilter::Pointer filter = pipelineModel->filter(index);
           m_View->removeFilter(filter);
           return true;
         }
-        else if(disableBtnRect.contains(mouseEvent->pos()) && m_View->getPipelineState() != SVPipelineView::PipelineViewState::Running)
+        else if(disableBtnRect.contains(mouseEvent->pos()) && m_View->getPipelineState() != SVPipelineListView::PipelineViewState::Running)
         {
           AbstractFilter::Pointer filter = pipelineModel->filter(index);
           bool enabled = filter->getEnabled();
@@ -514,7 +514,7 @@ bool SVPipelineViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* mode
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QSize SVPipelineViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize SVPipelineListViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   QSize size = QStyledItemDelegate::sizeHint(option, index);
   return QSize(size.width(), 28);
@@ -523,7 +523,7 @@ QSize SVPipelineViewDelegate::sizeHint(const QStyleOptionViewItem &option, const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString SVPipelineViewDelegate::getFilterIndexString(const QModelIndex &index) const
+QString SVPipelineListViewDelegate::getFilterIndexString(const QModelIndex &index) const
 {
   const PipelineModel* model = getPipelineModel(index);
   int numFilters = model->rowCount();
@@ -558,7 +558,7 @@ QString SVPipelineViewDelegate::getFilterIndexString(const QModelIndex &index) c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineViewDelegate::createPixmap(const QModelIndex &index) const
+QPixmap SVPipelineListViewDelegate::createPixmap(const QModelIndex &index) const
 {
   QRect indexRect = m_View->visualRect(index);
 
@@ -582,7 +582,7 @@ QPixmap SVPipelineViewDelegate::createPixmap(const QModelIndex &index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const PipelineModel* SVPipelineViewDelegate::getPipelineModel(const QModelIndex &index) const
+const PipelineModel* SVPipelineListViewDelegate::getPipelineModel(const QModelIndex &index) const
 {
   return dynamic_cast<const PipelineModel*>(index.model());
 }
