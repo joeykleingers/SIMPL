@@ -54,7 +54,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
   public:
     SIMPL_TYPE_MACRO(PipelineModel)
 
-    PipelineModel(QObject* parent = 0);
+    PipelineModel(QObject* parent = nullptr);
+    PipelineModel(size_t maxPipelineCount, QObject* parent = nullptr);
 
     ~PipelineModel() override;
 
@@ -70,6 +71,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     };
 
     SIMPL_SET_PROPERTY(bool, UseModelDisplayText)
+
+    SIMPL_GET_PROPERTY(size_t, MaxPipelineCount)
 
     /**
      * @brief savePipeline
@@ -149,9 +152,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-    bool pipelineSaved(const QModelIndex &index);
-    void setPipelineSaved(const QModelIndex &index, bool saved);
-
     bool hasActivePipeline();
     QModelIndex getActivePipeline() const;
     void clearActivePipeline();
@@ -167,6 +167,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
   signals:
     void pipelineAdded(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
     void pipelineRemoved(FilterPipeline::Pointer pipeline);
+    void pipelineModified(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex, bool modified);
+    void pipelineSaved(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
 
     void statusMessage(const QString& message);
     void stdOutMessage(const QString& message);
@@ -192,6 +194,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
   private:
     PipelineItem*                       m_RootItem = nullptr;
     bool                                m_UseModelDisplayText = true;
+    size_t                              m_MaxPipelineCount = std::numeric_limits<size_t>::max();
 
     QPersistentModelIndex               m_ActivePipelineIndex;
 

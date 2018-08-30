@@ -59,6 +59,18 @@ PipelineModel::PipelineModel(QObject* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+PipelineModel::PipelineModel(size_t maxPipelineCount, QObject* parent)
+: QAbstractItemModel(parent)
+, m_MaxPipelineCount(maxPipelineCount)
+{
+  QVector<QVariant> vector;
+  vector.push_back("");
+  m_RootItem = new PipelineItem(vector);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 PipelineModel::~PipelineModel()
 {
   delete m_RootItem;
@@ -80,6 +92,8 @@ bool PipelineModel::savePipeline(const QModelIndex &pipelineRootIndex, const QSt
   item->setSavedPipeline(savedPipeline);
   tempPipeline->setName(pipelineName);
   savedPipeline->setName(pipelineName);
+
+  emit pipelineSaved(savedPipeline, pipelineRootIndex);
   return true;
 }
 
@@ -289,6 +303,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
 
     disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereAdded, nullptr, nullptr);
     disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereRemoved, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::pipelineWasEdited, nullptr, nullptr);
   }
 
   if (pipeline != FilterPipeline::NullPointer())
@@ -834,6 +849,7 @@ bool PipelineModel::setData(const QModelIndex& index, const QVariant& value, int
   else if (role == PipelineModel::Roles::PipelineModifiedRole)
   {
     item->setPipelineModified(value.toBool());
+    emit pipelineModified(item->getTempPipeline(), this->getPipelineRootIndexFromPipeline(item->getTempPipeline()), value.toBool());
   }
   else if (role == PipelineModel::Roles::ExpandedRole)
   {
@@ -936,26 +952,6 @@ void PipelineModel::listenFilterCompleted(AbstractFilter* filter)
   {
     setData(index, static_cast<int>(PipelineItem::ErrorState::Error), PipelineModel::ErrorStateRole);
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool PipelineModel::pipelineSaved(const QModelIndex &index)
-{
-  PipelineItem* item = getItem(index);
-  return item->isPipelineSaved();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineModel::setPipelineSaved(const QModelIndex &index, bool saved)
-{
-  PipelineItem* item = getItem(index);
-  item->setPipelineSaved(saved);
-
-  emit dataChanged(index, index);
 }
 
 // -----------------------------------------------------------------------------

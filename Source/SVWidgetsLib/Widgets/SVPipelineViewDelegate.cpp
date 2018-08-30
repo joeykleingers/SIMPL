@@ -416,7 +416,7 @@ bool SVPipelineViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* mode
   PipelineModel* pipelineModel = dynamic_cast<PipelineModel*>(model);
   if (pipelineModel->isPipelineRootItem(index))
   {
-    return SVPipelineViewDelegate::editorEvent(event, model, option, index);
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
   }
 
   QRect deleteBtnRect;

@@ -128,7 +128,7 @@ void SVPipelineView::setupGui()
   setItemDelegate(delegate);
 
   // Create the model
-  PipelineModel* model = new PipelineModel(this);
+  PipelineModel* model = new PipelineModel(1, this);
   model->setUseModelDisplayText(false);
 
   setModel(model);
@@ -141,13 +141,6 @@ void SVPipelineView::setupGui()
 // -----------------------------------------------------------------------------
 void SVPipelineView::connectSignalsSlots()
 {
-  connect(this, &SVPipelineView::customContextMenuRequested, this, &SVPipelineView::requestContextMenu);
-
-  connect(selectionModel(), &QItemSelectionModel::selectionChanged, [=](const QItemSelection& selected, const QItemSelection& deselected) {
-    Q_UNUSED(deselected)
-    getPipelineViewController()->setCutCopyEnabled(selected.size() > 0);
-  });
-
   connect(getPipelineViewController(), &PipelineViewController::pipelineStarted, [=] { setPipelineViewState(PipelineViewState::Running); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineCanceling, [=] { setPipelineViewState(PipelineViewState::Cancelling); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineFinished, [=] { setPipelineViewState(PipelineViewState::Idle); });
@@ -825,15 +818,14 @@ int SVPipelineView::openPipeline(const QString& filePath, int insertIndex)
   {
     QModelIndex originalPipelineRootIndex = m_PipelineRootIndex;
     err = getPipelineViewController()->openPipeline(filePath, m_PipelineRootIndex, insertIndex);
-    setRootIndex(m_PipelineRootIndex);
 
     if (err >= 0 && originalPipelineRootIndex.isValid() == false)
     {
       PipelineModel* model = getPipelineModel();
       if (model->rowCount() > 0)
       {
-        QModelIndex index = model->index(0, PipelineItem::PipelineItemData::Contents);
-        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+        QModelIndex index = model->index(0, PipelineItem::PipelineItemData::Contents, m_PipelineRootIndex);
+        selectionModel()->select(index, QItemSelectionModel::SelectCurrent);
       }
     }
   }
@@ -929,6 +921,11 @@ void SVPipelineView::setModel(QAbstractItemModel* model)
   {
     PipelineViewController* pipelineViewController = getPipelineViewController();
     pipelineViewController->setPipelineModel(pipelineModel);
+
+    connect(pipelineModel, &PipelineModel::pipelineAdded, [=](FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex) {
+      Q_UNUSED(pipeline)
+      setRootIndex(pipelineRootIndex);
+    });
   }
 }
 

@@ -481,7 +481,9 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
       pipeline = FilterPipeline::New();
       pipeline->insert(0, filters);
       pipeline->setName("Untitled");
-      addPipeline(pipeline, -1, actionText);
+      addPipeline(pipeline, -1, "", actionText);
+      QModelIndex index = m_PipelineModel->index(m_PipelineModel->rowCount() - 1, PipelineItem::Contents);
+      m_PipelineModel->setData(index, true, PipelineModel::Roles::PipelineModifiedRole);
       return;
     }
 
@@ -1005,6 +1007,7 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
     if (insertPipeline.get() == nullptr)
     {
       addPipeline(pipeline, -1, filePath);
+      pipelineRootIndex = m_PipelineModel->index(m_PipelineModel->rowCount() - 1, PipelineItem::Contents);
     }
     else
     {
@@ -1331,8 +1334,6 @@ void PipelineViewController::setPipelineModel(PipelineModel* model)
   m_PipelineModel = model;
 
   connect(m_PipelineModel, &PipelineModel::preflightTriggered, this, &PipelineViewController::preflightPipeline);
-
-  connect(m_ActionClearPipeline, &QAction::triggered, this, &PipelineViewController::listenClearPipelineTriggered);
 
   connect(m_PipelineModel, &PipelineModel::rowsInserted, [=] { m_ActionClearPipeline->setEnabled(true); });
 

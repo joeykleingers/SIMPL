@@ -98,10 +98,10 @@ class SVWidgetsLib_EXPORT PipelineItem
 
     enum class ItemType : EnumType
     {
+      Unknown,
       PipelineRoot,
       Filter,
-      DropIndicator,
-      Unknown
+      DropIndicator
     };
     SIMPL_INSTANCE_PROPERTY(ItemType, ItemType)
 
