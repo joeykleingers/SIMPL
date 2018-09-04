@@ -45,15 +45,6 @@
 #include "SVWidgetsLib/Widgets/SVPipelineTreeView.h"
 #include "SVWidgetsLib/Widgets/SVStyle.h"
 
-namespace {
-  const int k_ButtonSize = 24;
-  const int k_TextMargin = 4;
-
-  const QColor k_DropIndicatorWidgetBackgroundColor = QColor(150, 150, 150);
-  const QColor k_DropIndicatorIndexBackgroundColor = QColor(48, 48, 48);
-  const QColor k_DropIndicatorLabelColor = QColor(242, 242, 242);
-}
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -197,16 +188,7 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
     labelColor = m_View->palette().color(QPalette::HighlightedText);
   }
 
-  if (itemType == PipelineItem::ItemType::DropIndicator)
-  {
-    indexBackgroundColor = k_DropIndicatorIndexBackgroundColor;
-    widgetBackgroundColor = k_DropIndicatorWidgetBackgroundColor;
-    labelColor = k_DropIndicatorLabelColor;
-    indexFontColor = k_DropIndicatorLabelColor;
-
-    drawButtons = false;
-  }
-  else if(m_View->getPipelineState() == PipelineView::PipelineViewState::Running)
+  if(m_View->getPipelineState() == PipelineView::PipelineViewState::Running)
   {
     drawButtons = false;
   }
@@ -277,12 +259,7 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
   int allowableWidth = fullWidth;
 
   int humanLabelWidth = 0;
-  if (itemType == PipelineItem::ItemType::DropIndicator)
-  {
-    QString dropIndicatorText = model->dropIndicatorText(index);
-    humanLabelWidth = fontMetrics.width(dropIndicatorText);
-  }
-  else if (itemType == PipelineItem::ItemType::Filter)
+  if (itemType == PipelineItem::ItemType::Filter)
   {
     humanLabelWidth = fontMetrics.width(filter->getHumanLabel());
   }
@@ -321,12 +298,7 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
 
   if (fontHeight <= rect.height())
   {
-    if (itemType == PipelineItem::ItemType::DropIndicator)
-    {
-      QString text = model->dropIndicatorText(index);
-      painter->drawText(rect.x() + indexBoxWidth + textMargin, rect.y() + fontMargin + fontHeight, text);
-    }
-    else if (itemType == PipelineItem::ItemType::Filter)
+    if (itemType == PipelineItem::ItemType::Filter)
     {
       painter->setPen(QPen(indexBackgroundColor));
 

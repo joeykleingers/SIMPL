@@ -133,7 +133,6 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   }
 
   PipelineItem* item = getItem(index);
-  SVStyle* style = SVStyle::Instance();
 
   if (role == PipelineModel::Roles::WidgetStateRole)
   {
@@ -302,7 +301,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
     }
 
     disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereAdded, nullptr, nullptr);
-    disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereRemoved, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::aboutToRemoveFilters, nullptr, nullptr);
     disconnect(oldTempPipeline.get(), &FilterPipeline::pipelineWasEdited, nullptr, nullptr);
   }
 
@@ -350,7 +349,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
     });
 
     // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
-    connect(pipeline.get(), &FilterPipeline::filtersWereRemoved, [=] (std::vector<size_t> indices) {
+    connect(pipeline.get(), &FilterPipeline::aboutToRemoveFilters, [=] (std::vector<size_t> indices) {
       size_t offset = 0;
       for (int i = 0; i < indices.size(); i++)
       {
@@ -478,46 +477,6 @@ void PipelineModel::addFilterData(AbstractFilter::Pointer filter, const QModelIn
     emit preflightTriggered(filterIndex.parent());
     emit filterParametersChanged(filter);
   });
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString PipelineModel::dropIndicatorText(const QModelIndex &index) const
-{
-  if(!index.isValid())
-  {
-    return QString();
-  }
-
-  PipelineItem* item = getItem(index);
-  if (item == nullptr)
-  {
-    return QString();
-  }
-
-  return item->getDropIndicatorText();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineModel::setDropIndicatorText(const QModelIndex &index, const QString &text)
-{
-  if(!index.isValid())
-  {
-    return;
-  }
-
-  PipelineItem* item = getItem(index);
-  if (item == nullptr)
-  {
-    return;
-  }
-
-  item->setDropIndicatorText(text);
-
-  emit dataChanged(index, index);
 }
 
 // -----------------------------------------------------------------------------
@@ -1009,15 +968,6 @@ bool PipelineModel::isFilterItem(const QModelIndex &index) const
 {
   PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt());
   return itemType == PipelineItem::ItemType::Filter;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool PipelineModel::isDropIndicatorItem(const QModelIndex &index) const
-{
-  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(data(index, Roles::ItemTypeRole).toInt());
-  return itemType == PipelineItem::ItemType::DropIndicator;
 }
 
 // -----------------------------------------------------------------------------

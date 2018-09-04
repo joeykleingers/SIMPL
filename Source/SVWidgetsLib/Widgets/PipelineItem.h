@@ -61,7 +61,6 @@ class SVWidgetsLib_EXPORT PipelineItem
     SIMPL_INSTANCE_PROPERTY(QIcon, Icon)
     SIMPL_INSTANCE_PROPERTY(bool, Expanded)
     SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)
-    SIMPL_INSTANCE_PROPERTY(QString, DropIndicatorText)
     SIMPL_INSTANCE_PROPERTY(QString, PipelineFilePath)
 
     enum PipelineItemData
@@ -101,7 +100,6 @@ class SVWidgetsLib_EXPORT PipelineItem
       Unknown,
       PipelineRoot,
       Filter,
-      DropIndicator
     };
     SIMPL_INSTANCE_PROPERTY(ItemType, ItemType)
 

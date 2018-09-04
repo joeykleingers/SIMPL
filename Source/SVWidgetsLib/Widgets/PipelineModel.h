@@ -100,13 +100,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
      */
     bool isFilterItem(const QModelIndex &index) const;
 
-    /**
-     * @brief isDropIndicatorItem
-     * @param index
-     * @return
-     */
-    bool isDropIndicatorItem(const QModelIndex &index) const;
-
     QVariant data(const QModelIndex& index, int role) const override;
 //    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
@@ -120,9 +113,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void setPipelineFilePath(const QModelIndex& index, const QString &filePath);
 
     AbstractFilter::Pointer filter(const QModelIndex &index) const;
-
-    QString dropIndicatorText(const QModelIndex &index) const;
-    void setDropIndicatorText(const QModelIndex &index, const QString &text);
 
     QModelIndex indexOfFilter(AbstractFilter *filter, const QModelIndex &parent = QModelIndex());
 

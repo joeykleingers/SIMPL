@@ -241,7 +241,7 @@ signals:
    * @brief The signal is emitted when filters are removed from the FilterPipeline
    * @param indices The indices in the FilterPipeline where the filters were originally located
    */
-  void filtersWereRemoved(std::vector<size_t> indices);
+  void aboutToRemoveFilters(std::vector<size_t> indices);
 
   /**
   * @brief This signal is emitted when the pipeline name changes

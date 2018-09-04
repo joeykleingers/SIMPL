@@ -37,6 +37,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 
+#include <QtWidgets/QStyle>
 #include <QtWidgets/QStylePainter>
 
 #include "SVWidgetsLib/Widgets/PipelineItem.h"
@@ -77,18 +78,63 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
   PipelineModel* model = m_View->getPipelineModel();
   if (model->isPipelineRootItem(index))
   {
-    return QStyledItemDelegate::paint(painter, option, index);
+    return;
   }
 
-  painter->save();
-
   painter->setRenderHint(QPainter::Antialiasing);
+
+  const int textMargin = 6;
+  const int indexBoxWidth = 35;
+
+  QFont font = SVStyle::Instance()->GetHumanLabelFont();
+
+#if defined(Q_OS_MAC)
+  font.setPointSize(font.pointSize() - 4);
+#elif defined(Q_OS_WIN)
+  font.setPointSize(font.pointSize() - 3);
+#else
+  font.setPointSize(font.pointSize() - 1);
+#endif
+
+  QFontMetrics fontMetrics(font);
+  int fontHeight = fontMetrics.height();
+  int indexFontWidth = fontMetrics.width(QString::number(model->getMaxFilterCount()));
+
+  QRect filterIndexRect = option.rect;
+  int fontMargin = ((filterIndexRect.height() - fontHeight) / 2) - 1;
+  filterIndexRect.setWidth(2 * textMargin + indexFontWidth);
+
+  QRect filterTitleRect(2 * textMargin + indexFontWidth, option.rect.y(), option.rect.width() - (2 * textMargin + indexFontWidth), option.rect.height()); // +4? without it it does not paint to the edge
+
+  QRect dropIndicatorIndexRect = filterIndexRect;
+  QRect dropIndicatorTitleRect = filterTitleRect;
+
+  if (m_DropRow >= 0 && index.row() >= m_DropRow)
+  {
+    filterIndexRect.setY(dropIndicatorIndexRect.y() + dropIndicatorIndexRect.height() + (m_View->spacing() * 2));
+    filterTitleRect.setY(dropIndicatorTitleRect.y() + dropIndicatorTitleRect.height() + (m_View->spacing() * 2));
+
+    filterIndexRect.setHeight(dropIndicatorIndexRect.height());
+    filterTitleRect.setHeight(dropIndicatorIndexRect.height());
+  }
+  else if (m_DropRow == model->rowCount(index.parent()) && index.row() == m_DropRow - 1)
+  {
+    // We need to draw the drop indicator as the last item in the list
+    dropIndicatorIndexRect.setY(filterIndexRect.y() + filterIndexRect.height() + (m_View->spacing() * 2));
+    dropIndicatorTitleRect.setY(filterTitleRect.y() + filterTitleRect.height() + (m_View->spacing() * 2));
+
+    dropIndicatorIndexRect.setHeight(filterIndexRect.height());
+    dropIndicatorTitleRect.setHeight(filterIndexRect.height());
+  }
 
   PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(model->data(index, PipelineModel::WidgetStateRole).toInt());
   PipelineItem::PipelineState pState = static_cast<PipelineItem::PipelineState>(model->data(index, PipelineModel::PipelineStateRole).toInt());
   PipelineItem::ErrorState eState = static_cast<PipelineItem::ErrorState>(model->data(index, PipelineModel::ErrorStateRole).toInt());
 
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
+
   AbstractFilter::Pointer filter = model->filter(index);
+
   QColor grpColor;
   if (filter.get() != nullptr)
   {
@@ -124,7 +170,10 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
       bgColor = hoveredColor;
     }
 
-    drawButtons = true;
+    if (m_DropRow < 0)
+    {
+      drawButtons = true;
+    }
   }
 
   switch(wState)
@@ -193,85 +242,62 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
 
   QColor indexFontColor(242, 242, 242);
 
-  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
-  if (itemType == PipelineItem::ItemType::DropIndicator)
-  {
-    indexBackgroundColor = k_DropIndicatorIndexBackgroundColor;
-    widgetBackgroundColor = k_DropIndicatorWidgetBackgroundColor;
-    labelColor = k_DropIndicatorLabelColor;
-    indexFontColor = k_DropIndicatorLabelColor;
-
-    drawButtons = false;
-  }
-  else if(m_View->getPipelineState() == SVPipelineListView::PipelineViewState::Running)
+  if(m_View->getPipelineState() == SVPipelineListView::PipelineViewState::Running)
   {
     drawButtons = false;
   }
-
-  QFont font = SVStyle::Instance()->GetHumanLabelFont();
-
-#if defined(Q_OS_MAC)
-  font.setPointSize(font.pointSize() - 4);
-#elif defined(Q_OS_WIN)
-  font.setPointSize(font.pointSize() - 3);
-#else
-  font.setPointSize(font.pointSize() - 1);
-#endif
-
-  QFontMetrics fontMetrics(font);
-  int fontHeight = fontMetrics.height();
-  int fontMargin = ((option.rect.height() - fontHeight) / 2) - 1;
-
-  int indexFontWidth = fontMetrics.width(QString::number(model->getMaxFilterCount()));
 
   painter->setFont(font);
 
   // back fill with RED so we know if we missed something
   // painter->fillRect(rect(), QColor(255, 0, 0));
 
-  const int textMargin = 6;
-  const int indexBoxWidth = 35;
-//  int xOffset = model->data(index, PipelineModel::Roles::XOffsetRole).toInt();
-//  int yOffset = model->data(index, PipelineModel::Roles::YOffsetRole).toInt();
-  int xOffset = 0;
-  int yOffset = 0;
+  // Draw the filter Index area
+  painter->fillRect(filterIndexRect, indexBackgroundColor);
 
-  // Draw the Index area
-  QRect rect = option.rect;
-  QRect indexRect = option.rect;
-  indexRect.setX(indexRect.x() + xOffset);
-  indexRect.setY(indexRect.y() + yOffset);
-  indexRect.setWidth(2 * textMargin + indexFontWidth);
-
-  // If the width hint is less than the index area, draw only part of the index area
-//  int itemWidth = model->data(index, Qt::SizeHintRole).toSize().width();
-//  qDebug() << "ItemWidth: " << itemWidth;
-//  if (itemWidth < indexRect.width())
-//  {
-//    indexRect.setWidth(itemWidth);
-//  }
-//  qDebug() << "IndexRect: " << indexRect;
-  painter->fillRect(indexRect, indexBackgroundColor);
-
-  // Draw the Title area
-  QRect coloredRect(2 * textMargin + indexFontWidth + xOffset, rect.y() + yOffset, rect.width() - (2 * textMargin + indexFontWidth), indexRect.height()); // +4? without it it does not paint to the edge
-  painter->fillRect(coloredRect, widgetBackgroundColor);
+  // Draw the filter Title area
+  painter->fillRect(filterTitleRect, widgetBackgroundColor);
 
   // Draw the border that separates the Index area and the Title area
   painter->setPen(QPen(QBrush(QColor(Qt::black)), m_BorderSize));
-//  painter->setPen(QPen(QBrush(QColor(48, 48, 48)), m_BorderSize));
-  painter->drawLine(2 * textMargin + indexFontWidth + xOffset, rect.y() + yOffset + 1, 2 * textMargin + indexFontWidth + xOffset, rect.y() + yOffset + indexRect.height() - 0.5);
+  painter->drawLine(2 * textMargin + indexFontWidth, filterIndexRect.y() + 1, 2 * textMargin + indexFontWidth, filterIndexRect.y() + filterIndexRect.height() - 0.5);
+
+  if (m_DropRow >= 0 && (index.row() == m_DropRow || (m_DropRow == model->rowCount(index.parent()) && index.row() == m_DropRow - 1)))
+  {
+    // Draw the drop indicator index area
+    painter->fillRect(dropIndicatorIndexRect, k_DropIndicatorIndexBackgroundColor);
+    // Draw the drop indicator title area
+    painter->fillRect(dropIndicatorTitleRect, k_DropIndicatorWidgetBackgroundColor);
+    // Draw the border
+    painter->drawLine(2 * textMargin + indexFontWidth, dropIndicatorIndexRect.y() + 1, 2 * textMargin + indexFontWidth, dropIndicatorIndexRect.y() + dropIndicatorIndexRect.height() - 0.5);
+
+    if (fontHeight <= dropIndicatorIndexRect.height())
+    {
+      painter->setPen(QPen(k_DropIndicatorLabelColor));
+      QString number = getFilterIndexString(m_DropRow); // format the index number with a leading zero
+      painter->drawText(dropIndicatorIndexRect.x() + textMargin, dropIndicatorIndexRect.y() + fontMargin + fontHeight, number);
+    }
+  }
 
   // Draw the Index number
   painter->setPen(QPen(indexFontColor));
-  QString number = getFilterIndexString(index); // format the index number with a leading zero
-  if (fontHeight <= indexRect.height())
+  QString number;
+  if (m_DropRow >= 0 && index.row() >= m_DropRow)
   {
-    painter->drawText(rect.x() + textMargin + xOffset, rect.y() + fontMargin + fontHeight + yOffset, number);
+    number = getFilterIndexString(index.row() + 1); // format the index number with a leading zero
+  }
+  else
+  {
+    number = getFilterIndexString(index.row()); // format the index number with a leading zero
+  }
+
+  if (fontHeight <= filterIndexRect.height())
+  {
+    painter->drawText(filterIndexRect.x() + textMargin, filterIndexRect.y() + fontMargin + fontHeight, number);
   }
 
   // Compute the Width to draw the text based on the visibility of the various buttons
-  int fullWidth = rect.width() - indexBoxWidth;
+  int fullWidth = option.rect.width() - indexBoxWidth;
   int allowableWidth = fullWidth;
 
   if (drawButtons == true)
@@ -279,7 +305,7 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
     // Draw the "delete" button
     QRectF deleteBtnRect;
     deleteBtnRect.setX(option.rect.width() - ::k_ButtonSize - ::k_TextMargin);
-    deleteBtnRect.setY(option.rect.y() + ( (option.rect.height() / 2) - (::k_ButtonSize / 2) ) );
+    deleteBtnRect.setY(filterTitleRect.y() + ( (option.rect.height() / 2) - (::k_ButtonSize / 2) ) );
     deleteBtnRect.setWidth(::k_ButtonSize);
     deleteBtnRect.setHeight(::k_ButtonSize);
 
@@ -304,12 +330,12 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
       }
     }
 
-    painter->drawPixmap(deleteBtnRect.center().x() - (deleteBtnRect.width() / 2) + xOffset, deleteBtnRect.center().y() - (deleteBtnRect.height() / 2 + 1) + yOffset, deleteBtnPixmap);  // y is 1px offset due to how the images were cut
+    painter->drawPixmap(deleteBtnRect.center().x() - (deleteBtnRect.width() / 2), deleteBtnRect.center().y() - (deleteBtnRect.height() / 2 + 1), deleteBtnPixmap);  // y is 1px offset due to how the images were cut
 
     // Draw the "disable" button
     QRectF disableBtnRect;
     disableBtnRect.setX(deleteBtnRect.x() - ::k_TextMargin - ::k_ButtonSize);
-    disableBtnRect.setY(option.rect.y() + ( (option.rect.height() / 2) - (::k_ButtonSize / 2) ) );
+    disableBtnRect.setY(filterTitleRect.y() + ( (filterTitleRect.height() / 2) - (::k_ButtonSize / 2) ) );
     disableBtnRect.setWidth(::k_ButtonSize);
     disableBtnRect.setHeight(::k_ButtonSize);
 
@@ -343,16 +369,13 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
     allowableWidth -= deleteBtnRect.width();
     allowableWidth -= disableBtnRect.width();
 
-    painter->drawPixmap(disableBtnRect.center().x() - (disableBtnRect.width() / 2) + xOffset, disableBtnRect.center().y() - (disableBtnRect.height() / 2 + 1) + yOffset, disableBtnPixmap);  // y is 1px offset due to how the images were cut
+    painter->drawPixmap(disableBtnRect.center().x() - (disableBtnRect.width() / 2), disableBtnRect.center().y() - (disableBtnRect.height() / 2 + 1), disableBtnPixmap);  // y is 1px offset due to how the images were cut
   }
 
-//  QString elidedHumanLabel = fontMetrics.elidedText(m_FilterHumanLabel, Qt::ElideRight, allowableWidth);
-
-  int humanLabelWidth;  
-  if (itemType == PipelineItem::ItemType::DropIndicator)
+  int humanLabelWidth;
+  if (m_DropRow >= 0 && (index.row() == m_DropRow || (m_DropRow == model->rowCount(index.parent()) && index.row() == m_DropRow - 1)))
   {
-    QString dropIndicatorText = model->dropIndicatorText(index);
-    humanLabelWidth = fontMetrics.width(dropIndicatorText);
+    humanLabelWidth = fontMetrics.width(m_DropText);
   }
   else
   {
@@ -367,7 +390,7 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
   // Compute a Fade out of the text if it is too long to fit in the widget
   if(humanLabelWidth > allowableWidth)
   {
-    QRect fadedRect = coloredRect;
+    QRect fadedRect = filterTitleRect;
     fadedRect.setWidth(fullWidth);
     if(option.state & QStyle::State_MouseOver)
     {
@@ -383,16 +406,16 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
     painter->setPen(pen);
   }
 
-  if (fontHeight <= indexRect.height())
+  if (fontHeight <= filterTitleRect.height())
   {
-    if (itemType == PipelineItem::ItemType::DropIndicator)
+    if (m_DropRow >= 0 && (index.row() == m_DropRow || (m_DropRow == model->rowCount(index.parent()) && index.row() == m_DropRow - 1)))
     {
-      QString text = model->dropIndicatorText(index);
-      painter->drawText(rect.x() + indexBoxWidth + textMargin + xOffset, rect.y() + fontMargin + fontHeight + yOffset, text);
+      painter->drawText(dropIndicatorIndexRect.x() + indexBoxWidth + textMargin, dropIndicatorTitleRect.y() + fontMargin + fontHeight, m_DropText);
     }
-    else if (itemType == PipelineItem::ItemType::Filter)
+
+    if (itemType == PipelineItem::ItemType::Filter)
     {
-      painter->drawText(rect.x() + indexBoxWidth + textMargin + xOffset, rect.y() + fontMargin + fontHeight + yOffset, filter->getHumanLabel());
+      painter->drawText(filterIndexRect.x() + indexBoxWidth + textMargin, filterTitleRect.y() + fontMargin + fontHeight, filter->getHumanLabel());
     }
   }
 
@@ -401,11 +424,9 @@ void SVPipelineListViewDelegate::paint(QPainter* painter, const QStyleOptionView
   painter->setPen(pen);
 
   // Draw inside option.rect to avoid painting artifacts
-  qreal x = option.rect.x() + (m_BorderSize / 2);
-  qreal y = option.rect.y() + (m_BorderSize / 2);
-  painter->drawRoundedRect(QRectF(x + xOffset, y + yOffset, option.rect.width() - m_BorderSize, option.rect.height() - m_BorderSize), 1, 1);
-
-  painter->restore();
+  qreal x = filterIndexRect.x() + (m_BorderSize / 2);
+  qreal y = filterIndexRect.y() + (m_BorderSize / 2);
+  painter->drawRoundedRect(QRectF(x, y, option.rect.width() - m_BorderSize, filterIndexRect.height() - m_BorderSize), 1, 1);
 }
 
 // -----------------------------------------------------------------------------
@@ -419,9 +440,15 @@ bool SVPipelineListViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* 
     return QStyledItemDelegate::editorEvent(event, model, option, index);
   }
 
+  QStyleOptionViewItem opt = option;
+  if (m_DropRow >= 0 && index.row() >= m_DropRow)
+  {
+    opt.rect.setY(option.rect.y() + option.rect.height() + m_View->spacing());
+  }
+
   QRect deleteBtnRect;
   deleteBtnRect.setX(option.rect.width() - ::k_ButtonSize - ::k_TextMargin);
-  deleteBtnRect.setY(option.rect.y() + (option.rect.height()/2 - ::k_ButtonSize/2));
+  deleteBtnRect.setY(opt.rect.y() + (opt.rect.height()/2 - ::k_ButtonSize/2));
   deleteBtnRect.setWidth(::k_ButtonSize);
   deleteBtnRect.setHeight(::k_ButtonSize);
 
@@ -500,8 +527,7 @@ bool SVPipelineListViewDelegate::editorEvent(QEvent* event, QAbstractItemModel* 
             model->setData(index, static_cast<int>(PipelineItem::WidgetState::Ready), PipelineModel::WidgetStateRole);
           }
 
-          PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::Roles::ItemTypeRole).toInt());
-          m_View->preflightPipeline();
+          m_View->preflightPipeline(index.parent());
           return true;
         }
       }
@@ -523,11 +549,11 @@ QSize SVPipelineListViewDelegate::sizeHint(const QStyleOptionViewItem &option, c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString SVPipelineListViewDelegate::getFilterIndexString(const QModelIndex &index) const
+QString SVPipelineListViewDelegate::getFilterIndexString(int row) const
 {
-  const PipelineModel* model = getPipelineModel(index);
+  PipelineModel* model = m_View->getPipelineModel();
   int numFilters = model->rowCount();
-  int i = index.row() + 1;
+  int i = row + 1;
 
   if(numFilters < 10)
   {

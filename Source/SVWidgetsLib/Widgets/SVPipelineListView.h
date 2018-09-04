@@ -70,6 +70,7 @@ class DataStructureWidget;
 class PipelineModel;
 class QSignalMapper;
 class PipelineViewController;
+class SVPipelineListViewDelegate;
 
 /*
  *
@@ -234,10 +235,10 @@ protected:
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
   void dragMoveEvent(QDragMoveEvent* event) override;
-  void dragEnterEvent(QDragEnterEvent* event) override;
   void dragLeaveEvent(QDragLeaveEvent* event) override;
   void dropEvent(QDropEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
+  void paintEvent(QPaintEvent* event) override;
 
 protected slots:
   /**
@@ -251,7 +252,7 @@ private:
 
   QUndoCommand* m_MoveCommand = nullptr;
   QPoint m_DragStartPosition;
-  QModelIndex m_DropIndicatorIndex;
+  int m_DropIndicatorRow;
 
   QString m_CurrentPipelineFilePath;
 
@@ -337,6 +338,12 @@ private:
    * @param pixmapColor
    */
   QPixmap setPixmapColor(QPixmap pixmap, QColor pixmapColor);
+
+  /**
+   * @brief getViewDelegate
+   * @return
+   */
+  SVPipelineListViewDelegate* getViewDelegate();
 
   SVPipelineListView(const SVPipelineListView&) = delete; // Copy Constructor Not Implemented
   void operator=(const SVPipelineListView&) = delete; // Move assignment Not Implemented

@@ -97,10 +97,11 @@ int PipelineView::filterCount(const QModelIndex &pipelineRootIndex)
   PipelineModel* pipelineModel = getPipelineModel();
   int count = 0;
 
-  for (int i = 0; i < pipelineModel->rowCount(); i++)
+  for (int i = 0; i < pipelineModel->rowCount(pipelineRootIndex); i++)
   {
-    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(pipelineModel->data(pipelineRootIndex, PipelineModel::Roles::ItemTypeRole).toInt());
-    if (itemType != PipelineItem::ItemType::Filter)
+    QModelIndex index = pipelineModel->index(i, PipelineItem::Contents, pipelineRootIndex);
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(pipelineModel->data(index, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType == PipelineItem::ItemType::Filter)
     {
       count++;
     }

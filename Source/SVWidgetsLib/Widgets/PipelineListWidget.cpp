@@ -54,6 +54,10 @@ PipelineListWidget::~PipelineListWidget() = default;
 // -----------------------------------------------------------------------------
 void PipelineListWidget::setupGui()
 {
+  pipelineView->setContextMenuPolicy(Qt::CustomContextMenu);
+  pipelineView->setFocusPolicy(Qt::StrongFocus);
+  pipelineView->setDropIndicatorShown(false);
+
   setPipelineState(SVPipelineListView::PipelineViewState::Idle);
   startPipelineBtn->setDisabled(true);
 

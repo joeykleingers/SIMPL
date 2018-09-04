@@ -55,6 +55,9 @@ class SVWidgetsLib_EXPORT SVPipelineListViewDelegate : public QStyledItemDelegat
 
     QPixmap createPixmap(const QModelIndex &index) const;
 
+    SIMPL_SET_PROPERTY(int, DropRow)
+    SIMPL_SET_PROPERTY(QString, DropText)
+
   protected:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -73,13 +76,15 @@ class SVWidgetsLib_EXPORT SVPipelineListViewDelegate : public QStyledItemDelegat
     int m_MousePressIndex = -1;
     HoverItem m_CurrentlyHoveredItem = HoverItem::Unknown;
     const qreal m_BorderSize = 1;
+    int m_DropRow = -1;
+    QString m_DropText = "";
 
     /**
      * @brief Gets the proper filter index string that refers to the specified index
      * @param index
      * @return
      */
-    QString getFilterIndexString(const QModelIndex &index) const;
+    QString getFilterIndexString(int row) const;
 
     /**
      * @brief Convenience method to get the PipelineModel instance

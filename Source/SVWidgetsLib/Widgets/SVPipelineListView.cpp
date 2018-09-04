@@ -121,15 +121,15 @@ SVPipelineListView::~SVPipelineListView()
 // -----------------------------------------------------------------------------
 void SVPipelineListView::setupGui()
 {
-  setContextMenuPolicy(Qt::CustomContextMenu);
-  setFocusPolicy(Qt::StrongFocus);
-
   SVPipelineListViewDelegate* delegate = new SVPipelineListViewDelegate(this);
   setItemDelegate(delegate);
 
   // Create the model
   PipelineModel* model = new PipelineModel(1, this);
   model->setUseModelDisplayText(false);
+
+//  SVPipelineListViewStyle* style = new SVPipelineListViewStyle(this->style());
+//  setStyle(style);
 
   setModel(model);
 
@@ -145,6 +145,17 @@ void SVPipelineListView::connectSignalsSlots()
   connect(getPipelineViewController(), &PipelineViewController::pipelineCanceling, [=] { setPipelineViewState(PipelineViewState::Cancelling); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineFinished, [=] { setPipelineViewState(PipelineViewState::Idle); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineCanceled, [=] { setPipelineViewState(PipelineViewState::Idle); });
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SVPipelineListView::paintEvent(QPaintEvent* event)
+{
+  DropIndicatorPosition position = dropIndicatorPosition();
+  setDropIndicatorShown(position == QAbstractItemView::BelowItem || position == QAbstractItemView::AboveItem);
+  QListView::paintEvent(event);
+  setDropIndicatorShown(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -301,6 +312,17 @@ void SVPipelineListView::beginDrag(QMouseEvent* event)
 
   QRect firstSelectionRect = visualRect(selectedIndexes[0]);
 
+  QString dropIndicatorText;
+  if(selectedIndexes.size() == 1)
+  {
+    AbstractFilter::Pointer filter = model->filter(selectedIndexes[0]);
+    dropIndicatorText = filter->getHumanLabel();
+  }
+  else
+  {
+    dropIndicatorText = QObject::tr("Place %1 Filters Here").arg(selectedIndexes.size());
+  }
+
   if(modifiers.testFlag(Qt::AltModifier) == false)
   {
     m_MoveCommand = new QUndoCommand();
@@ -317,25 +339,10 @@ void SVPipelineListView::beginDrag(QMouseEvent* event)
     }
     m_MoveCommand->setText(cmd->text());
 
-    int dropIndicatorRow = currentIndex().row();
-
-    QString dropIndicatorText;
-    if(selectedIndexes.size() == 1)
-    {
-      AbstractFilter::Pointer filter = model->filter(selectedIndexes[0]);
-      dropIndicatorText = filter->getHumanLabel();
-    }
-    else
-    {
-      dropIndicatorText = QObject::tr("Place %1 Filters Here").arg(selectedIndexes.size());
-    }
-
     if(getPipelineViewController())
     {
       getPipelineViewController()->addUndoCommand(m_MoveCommand);
     }
-
-    addDropIndicator(dropIndicatorText, dropIndicatorRow);
   }
 
   QDrag* drag = new QDrag(this);
@@ -352,8 +359,6 @@ void SVPipelineListView::beginDrag(QMouseEvent* event)
   {
     drag->exec(Qt::MoveAction);
   }
-
-  removeDropIndicator();
 }
 
 // -----------------------------------------------------------------------------
@@ -454,36 +459,35 @@ void SVPipelineListView::dragMoveEvent(QDragMoveEvent* event)
 
   int itemHeight = sizeHintForRow(0);
 
-  QModelIndex lastIndex = model->index(model->rowCount() - 1, PipelineItem::Contents);
+  QModelIndex lastIndex = model->index(model->rowCount(m_PipelineRootIndex) - 1, PipelineItem::Contents, m_PipelineRootIndex);
   QRect lastIndexRect = visualRect(lastIndex);
 
   PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
 
   if(index.isValid() == false)
   {
+    // The drag is occurring in an empty space at the end of the view
     int dropIndicatorRow;
-    if(mousePos.y() > lastIndexRect.y())
+    if (mousePos.y() > lastIndexRect.y())
     {
-      // The drag is occurring in an empty space at the end of the view
       dropIndicatorRow = filterCount(m_PipelineRootIndex);
+    }
+    else if (m_DropIndicatorRow >= 0)
+    {
+      dropIndicatorRow = m_DropIndicatorRow;
     }
     else
     {
-      // The drag is occurring in an empty space between filters
-      dropIndicatorRow = findPreviousRow(mousePos);
+      dropIndicatorRow = findNextRow(mousePos);
     }
 
-    if(m_DropIndicatorIndex.isValid() && dropIndicatorRow != m_DropIndicatorIndex.row())
+    if (dropIndicatorRow != m_DropIndicatorRow)
     {
       removeDropIndicator();
       addDropIndicator(dropIndicatorText, dropIndicatorRow);
     }
-    else if(m_DropIndicatorIndex.isValid() == false)
-    {
-      addDropIndicator(dropIndicatorText, dropIndicatorRow);
-    }
   }
-  else if(itemType == PipelineItem::ItemType::Filter)
+  else if(index.row() != m_DropIndicatorRow)
   {
     // The drag is occurring on top of a filter item
     QRect indexRect = visualRect(index);
@@ -492,27 +496,36 @@ void SVPipelineListView::dragMoveEvent(QDragMoveEvent* event)
     if(mousePos.y() <= indexRect.y() + itemHeight / 2)
     {
       // The drag is in the upper half of the item
-      dropIndicatorRow = index.row();
+      if (m_DropIndicatorRow == index.row() - 1)
+      {
+        dropIndicatorRow = m_DropIndicatorRow;
+      }
+      else
+      {
+        dropIndicatorRow = index.row();
+      }
     }
     else
     {
       // The drag is in the lower half of the item
-      dropIndicatorRow = index.row() + 1;
+      if (m_DropIndicatorRow == index.row() + 1)
+      {
+        dropIndicatorRow = m_DropIndicatorRow;
+      }
+      else
+      {
+        dropIndicatorRow = index.row();
+      }
     }
 
-    removeDropIndicator();
-    addDropIndicator(dropIndicatorText, dropIndicatorRow);
+    if (dropIndicatorRow != m_DropIndicatorRow)
+    {
+      removeDropIndicator();
+      addDropIndicator(dropIndicatorText, dropIndicatorRow);
+    }
   }
 
   QListView::dragMoveEvent(event);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineListView::dragEnterEvent(QDragEnterEvent* event)
-{
-  event->accept();
 }
 
 // -----------------------------------------------------------------------------
@@ -522,7 +535,7 @@ void SVPipelineListView::dragLeaveEvent(QDragLeaveEvent* event)
 {
   removeDropIndicator();
 
-  event->accept();
+  QListView::dragLeaveEvent(event);
 }
 
 // -----------------------------------------------------------------------------
@@ -601,17 +614,14 @@ int SVPipelineListView::findPreviousRow(const QPoint& pos)
 // -----------------------------------------------------------------------------
 void SVPipelineListView::addDropIndicator(const QString& text, int insertIndex)
 {
-  PipelineModel* model = getPipelineModel();
+  SVPipelineListViewDelegate* delegate = getViewDelegate();
+  delegate->setDropText(text);
+  delegate->setDropRow(insertIndex);
+  m_DropIndicatorRow = insertIndex;
 
-  model->insertRow(insertIndex);
-  QModelIndex dropIndicatorIndex = model->index(insertIndex, PipelineItem::Contents);
-  model->setData(dropIndicatorIndex, static_cast<int>(PipelineItem::ItemType::DropIndicator), PipelineModel::ItemTypeRole);
-  model->setDropIndicatorText(dropIndicatorIndex, text);
-
-  //  QRect rect = visualRect(dropIndicatorIndex);
-  //  model->setData(dropIndicatorIndex, rect.height(), PipelineModel::Roles::HeightRole);
-
-  m_DropIndicatorIndex = dropIndicatorIndex;
+  PipelineModel* pipelineModel = getPipelineModel();
+  QModelIndex index = pipelineModel->index(m_DropIndicatorRow, PipelineItem::Contents, m_PipelineRootIndex);
+  emit pipelineModel->dataChanged(index, index);
 }
 
 // -----------------------------------------------------------------------------
@@ -619,12 +629,16 @@ void SVPipelineListView::addDropIndicator(const QString& text, int insertIndex)
 // -----------------------------------------------------------------------------
 void SVPipelineListView::removeDropIndicator()
 {
-  if(m_DropIndicatorIndex.isValid())
-  {
-    PipelineModel* model = getPipelineModel();
-    model->removeRow(m_DropIndicatorIndex.row());
-    m_DropIndicatorIndex = QModelIndex();
-  }
+  SVPipelineListViewDelegate* delegate = getViewDelegate();
+
+  PipelineModel* pipelineModel = getPipelineModel();
+  QModelIndex index = pipelineModel->index(m_DropIndicatorRow, PipelineItem::Contents, m_PipelineRootIndex);
+
+  delegate->setDropText("");
+  delegate->setDropRow(-1);
+  m_DropIndicatorRow = -1;
+
+  emit pipelineModel->dataChanged(index, index);
 }
 
 // -----------------------------------------------------------------------------
@@ -634,7 +648,7 @@ void SVPipelineListView::dropEvent(QDropEvent* event)
 {
   PipelineModel* model = getPipelineModel();
 
-  int dropRow = m_DropIndicatorIndex.row();
+  int dropRow = m_DropIndicatorRow;
 
   removeDropIndicator();
 
@@ -682,8 +696,8 @@ void SVPipelineListView::dropEvent(QDropEvent* event)
 
       clearSelection();
 
-      QModelIndex leftIndex = model->index(dropRow, PipelineItem::Contents);
-      QModelIndex rightIndex = model->index(dropRow + filters.size() - 1, PipelineItem::Contents);
+      QModelIndex leftIndex = model->index(dropRow, PipelineItem::Contents, m_PipelineRootIndex);
+      QModelIndex rightIndex = model->index(dropRow + filters.size() - 1, PipelineItem::Contents, m_PipelineRootIndex);
       QItemSelection selection(leftIndex, rightIndex);
 
       selectionModel()->select(selection, QItemSelectionModel::Select);
@@ -1223,4 +1237,12 @@ QPixmap SVPipelineListView::setPixmapColor(QPixmap pixmap, QColor pixmapColor)
   }
 
   return QPixmap::fromImage(image);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+SVPipelineListViewDelegate* SVPipelineListView::getViewDelegate()
+{
+  return dynamic_cast<SVPipelineListViewDelegate*>(itemDelegate());
 }
