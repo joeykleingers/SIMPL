@@ -177,3 +177,22 @@ void StandardOutputWidget::appendText(const QString &text)
   clearLogBtn->setEnabled(true);
   saveLogBtn->setEnabled(true);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void StandardOutputWidget::setStandardOutputTextEdit(QTextEdit* textEdit)
+{
+  if (m_CurrentStdOutTextEdit)
+  {
+    gridLayout->removeWidget(m_CurrentStdOutTextEdit);
+    m_CurrentStdOutTextEdit = nullptr;
+  }
+
+  m_CurrentStdOutTextEdit = textEdit;
+
+  if (m_CurrentStdOutTextEdit)
+  {
+    gridLayout->addWidget(m_CurrentStdOutTextEdit, 0, 0, 1, 1);
+  }
+}

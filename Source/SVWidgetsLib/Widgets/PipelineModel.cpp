@@ -110,7 +110,7 @@ void PipelineModel::updateActivePipeline(const QModelIndex &pipelineIdx)
 
   if (m_ActivePipelineIndex.isValid() == true)
   {
-    emit preflightTriggered(m_ActivePipelineIndex);
+    emit activePipelineUpdated(m_ActivePipelineIndex);
   }
 }
 
@@ -430,6 +430,20 @@ AbstractFilter::Pointer PipelineModel::filter(const QModelIndex &index) const
   }
 
   return AbstractFilter::NullPointer();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QTextEdit* PipelineModel::standardOutputTextEdit(const QModelIndex &pipelineRootIndex)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return nullptr;
+  }
+
+  return item->getStandardOutputWidget();
 }
 
 // -----------------------------------------------------------------------------

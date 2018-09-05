@@ -65,6 +65,12 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
      */
     void appendText(const QString &text);
 
+    /**
+     * @brief setStandardOutputTextEdit
+     * @param textEdit
+     */
+    void setStandardOutputTextEdit(QTextEdit* textEdit);
+
   protected:
     void setupGui();
 
@@ -81,6 +87,7 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
 
   private:
     QString             m_LastPathOpened = "";
+    QTextEdit*          m_CurrentStdOutTextEdit = nullptr;
 
     StandardOutputWidget(const StandardOutputWidget&) = delete; // Copy Constructor Not Implemented
     void operator=(const StandardOutputWidget&) = delete;       // Move assignment Not Implemented

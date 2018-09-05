@@ -34,6 +34,8 @@
 #include <QtCore/QStringList>
 #include <QtGui/QColor>
 
+#include <QtWidgets/QTextEdit>
+
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
 
 // -----------------------------------------------------------------------------
@@ -55,7 +57,8 @@ PipelineItem::PipelineItem(const QVector<QVariant>& data, PipelineItem* parent)
 , m_ItemData(data)
 , m_ParentItem(parent)
 {
-
+  m_StandardOutputWidget = new QTextEdit();
+  m_StandardOutputWidget->setReadOnly(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -68,6 +71,11 @@ PipelineItem::~PipelineItem()
   if (m_FilterInputWidget)
   {
     delete m_FilterInputWidget;
+  }
+
+  if (m_StandardOutputWidget)
+  {
+    delete m_StandardOutputWidget;
   }
 }
 

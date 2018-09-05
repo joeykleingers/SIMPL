@@ -36,6 +36,7 @@
 #include <QtCore/QVariant>
 
 #include <QtWidgets/QAction>
+#include <QtWidgets/QTextEdit>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -119,6 +120,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     FilterInputWidget* filterInputWidget(const QModelIndex &index);
     void setFilterInputWidget(const QModelIndex &index, FilterInputWidget* fiw);
 
+    QTextEdit* standardOutputTextEdit(const QModelIndex &pipelineRootIndex);
+
     bool isEmpty();
 
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -159,6 +162,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void pipelineRemoved(FilterPipeline::Pointer pipeline);
     void pipelineModified(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex, bool modified);
     void pipelineSaved(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
+
+    void activePipelineUpdated(const QModelIndex &pipelineRootIndex);
 
     void statusMessage(const QString& message);
     void stdOutMessage(const QString& message);

@@ -128,9 +128,6 @@ void SVPipelineListView::setupGui()
   PipelineModel* model = new PipelineModel(1, this);
   model->setUseModelDisplayText(false);
 
-//  SVPipelineListViewStyle* style = new SVPipelineListViewStyle(this->style());
-//  setStyle(style);
-
   setModel(model);
 
   connectSignalsSlots();
