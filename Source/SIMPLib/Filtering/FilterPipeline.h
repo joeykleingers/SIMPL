@@ -146,6 +146,11 @@ public:
    */
   void addMessageReceiver(QObject* obj);
 
+  /**
+   * @brief clearMessageReceivers
+   */
+  void clearMessageReceivers();
+
   void connectFilterNotifications(QObject* filter);
   void disconnectFilterNotifications(QObject* filter);
 
@@ -241,7 +246,7 @@ signals:
    * @brief The signal is emitted when filters are removed from the FilterPipeline
    * @param indices The indices in the FilterPipeline where the filters were originally located
    */
-  void aboutToRemoveFilters(std::vector<size_t> indices);
+  void filtersRemoved(std::vector<size_t> indices);
 
   /**
   * @brief This signal is emitted when the pipeline name changes

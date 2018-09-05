@@ -769,7 +769,12 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
     emit clearIssuesTriggered();
 
     // Create a Pipeline Object and fill it with the filters from this View
-    FilterPipeline::Pointer pipeline = getFilterPipeline(pipelineRootIndex);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+
+    for(int i = 0; i < m_PipelineMessageObservers.size(); i++)
+    {
+      pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
+    }
 
     FilterPipeline::FilterContainerType filters = pipeline->getFilterContainer();
     for(int i = 0; i < filters.size(); i++)
@@ -826,6 +831,8 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
 
     emit preflightFinished(pipeline, err);
     updateFilterInputWidgetIndices(pipelineRootIndex);
+
+    pipeline->clearMessageReceivers();
   }
 }
 
@@ -911,38 +918,6 @@ void PipelineViewController::updateFilterInputWidgetIndices(const QModelIndex &p
       }
     }
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-FilterPipeline::Pointer PipelineViewController::getFilterPipeline(const QModelIndex &pipelineRootIndex)
-{
-  if (m_PipelineModel)
-  {
-    // Create a Pipeline Object and fill it with the filters from this View
-    FilterPipeline::Pointer pipeline = FilterPipeline::New();
-
-    qint32 count = m_PipelineModel->rowCount(pipelineRootIndex);
-    for(qint32 i = 0; i < count; ++i)
-    {
-      QModelIndex childIndex = m_PipelineModel->index(i, PipelineItem::Contents, pipelineRootIndex);
-
-      PipelineItem::WidgetState wState = static_cast<PipelineItem::WidgetState>(m_PipelineModel->data(childIndex, PipelineModel::WidgetStateRole).toInt());
-      if(childIndex.isValid() && wState != PipelineItem::WidgetState::Disabled)
-      {
-        AbstractFilter::Pointer filter = m_PipelineModel->filter(childIndex);
-        pipeline->pushBack(filter);
-      }
-    }
-    for(int i = 0; i < m_PipelineMessageObservers.size(); i++)
-    {
-      pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
-    }
-    return pipeline;
-  }
-
-  return FilterPipeline::NullPointer();
 }
 
 // -----------------------------------------------------------------------------
@@ -1071,9 +1046,12 @@ void PipelineViewController::executePipeline(const QModelIndex &pipelineRootInde
     // Clear out the Issues Table
     emit clearIssuesTriggered();
 
-    // Create a FilterPipeline Object
-    //  m_PipelineInFlight = getCopyOfFilterPipeline();
-    FilterPipeline::Pointer pipeline = getFilterPipeline(pipelineRootIndex);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
+
+    for(int i = 0; i < m_PipelineMessageObservers.size(); i++)
+    {
+      pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
+    }
 
     emit stdOutMessage("<b>Preflight Pipeline.....</b>");
     // Give the pipeline one last chance to preflight and get all the latest values from the GUI
@@ -1146,6 +1124,8 @@ void PipelineViewController::pipelineExecutionFinished(FilterPipeline::Pointer p
     }
 
     setPipelineToStoppedState(pipelineRootIndex);
+
+    pipeline->clearMessageReceivers();
 
     m_RunningPipelines.remove(pipelineRootIndex);
 
@@ -1268,7 +1248,7 @@ int PipelineViewController::writePipeline(const QModelIndex &pipelineRootIndex, 
     }
 
     // Create a Pipeline Object and fill it with the filters from this View
-    FilterPipeline::Pointer pipeline = getFilterPipeline(pipelineRootIndex);
+    FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
 
     int err = 0;
     if(ext == "dream3d")

@@ -65,9 +65,8 @@ void PipelineListWidget::setupGui()
 
   connect(pipelineView->getPipelineViewController(), &PipelineViewController::preflightFinished, this, &PipelineListWidget::preflightFinished);
 
+  connect(pipelineView->getPipelineViewController(), &PipelineViewController::pipelineCanceled, [=] { updateStartButtonState(StartButtonState::Idle); });
   connect(pipelineView->getPipelineViewController(), &PipelineViewController::pipelineFinished, [=] { updateStartButtonState(StartButtonState::Idle); });
-
-  connect(this, &PipelineListWidget::pipelineCanceled, [=] { pipelineView->cancelPipeline(); });
 }
 
 // -----------------------------------------------------------------------------
@@ -95,8 +94,7 @@ void PipelineListWidget::on_startPipelineBtn_clicked()
   PipelineModel* model = pipelineView->getPipelineModel();
   if(pipelineView->getPipelineState() == SVPipelineListView::PipelineViewState::Running)
   {
-    QModelIndex pipelineIndex = model->index(0, PipelineItem::Contents);
-    emit pipelineCanceled(QModelIndex());
+    pipelineView->cancelPipeline();
 
     setPipelineState(SVPipelineListView::PipelineViewState::Cancelling);
 

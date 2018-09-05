@@ -82,6 +82,8 @@ class SVWidgetsLib_EXPORT SVPipelineListView : public QListView, public Pipeline
 public:
   SIMPL_INSTANCE_PROPERTY(bool, PipelineIsRunning)
 
+  SIMPL_GET_PROPERTY(QModelIndex, PipelineRootIndex)
+
   using IndexedFilterObject = std::pair<int, PipelineFilterObject*>;
 
   SVPipelineListView(QWidget* parent = nullptr);

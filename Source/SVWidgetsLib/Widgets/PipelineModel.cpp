@@ -301,7 +301,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
     }
 
     disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereAdded, nullptr, nullptr);
-    disconnect(oldTempPipeline.get(), &FilterPipeline::aboutToRemoveFilters, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::filtersRemoved, nullptr, nullptr);
     disconnect(oldTempPipeline.get(), &FilterPipeline::pipelineWasEdited, nullptr, nullptr);
   }
 
@@ -349,7 +349,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
     });
 
     // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
-    connect(pipeline.get(), &FilterPipeline::aboutToRemoveFilters, [=] (std::vector<size_t> indices) {
+    connect(pipeline.get(), &FilterPipeline::filtersRemoved, [=] (std::vector<size_t> indices) {
       size_t offset = 0;
       for (int i = 0; i < indices.size(); i++)
       {

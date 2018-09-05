@@ -86,9 +86,6 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
      */
     void setupGui();
 
-  signals:
-    void pipelineCanceled(const QModelIndex &pipelineIndex);
-
   private slots:
     /**
      * @brief processPipelineMessage

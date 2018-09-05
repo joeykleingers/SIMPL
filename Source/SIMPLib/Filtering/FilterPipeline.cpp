@@ -339,7 +339,7 @@ void FilterPipeline::popFront()
 
   std::vector<size_t> indices;
   indices.push_back(0);
-  emit aboutToRemoveFilters(indices);
+  emit filtersRemoved(indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -367,7 +367,7 @@ void FilterPipeline::popBack()
 
   std::vector<size_t> indices;
   indices.push_back(m_Pipeline.size());
-  emit aboutToRemoveFilters(indices);
+  emit filtersRemoved(indices);
 }
 // -----------------------------------------------------------------------------
 //
@@ -414,7 +414,6 @@ void FilterPipeline::erase(size_t index)
 {
   std::vector<size_t> indices;
   indices.push_back(index);
-  emit aboutToRemoveFilters(indices);
 
   FilterContainerType::iterator it = m_Pipeline.begin();
   for(size_t i = 0; i < index; ++i)
@@ -423,6 +422,8 @@ void FilterPipeline::erase(size_t index)
   }
   m_Pipeline.erase(it);
   updatePrevNextFilters();
+
+  emit filtersRemoved(indices);
   emit pipelineWasEdited();
 }
 // -----------------------------------------------------------------------------
@@ -431,8 +432,6 @@ void FilterPipeline::erase(size_t index)
 void FilterPipeline::erase(std::vector<size_t> indices)
 {
   std::sort(indices.begin(), indices.end());
-
-  emit aboutToRemoveFilters(indices);
 
   blockSignals(true);
   size_t offset = 0;
@@ -443,6 +442,7 @@ void FilterPipeline::erase(std::vector<size_t> indices)
   }
   blockSignals(false);
 
+  emit filtersRemoved(indices);
   emit pipelineWasEdited();
 }
 // -----------------------------------------------------------------------------
@@ -461,12 +461,11 @@ void FilterPipeline::erase(size_t start, size_t count)
     indices.push_back(start + i);
   }
 
-  emit aboutToRemoveFilters(indices);
-
   blockSignals(true);
   erase(indices);
   blockSignals(false);
 
+  emit filtersRemoved(indices);
   emit pipelineWasEdited();
 }
 // -----------------------------------------------------------------------------
@@ -485,7 +484,7 @@ void FilterPipeline::clear()
   }
   m_Pipeline.clear();
 
-  emit aboutToRemoveFilters(indices);
+  emit filtersRemoved(indices);
   emit pipelineWasEdited();
 }
 // -----------------------------------------------------------------------------
@@ -543,7 +542,7 @@ AbstractFilter::Pointer FilterPipeline::removeFirstFilterByName(const QString& n
 
   if (indices.empty() == false)
   {
-    emit aboutToRemoveFilters(indices);
+    emit filtersRemoved(indices);
   }
 
   return f;
@@ -609,6 +608,14 @@ void FilterPipeline::updatePrevNextFilters()
 void FilterPipeline::addMessageReceiver(QObject* obj)
 {
   m_MessageReceivers.push_back(obj);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void FilterPipeline::clearMessageReceivers()
+{
+  m_MessageReceivers.clear();
 }
 
 // -----------------------------------------------------------------------------

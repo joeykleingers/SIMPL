@@ -161,7 +161,7 @@ void SVPipelineListView::paintEvent(QPaintEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::setPipelineViewState(SVPipelineListView::PipelineViewState state)
+void SVPipelineListView::setPipelineViewState(PipelineView::PipelineViewState state)
 {
   setPipelineState(state);
 
@@ -461,8 +461,6 @@ void SVPipelineListView::dragMoveEvent(QDragMoveEvent* event)
 
   QModelIndex lastIndex = model->index(model->rowCount(m_PipelineRootIndex) - 1, PipelineItem::Contents, m_PipelineRootIndex);
   QRect lastIndexRect = visualRect(lastIndex);
-
-  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(index, PipelineModel::ItemTypeRole).toInt());
 
   if(index.isValid() == false)
   {

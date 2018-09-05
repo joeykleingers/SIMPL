@@ -134,13 +134,6 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     FilterPipeline::Pointer readPipelineFromFile(const QString& filePath);
 
     /**
-     * @brief getFilterPipeline
-     * @param pipelineRootIndex
-     * @return
-     */
-    FilterPipeline::Pointer getFilterPipeline(const QModelIndex &pipelineRootIndex);
-
-    /**
      * @brief writePipeline
      * @param outputPath
      * @return
