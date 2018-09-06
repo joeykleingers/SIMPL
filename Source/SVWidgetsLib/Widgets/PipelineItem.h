@@ -42,6 +42,7 @@
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
+#include "SVWidgetsLib/Widgets/PipelineOutputTextEdit.h"
 
 class FilterInputWidget;
 
@@ -62,7 +63,7 @@ class SVWidgetsLib_EXPORT PipelineItem
     SIMPL_INSTANCE_PROPERTY(bool, Expanded)
     SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)
     SIMPL_INSTANCE_PROPERTY(QString, PipelineFilePath)
-    SIMPL_POINTER_PROPERTY(QTextEdit, StandardOutputWidget)
+    SIMPL_POINTER_PROPERTY(PipelineOutputTextEdit, PipelineOutputTextEdit)
 
     enum PipelineItemData
     {

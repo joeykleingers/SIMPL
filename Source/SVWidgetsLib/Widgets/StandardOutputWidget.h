@@ -40,13 +40,13 @@
 
 #include "SIMPLib/Common/IObserver.h"
 
-#include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
-
 #include "SVWidgetsLib/SVWidgetsLib.h"
+#include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
 
 #include "ui_StandardOutputWidget.h"
 
 class QtSSettings;
+class PipelineOutputTextEdit;
 
 class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserver, private Ui::StandardOutputWidget
 {
@@ -56,6 +56,12 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
     static SIMPLView::DockWidgetSettings::HideDockSetting GetHideDockSetting();
     static void SetHideDockSetting(SIMPLView::DockWidgetSettings::HideDockSetting setting);
 
+    enum class TextEditType : unsigned int
+    {
+      General,
+      Pipeline
+    };
+
     StandardOutputWidget(QWidget* parent = nullptr);
     ~StandardOutputWidget() override;
 
@@ -63,13 +69,13 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
      * @brief appendText
      * @param text
      */
-    void appendText(const QString &text);
+    void appendStdOutText(const QString &text);
 
     /**
      * @brief setStandardOutputTextEdit
      * @param textEdit
      */
-    void setStandardOutputTextEdit(QTextEdit* textEdit);
+    void setPipelineOutputTextEdit(PipelineOutputTextEdit* textEdit);
 
   protected:
     void setupGui();
@@ -86,8 +92,8 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
     void on_clearLogBtn_clicked();
 
   private:
-    QString             m_LastPathOpened = "";
-    QTextEdit*          m_CurrentStdOutTextEdit = nullptr;
+    QString                           m_LastPathOpened = "";
+    PipelineOutputTextEdit*           m_CurrentPipelineOutTextEdit = nullptr;
 
     StandardOutputWidget(const StandardOutputWidget&) = delete; // Copy Constructor Not Implemented
     void operator=(const StandardOutputWidget&) = delete;       // Move assignment Not Implemented

@@ -57,8 +57,8 @@ PipelineItem::PipelineItem(const QVector<QVariant>& data, PipelineItem* parent)
 , m_ItemData(data)
 , m_ParentItem(parent)
 {
-  m_StandardOutputWidget = new QTextEdit();
-  m_StandardOutputWidget->setReadOnly(true);
+  m_PipelineOutputTextEdit = new PipelineOutputTextEdit();
+  m_PipelineOutputTextEdit->setReadOnly(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -73,9 +73,9 @@ PipelineItem::~PipelineItem()
     delete m_FilterInputWidget;
   }
 
-  if (m_StandardOutputWidget)
+  if (m_PipelineOutputTextEdit)
   {
-    delete m_StandardOutputWidget;
+    delete m_PipelineOutputTextEdit;
   }
 }
 

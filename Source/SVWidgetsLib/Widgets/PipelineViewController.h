@@ -338,6 +338,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     void preflightFinished(FilterPipeline::Pointer pipeline, int err);
 
     void statusMessage(const QString& message);
+    void pipelineMessage(const QString& message);
     void stdOutMessage(const QString& message);
     void errorMessage(const QString& message);
 

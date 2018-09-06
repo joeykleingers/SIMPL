@@ -107,7 +107,7 @@ public:
    * @brief This will preflight the pipeline and report any errors that would occur during
    * execution of the pipeline
    */
-  virtual int preflightPipeline();
+  virtual int preflightPipeline(bool enableOutput = false);
 
   /**
    * @brief

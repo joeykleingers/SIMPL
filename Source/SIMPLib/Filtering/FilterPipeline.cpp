@@ -643,8 +643,23 @@ void FilterPipeline::disconnectFilterNotifications(QObject* filter)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int FilterPipeline::preflightPipeline()
+int FilterPipeline::preflightPipeline(bool enableOutput)
 {
+  // Connect this object to anything that wants to know about PipelineMessages
+  if (enableOutput)
+  {
+    for(int i = 0; i < m_MessageReceivers.size(); i++)
+    {
+      connect(this, SIGNAL(pipelineGeneratedMessage(const PipelineMessage&)), m_MessageReceivers.at(i), SLOT(processPipelineMessage(const PipelineMessage&)));
+    }
+  }
+
+  if (enableOutput)
+  {
+    PipelineMessage pm = PipelineMessage::CreateStatusMessage("<b>Preflight Pipeline.....</b>");
+    emit pipelineGeneratedMessage(pm);
+  }
+
   // Create the DataContainer object
   DataContainerArray::Pointer dca = DataContainerArray::New();
 
@@ -744,6 +759,20 @@ int FilterPipeline::preflightPipeline()
   }
   setCurrentFilter(AbstractFilter::NullPointer());
 
+  if (enableOutput)
+  {
+    if (preflightError < 0)
+    {
+      PipelineMessage pm = PipelineMessage::CreateStatusMessage("    Preflight Results: 1 Error");
+      emit pipelineGeneratedMessage(pm);
+    }
+    else
+    {
+      PipelineMessage pm = PipelineMessage::CreateStatusMessage("    Preflight Results: 0 Errors");
+      emit pipelineGeneratedMessage(pm);
+    }
+  }
+
   return preflightError;
 }
 
@@ -771,6 +800,12 @@ DataContainerArray::Pointer FilterPipeline::execute()
   {
     connect(this, SIGNAL(pipelineGeneratedMessage(const PipelineMessage&)), m_MessageReceivers.at(i), SLOT(processPipelineMessage(const PipelineMessage&)));
   }
+
+  PipelineMessage pm = PipelineMessage::CreateStatusMessage("");
+  emit pipelineGeneratedMessage(pm);
+
+  pm = PipelineMessage::CreateStatusMessage("<b>*************** PIPELINE STARTED ***************</b>");
+  emit pipelineGeneratedMessage(pm);
 
   PipelineMessage progValue("", "", 0, PipelineMessage::MessageType::ProgressValue, -1);
   for(FilterContainerType::iterator filter = m_Pipeline.begin(); filter != m_Pipeline.end(); ++filter)
@@ -836,6 +871,17 @@ DataContainerArray::Pointer FilterPipeline::execute()
 
   PipelineMessage completeMessage("", "Pipeline Complete", 0, PipelineMessage::MessageType::StatusMessage, -1);
   emit pipelineGeneratedMessage(completeMessage);
+
+  if(getCancel() == true)
+  {
+    pm = PipelineMessage::CreateStatusMessage("<b>*************** PIPELINE CANCELED ***************</b>");
+    emit pipelineGeneratedMessage(pm);
+  }
+  else
+  {
+    pm = PipelineMessage::CreateStatusMessage("<b>*************** PIPELINE FINISHED ***************</b>");
+    emit pipelineGeneratedMessage(pm);
+  }
 
   m_Executing = false;
   return m_Dca;

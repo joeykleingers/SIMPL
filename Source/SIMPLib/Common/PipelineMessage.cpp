@@ -127,6 +127,15 @@ PipelineMessage PipelineMessage::CreateStatusMessage(const QString className, co
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+PipelineMessage PipelineMessage::CreateStatusMessage(const QString msg)
+{
+  PipelineMessage em("", "", msg, 0, MessageType::StatusMessage, -1);
+  return em;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 PipelineMessage PipelineMessage::CreateWarningMessage(const QString className, const QString humanLabel, const QString msg, int code)
 {
   PipelineMessage em(className, humanLabel, msg, code, MessageType::Warning, -1);

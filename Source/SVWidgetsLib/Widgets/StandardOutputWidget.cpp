@@ -42,7 +42,7 @@
 #include <QtWidgets/QFileDialog>
 
 #include "SVWidgetsLib/QtSupport/QtSSettings.h"
-
+#include "SVWidgetsLib/Widgets/PipelineOutputTextEdit.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -120,7 +120,14 @@ void StandardOutputWidget::on_saveLogBtn_clicked()
   QFile file(filePath);
   if (file.open(QFile::WriteOnly))
   {
-    file.write(stdOutTextEdit->toPlainText().toStdString().c_str());
+    if (static_cast<StandardOutputWidget::TextEditType>(tabWidget->currentIndex()) == StandardOutputWidget::TextEditType::General)
+    {
+      file.write(stdOutTE->toPlainText().toStdString().c_str());
+    }
+    else
+    {
+      file.write(m_CurrentPipelineOutTextEdit->toPlainText().toStdString().c_str());
+    }
     file.close();
   }
 }
@@ -160,7 +167,14 @@ void StandardOutputWidget::on_clearLogBtn_clicked()
 
   if (answer == QMessageBox::Yes)
   {
-    stdOutTextEdit->clear();
+    if (static_cast<StandardOutputWidget::TextEditType>(tabWidget->currentIndex()) == StandardOutputWidget::TextEditType::General)
+    {
+      stdOutTE->clear();
+    }
+    else
+    {
+      m_CurrentPipelineOutTextEdit->clear();
+    }
 
     clearLogBtn->setDisabled(true);
     saveLogBtn->setDisabled(true);
@@ -170,10 +184,10 @@ void StandardOutputWidget::on_clearLogBtn_clicked()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void StandardOutputWidget::appendText(const QString &text)
+void StandardOutputWidget::appendStdOutText(const QString &text)
 {
-  stdOutTextEdit->append(text);
-  stdOutTextEdit->ensureCursorVisible();
+  stdOutTE->append(text);
+  stdOutTE->ensureCursorVisible();
   clearLogBtn->setEnabled(true);
   saveLogBtn->setEnabled(true);
 }
@@ -181,18 +195,18 @@ void StandardOutputWidget::appendText(const QString &text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void StandardOutputWidget::setStandardOutputTextEdit(QTextEdit* textEdit)
+void StandardOutputWidget::setPipelineOutputTextEdit(PipelineOutputTextEdit* textEdit)
 {
-  if (m_CurrentStdOutTextEdit)
+  if (m_CurrentPipelineOutTextEdit)
   {
-    gridLayout->removeWidget(m_CurrentStdOutTextEdit);
-    m_CurrentStdOutTextEdit = nullptr;
+    gridLayout_3->removeWidget(m_CurrentPipelineOutTextEdit);
+    m_CurrentPipelineOutTextEdit = nullptr;
   }
 
-  m_CurrentStdOutTextEdit = textEdit;
+  m_CurrentPipelineOutTextEdit = textEdit;
 
-  if (m_CurrentStdOutTextEdit)
+  if (m_CurrentPipelineOutTextEdit)
   {
-    gridLayout->addWidget(m_CurrentStdOutTextEdit, 0, 0, 1, 1);
+    gridLayout_3->addWidget(m_CurrentPipelineOutTextEdit, 0, 0, 1, 1);
   }
 }

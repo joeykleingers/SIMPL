@@ -435,7 +435,7 @@ AbstractFilter::Pointer PipelineModel::filter(const QModelIndex &index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QTextEdit* PipelineModel::standardOutputTextEdit(const QModelIndex &pipelineRootIndex)
+PipelineOutputTextEdit* PipelineModel::pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex)
 {
   PipelineItem* item = getItem(pipelineRootIndex);
   if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
@@ -443,7 +443,7 @@ QTextEdit* PipelineModel::standardOutputTextEdit(const QModelIndex &pipelineRoot
     return nullptr;
   }
 
-  return item->getStandardOutputWidget();
+  return item->getPipelineOutputTextEdit();
 }
 
 // -----------------------------------------------------------------------------

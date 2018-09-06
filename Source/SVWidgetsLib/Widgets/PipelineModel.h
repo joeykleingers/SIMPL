@@ -120,7 +120,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     FilterInputWidget* filterInputWidget(const QModelIndex &index);
     void setFilterInputWidget(const QModelIndex &index, FilterInputWidget* fiw);
 
-    QTextEdit* standardOutputTextEdit(const QModelIndex &pipelineRootIndex);
+    PipelineOutputTextEdit* pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex);
 
     bool isEmpty();
 

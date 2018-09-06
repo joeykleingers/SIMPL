@@ -776,6 +776,8 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
       pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
     }
 
+    pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex));
+
     FilterPipeline::FilterContainerType filters = pipeline->getFilterContainer();
     for(int i = 0; i < filters.size(); i++)
     {
@@ -1053,16 +1055,16 @@ void PipelineViewController::executePipeline(const QModelIndex &pipelineRootInde
       pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
     }
 
-    emit stdOutMessage("<b>Preflight Pipeline.....</b>");
+    pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex));
+
     // Give the pipeline one last chance to preflight and get all the latest values from the GUI
-    int err = pipeline->preflightPipeline();
+    int err = pipeline->preflightPipeline(true);
     if(err < 0)
     {
       pipeline = FilterPipeline::NullPointer();
       emit displayIssuesTriggered();
       return;
     }
-    emit stdOutMessage("    Preflight Results: 0 Errors");
 
     // Save the preferences file NOW in case something happens
     emit writeSIMPLViewSettingsTriggered();
@@ -1085,8 +1087,6 @@ void PipelineViewController::executePipeline(const QModelIndex &pipelineRootInde
     emit pipelineStarted(pipelineRootIndex);
 
     setPipelineToRunningState(pipelineRootIndex);
-    emit stdOutMessage("");
-    emit stdOutMessage("<b>*************** PIPELINE STARTED ***************</b>");
   }
 }
 
@@ -1143,15 +1143,12 @@ void PipelineViewController::pipelineExecutionFinished(FilterPipeline::Pointer p
 
   if(pipeline->getCancel() == true)
   {
-    emit stdOutMessage("<b>*************** PIPELINE CANCELED ***************</b>");
     emit pipelineCanceled(pipelineRootIndex);
   }
   else
   {
-    emit stdOutMessage("<b>*************** PIPELINE FINISHED ***************</b>");
     emit pipelineFinished(pipelineRootIndex);
   }
-  emit stdOutMessage("");
 }
 
 // -----------------------------------------------------------------------------

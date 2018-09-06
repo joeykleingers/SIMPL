@@ -39,6 +39,7 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineOutputTextEdit.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewSelectionModel.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineListView.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineListViewDelegate.h
@@ -101,6 +102,7 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItem.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineOutputTextEdit.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineView.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewSelectionModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.cpp
