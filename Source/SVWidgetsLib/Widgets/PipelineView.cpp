@@ -143,12 +143,58 @@ bool PipelineView::arePipelinesRunning()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool PipelineView::hasActivePipeline()
+{
+  if (m_PipelineViewController)
+  {
+    return m_PipelineViewController->hasActivePipeline();
+  }
+
+  return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex PipelineView::getActivePipeline() const
+{
+  if (m_PipelineViewController)
+  {
+    return m_PipelineViewController->getActivePipeline();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::updateActivePipeline(const QModelIndex &pipelineIdx)
+{
+  if (m_PipelineViewController)
+  {
+    m_PipelineViewController->updateActivePipeline(pipelineIdx);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineView::clearActivePipeline()
+{
+  if (m_PipelineViewController)
+  {
+    m_PipelineViewController->updateActivePipeline(QModelIndex());
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void PipelineView::addFilterFromClassName(const QString& filterClassName, int insertIndex)
 {
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    addFilterFromClassName(filterClassName, model->getActivePipeline(), insertIndex);
+    addFilterFromClassName(filterClassName, getActivePipeline(), insertIndex);
   }
 }
 
@@ -171,7 +217,7 @@ void PipelineView::addFilter(AbstractFilter::Pointer filter, int insertIndex)
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    addFilter(filter, model->getActivePipeline(), insertIndex);
+    addFilter(filter, getActivePipeline(), insertIndex);
   }
 }
 
@@ -194,7 +240,7 @@ void PipelineView::addFilters(std::vector<AbstractFilter::Pointer> filters, int 
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    addFilters(filters, model->getActivePipeline(), insertIndex);
+    addFilters(filters, getActivePipeline(), insertIndex);
   }
 }
 
@@ -228,7 +274,7 @@ void PipelineView::removeFilter(AbstractFilter::Pointer filter)
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    removeFilter(filter, model->getActivePipeline());
+    removeFilter(filter, getActivePipeline());
   }
 }
 
@@ -251,7 +297,7 @@ void PipelineView::removeFilters(std::vector<AbstractFilter::Pointer> filters)
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    removeFilters(filters, model->getActivePipeline());
+    removeFilters(filters, getActivePipeline());
   }
 }
 
@@ -274,7 +320,7 @@ void PipelineView::removePipeline()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    removePipeline(model->getActivePipeline());
+    removePipeline(getActivePipeline());
   }
 }
 
@@ -310,7 +356,7 @@ void PipelineView::cutFilter(AbstractFilter::Pointer filter)
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    cutFilter(filter, model->getActivePipeline());
+    cutFilter(filter, getActivePipeline());
   }
 }
 
@@ -333,7 +379,7 @@ void PipelineView::cutFilters(std::vector<AbstractFilter::Pointer> filters)
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    cutFilters(filters, model->getActivePipeline());
+    cutFilters(filters, getActivePipeline());
   }
 }
 
@@ -378,7 +424,7 @@ void PipelineView::pasteFilters(std::vector<AbstractFilter::Pointer> filters, in
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    pasteFilters(filters, model->getActivePipeline(), insertIndex);
+    pasteFilters(filters, getActivePipeline(), insertIndex);
   }
 }
 
@@ -412,7 +458,7 @@ bool PipelineView::savePipeline()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    return savePipeline(model->getActivePipeline());
+    return savePipeline(getActivePipeline());
   }
   return false;
 }
@@ -438,7 +484,7 @@ bool PipelineView::savePipelineAs()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    return savePipelineAs(model->getActivePipeline());
+    return savePipelineAs(getActivePipeline());
   }
   return false;
 }
@@ -464,7 +510,7 @@ void PipelineView::preflightPipeline()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    preflightPipeline(model->getActivePipeline());
+    preflightPipeline(getActivePipeline());
   }
 }
 
@@ -487,7 +533,7 @@ void PipelineView::executePipeline()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    executePipeline(model->getActivePipeline());
+    executePipeline(getActivePipeline());
   }
 }
 
@@ -510,7 +556,7 @@ void PipelineView::cancelPipeline()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    cancelPipeline(model->getActivePipeline());
+    cancelPipeline(getActivePipeline());
   }
 }
 
@@ -533,7 +579,7 @@ void PipelineView::clearPipeline()
   PipelineModel* model = getPipelineModel();
   if (model)
   {
-    clearPipeline(model->getActivePipeline());
+    clearPipeline(getActivePipeline());
   }
 }
 

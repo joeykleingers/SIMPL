@@ -200,6 +200,7 @@ void StandardOutputWidget::setPipelineOutputTextEdit(PipelineOutputTextEdit* tex
   if (m_CurrentPipelineOutTextEdit)
   {
     gridLayout_3->removeWidget(m_CurrentPipelineOutTextEdit);
+    m_CurrentPipelineOutTextEdit->setParent(nullptr);
     m_CurrentPipelineOutTextEdit = nullptr;
   }
 
@@ -208,5 +209,7 @@ void StandardOutputWidget::setPipelineOutputTextEdit(PipelineOutputTextEdit* tex
   if (m_CurrentPipelineOutTextEdit)
   {
     gridLayout_3->addWidget(m_CurrentPipelineOutTextEdit, 0, 0, 1, 1);
+    m_CurrentPipelineOutTextEdit->moveCursor(QTextCursor::End);
+    m_CurrentPipelineOutTextEdit->ensureCursorVisible();
   }
 }

@@ -66,7 +66,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
       ErrorStateRole,
       PipelineStateRole,
       ItemTypeRole,
-      ExpandedRole,
       PipelinePathRole,
       PipelineModifiedRole
     };
@@ -80,12 +79,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
      * @param pipelineRootIndex
      */
     bool savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineName);
-
-    /**
-     * @brief updateActivePipeline
-     * @param pipelineIdx
-     */
-    void updateActivePipeline(const QModelIndex &pipelineIdx);
 
     /**
      * @brief isPipelineRootItem
@@ -122,6 +115,10 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     PipelineOutputTextEdit* pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex);
 
+    PipelineMessageObserver* pipelineMessageObserver(const QModelIndex &pipelineRootIndex);
+    QVector<PipelineMessage> pipelineMessages(const QModelIndex &pipelineRootIndex);
+    void clearPipelineMessages(const QModelIndex &pipelineRootIndex);
+
     bool isEmpty();
 
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -145,10 +142,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-    bool hasActivePipeline();
-    QModelIndex getActivePipeline() const;
-    void clearActivePipeline();
-
     PipelineItem* getRootItem();
 
     int getMaxFilterCount() const;
@@ -157,13 +150,29 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
     QModelIndex getPipelineRootIndexFromPipeline(FilterPipeline::Pointer pipeline);
 
+  protected:
+    /**
+     * @brief setPipelineOutputTextEdit
+     * @param pipelineRootIndex
+     * @param pipelineOutputTE
+     */
+    void setPipelineOutputTextEdit(const QModelIndex &pipelineRootIndex, PipelineOutputTextEdit* pipelineOutputTE);
+
+    /**
+     * @brief setPipelineMessageObserver
+     * @param pipelineRootIndex
+     * @param messageObserver
+     */
+    void setPipelineMessageObserver(const QModelIndex &pipelineRootIndex, PipelineMessageObserver* messageObserver);
+
   signals:
     void pipelineAdded(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
     void pipelineRemoved(FilterPipeline::Pointer pipeline);
     void pipelineModified(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex, bool modified);
     void pipelineSaved(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
 
-    void activePipelineUpdated(const QModelIndex &pipelineRootIndex);
+    void filtersAdded(std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices, const QModelIndex &pipelineRootIndex);
+    void filtersRemoved(std::vector<size_t> indices, const QModelIndex &pipelineRootIndex);
 
     void statusMessage(const QString& message);
     void stdOutMessage(const QString& message);
@@ -191,8 +200,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     bool                                m_UseModelDisplayText = true;
     size_t                              m_MaxPipelineCount = std::numeric_limits<size_t>::max();
 
-    QPersistentModelIndex               m_ActivePipelineIndex;
-
     PipelineItem* getItem(const QModelIndex& index) const;
 
     QColor getForegroundColor(const QModelIndex &index) const;
@@ -200,8 +207,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void insertFilter(AbstractFilter::Pointer filter, int index, const QModelIndex &pipelineRootIndex);
 
     void addFilterData(AbstractFilter::Pointer filter, const QModelIndex &filterIndex);
-
-    void setActivePipeline(const QModelIndex &index);
 
     PipelineModel(const PipelineModel&);    // Copy Constructor Not Implemented
     void operator=(const PipelineModel&);  // Operator '=' Not Implemented

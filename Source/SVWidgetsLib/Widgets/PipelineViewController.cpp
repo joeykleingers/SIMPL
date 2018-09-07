@@ -766,7 +766,7 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
       return;
     }
 
-    emit clearIssuesTriggered();
+    m_PipelineModel->clearPipelineMessages(pipelineRootIndex);
 
     // Create a Pipeline Object and fill it with the filters from this View
     FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
@@ -777,6 +777,7 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
     }
 
     pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex));
+    pipeline->addMessageReceiver(m_PipelineModel->pipelineMessageObserver(pipelineRootIndex));
 
     FilterPipeline::FilterContainerType filters = pipeline->getFilterContainer();
     for(int i = 0; i < filters.size(); i++)
@@ -1056,6 +1057,7 @@ void PipelineViewController::executePipeline(const QModelIndex &pipelineRootInde
     }
 
     pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex));
+    pipeline->addMessageReceiver(m_PipelineModel->pipelineMessageObserver(pipelineRootIndex));
 
     // Give the pipeline one last chance to preflight and get all the latest values from the GUI
     int err = pipeline->preflightPipeline(true);
@@ -1563,6 +1565,42 @@ QJsonArray PipelineViewController::getPipelinesArrayFromClipboard()
   }
   QJsonArray pipelinesArray = doc.array();
   return pipelinesArray;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineViewController::hasActivePipeline()
+{
+  return m_ActivePipelineIndex.isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QModelIndex PipelineViewController::getActivePipeline() const
+{
+  return m_ActivePipelineIndex;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::updateActivePipeline(const QModelIndex &pipelineIdx)
+{
+  emit clearIssuesTriggered();
+
+  m_ActivePipelineIndex = pipelineIdx;
+
+  emit activePipelineUpdated(m_ActivePipelineIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineViewController::clearActivePipeline()
+{
+  updateActivePipeline(QModelIndex());
 }
 
 // -----------------------------------------------------------------------------

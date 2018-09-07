@@ -38,6 +38,7 @@
 #include <QtGui/QIcon>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include "SIMPLib/Common/PipelineMessageObserver.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -55,15 +56,12 @@ class SVWidgetsLib_EXPORT PipelineItem
     SIMPL_INSTANCE_PROPERTY(FilterPipeline::Pointer, SavedPipeline)
     SIMPL_INSTANCE_PROPERTY(FilterPipeline::Pointer, TempPipeline)
     SIMPL_POINTER_PROPERTY(FilterInputWidget, FilterInputWidget)
-    SIMPL_INSTANCE_PROPERTY(bool, FilterEnabled)
-    SIMPL_BOOL_PROPERTY(ActivePipeline)
-    SIMPL_BOOL_PROPERTY(PipelineSaved)
     SIMPL_BOOL_PROPERTY(PipelineModified)
     SIMPL_INSTANCE_PROPERTY(QIcon, Icon)
-    SIMPL_INSTANCE_PROPERTY(bool, Expanded)
     SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)
     SIMPL_INSTANCE_PROPERTY(QString, PipelineFilePath)
     SIMPL_POINTER_PROPERTY(PipelineOutputTextEdit, PipelineOutputTextEdit)
+    SIMPL_POINTER_PROPERTY(PipelineMessageObserver, PipelineMessageObserver)
 
     enum PipelineItemData
     {

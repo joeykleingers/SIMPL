@@ -43,12 +43,8 @@
 // -----------------------------------------------------------------------------
 PipelineItem::PipelineItem(const QVector<QVariant>& data, PipelineItem* parent)
 : m_FilterInputWidget(nullptr)
-, m_FilterEnabled(true)
-, m_ActivePipeline(false)
-, m_PipelineSaved(true)
 , m_PipelineModified(false)
 , m_Icon(QIcon())
-, m_Expanded(false)
 , m_ItemTooltip("")
 , m_WidgetState(PipelineItem::WidgetState::Ready)
 , m_PipelineState(PipelineItem::PipelineState::Stopped)
@@ -57,8 +53,7 @@ PipelineItem::PipelineItem(const QVector<QVariant>& data, PipelineItem* parent)
 , m_ItemData(data)
 , m_ParentItem(parent)
 {
-  m_PipelineOutputTextEdit = new PipelineOutputTextEdit();
-  m_PipelineOutputTextEdit->setReadOnly(true);
+
 }
 
 // -----------------------------------------------------------------------------

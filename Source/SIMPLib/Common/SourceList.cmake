@@ -25,6 +25,7 @@ set(SIMPLib_${SUBDIR_NAME}_HDRS
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/IObserver.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/PhaseType.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/PipelineMessage.h
+  ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/PipelineMessageObserver.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/SIMPLibDLLExport.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/SIMPLibSetGetMacros.h
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ScopedFileMonitor.hpp
@@ -44,6 +45,7 @@ set(SIMPLib_${SUBDIR_NAME}_SRCS
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/Observer.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/PhaseType.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/PipelineMessage.cpp
+  ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/PipelineMessageObserver.cpp
   ${SIMPLib_SOURCE_DIR}/${SUBDIR_NAME}/ShapeType.cpp
 
 )

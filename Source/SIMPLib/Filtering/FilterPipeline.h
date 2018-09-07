@@ -233,7 +233,7 @@ signals:
    * @param filters The filters that were added
    * @param indices The indices in the FilterPipeline where the filters are located
    */
-  void filtersWereAdded(std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices);
+  void filtersAdded(std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices);
 
   /**
    * @brief The signal is emitted when a filter is edited in the FilterPipeline

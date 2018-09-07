@@ -350,6 +350,29 @@ class SVWidgetsLib_EXPORT PipelineView
      */
     void clearPipeline(const QModelIndex &pipelineRootIndex);
 
+    /**
+     * @brief hasActivePipeline
+     * @return
+     */
+    bool hasActivePipeline();
+
+    /**
+     * @brief getActivePipeline
+     * @return
+     */
+    QModelIndex getActivePipeline() const;
+
+    /**
+     * @brief updateActivePipeline
+     * @param pipelineIdx
+     */
+    void updateActivePipeline(const QModelIndex &pipelineIdx);
+
+    /**
+     * @brief clearActivePipeline
+     */
+    void clearActivePipeline();
+
   protected:
     PipelineView();
 

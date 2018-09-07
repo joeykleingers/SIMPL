@@ -144,29 +144,26 @@ void IssuesWidget::clearIssues()
 {
   ui->errorTableWidget->clearContents();
   ui->errorTableWidget->setRowCount(0);
-  m_CachedMessages.clear();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void IssuesWidget::processPipelineMessage(const PipelineMessage& msg)
+void IssuesWidget::displayMessages(QVector<PipelineMessage> messages)
 {
-  m_CachedMessages.push_back(msg);
-}
+  if (messages.size() <= 0)
+  {
+    clearIssues();
+    return;
+  }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void IssuesWidget::displayCachedMessages()
-{
   // Figure out how many error and warning messages that we have. We ignore the rest
   int count = 0;
   int warnCount = 0;
   int errCount = 0;
-  for(int i = 0; i < m_CachedMessages.size(); i++)
+  for(int i = 0; i < messages.size(); i++)
   {
-    PipelineMessage msg = m_CachedMessages[i];
+    PipelineMessage msg = messages[i];
     switch(msg.getType())
     {
     case PipelineMessage::MessageType::Error:
@@ -204,9 +201,9 @@ void IssuesWidget::displayCachedMessages()
   QLabel* hyperlinkLabel = nullptr;
 
   // Add in the content for the cells of the table.
-  for(int j = 0; j < m_CachedMessages.size(); j++)
+  for(int j = 0; j < messages.size(); j++)
   {
-    PipelineMessage msg = m_CachedMessages[j];
+    PipelineMessage msg = messages[j];
     // Create error hyperlink
     updateRow = false;
     switch(msg.getType())

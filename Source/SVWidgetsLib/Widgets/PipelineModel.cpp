@@ -100,23 +100,6 @@ bool PipelineModel::savePipeline(const QModelIndex &pipelineRootIndex, const QSt
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineModel::updateActivePipeline(const QModelIndex &pipelineIdx)
-{
-  emit clearIssuesTriggered();
-
-  setActivePipeline(pipelineIdx);
-
-  m_ActivePipelineIndex = pipelineIdx;
-
-  if (m_ActivePipelineIndex.isValid() == true)
-  {
-    emit activePipelineUpdated(m_ActivePipelineIndex);
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int PipelineModel::columnCount(const QModelIndex& parent) const
 {
   return m_RootItem->columnCount();
@@ -153,10 +136,6 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
   else if (role == PipelineModel::Roles::ItemTypeRole)
   {
     return static_cast<int>(item->getItemType());
-  }
-  else if (role == PipelineModel::Roles::ExpandedRole)
-  {
-    return item->getExpanded();
   }
   else if(role == Qt::DisplayRole && m_UseModelDisplayText)
   {
@@ -300,13 +279,20 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
       disconnect(oldFilter.get(), SIGNAL(filterInProgress(AbstractFilter*)), this, SLOT(listenFilterInProgress(AbstractFilter*)));
     }
 
-    disconnect(oldTempPipeline.get(), &FilterPipeline::filtersWereAdded, nullptr, nullptr);
+    disconnect(oldTempPipeline.get(), &FilterPipeline::filtersAdded, nullptr, nullptr);
     disconnect(oldTempPipeline.get(), &FilterPipeline::filtersRemoved, nullptr, nullptr);
     disconnect(oldTempPipeline.get(), &FilterPipeline::pipelineWasEdited, nullptr, nullptr);
   }
 
   if (pipeline != FilterPipeline::NullPointer())
   {
+    PipelineOutputTextEdit* pipelineOutputTE = new PipelineOutputTextEdit();
+    pipelineOutputTE->setReadOnly(true);
+    setPipelineOutputTextEdit(pipelineRootIndex, pipelineOutputTE);
+
+    PipelineMessageObserver* messageObserver = new PipelineMessageObserver();
+    setPipelineMessageObserver(pipelineRootIndex, messageObserver);
+
     bool success = insertRows(0, pipeline->size(), pipelineRootIndex);
     if (!success)
     {
@@ -324,13 +310,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
       addFilterData(filter, filterIndex);
     }
 
-    if (getActivePipeline() == pipelineRootIndex)
-    {
-      emit clearIssuesTriggered();
-      emit preflightTriggered(pipelineRootIndex);
-    }
-
-    connect(pipeline.get(), &FilterPipeline::filtersWereAdded, [=] (std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices) {
+    connect(pipeline.get(), &FilterPipeline::filtersAdded, [=] (std::vector<AbstractFilter::Pointer> filters, std::vector<size_t> indices) {
       if (filters.size() != indices.size())
       {
         return;
@@ -341,11 +321,8 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
         insertFilter(filters[i], indices[i], pipelineRootIndex);
       }
 
-      if (getActivePipeline() == pipelineRootIndex)
-      {
-        emit clearIssuesTriggered();
-        emit preflightTriggered(pipelineRootIndex);
-      }
+      emit preflightTriggered(pipelineRootIndex);
+      emit filtersAdded(filters, indices, pipelineRootIndex);
     });
 
     // Connection that automatically updates the model when a filter gets removed from the FilterPipeline
@@ -357,20 +334,16 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
         offset++;
       }
 
-      if (getActivePipeline() == pipelineRootIndex)
-      {
-        emit clearIssuesTriggered();
-        emit preflightTriggered(pipelineRootIndex);
-      }
+      emit preflightTriggered(pipelineRootIndex);
+      emit filtersRemoved(indices, pipelineRootIndex);
     });
 
     emit dataChanged(index, index);
-    emit pipelineAdded(pipeline, pipelineRootIndex);
+
+    emit preflightTriggered(pipelineRootIndex);
   }
-  else if (getActivePipeline() == pipelineRootIndex)
-  {
-    emit clearIssuesTriggered();
-  }
+
+  emit pipelineAdded(pipeline, pipelineRootIndex);
 
   return true;
 }
@@ -449,6 +422,86 @@ PipelineOutputTextEdit* PipelineModel::pipelineOutputTextEdit(const QModelIndex 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+PipelineMessageObserver* PipelineModel::pipelineMessageObserver(const QModelIndex &pipelineRootIndex)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return nullptr;
+  }
+
+  return item->getPipelineMessageObserver();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVector<PipelineMessage> PipelineModel::pipelineMessages(const QModelIndex &pipelineRootIndex)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return QVector<PipelineMessage>();
+  }
+
+  PipelineMessageObserver* observer = item->getPipelineMessageObserver();
+  if (observer)
+  {
+    return observer->getPipelineMessages();
+  }
+
+  return QVector<PipelineMessage>();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::clearPipelineMessages(const QModelIndex &pipelineRootIndex)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return;
+  }
+
+  PipelineMessageObserver* observer = item->getPipelineMessageObserver();
+  if (observer)
+  {
+    observer->clearPipelineMessages();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::setPipelineOutputTextEdit(const QModelIndex &pipelineRootIndex, PipelineOutputTextEdit* pipelineOutputTE)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return;
+  }
+
+  item->setPipelineOutputTextEdit(pipelineOutputTE);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::setPipelineMessageObserver(const QModelIndex &pipelineRootIndex, PipelineMessageObserver* messageObserver)
+{
+  PipelineItem* item = getItem(pipelineRootIndex);
+  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  {
+    return;
+  }
+
+  item->setPipelineMessageObserver(messageObserver);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 QModelIndex PipelineModel::getPipelineRootIndexFromPipeline(FilterPipeline::Pointer pipeline)
 {
   for (int i = 0; i < rowCount(); i++)
@@ -508,54 +561,6 @@ QModelIndex PipelineModel::indexOfFilter(AbstractFilter* filter, const QModelInd
   }
 
   return QModelIndex();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-bool PipelineModel::hasActivePipeline()
-{
-  return m_ActivePipelineIndex.isValid();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QModelIndex PipelineModel::getActivePipeline() const
-{
-  return m_ActivePipelineIndex;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineModel::setActivePipeline(const QModelIndex &index)
-{
-  PipelineItem* oldActiveItem = getItem(m_ActivePipelineIndex);
-  if (oldActiveItem)
-  {
-    oldActiveItem->setActivePipeline(false);
-
-    emit dataChanged(m_ActivePipelineIndex, m_ActivePipelineIndex);
-  }
-
-  PipelineItem* newActiveItem = getItem(index);
-  if (newActiveItem)
-  {
-    newActiveItem->setActivePipeline(true);
-
-    emit dataChanged(index, index);
-  }
-  
-  m_ActivePipelineIndex = index;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineModel::clearActivePipeline()
-{
-  setActivePipeline(QModelIndex());
 }
 
 // -----------------------------------------------------------------------------
@@ -823,11 +828,6 @@ bool PipelineModel::setData(const QModelIndex& index, const QVariant& value, int
   {
     item->setPipelineModified(value.toBool());
     emit pipelineModified(item->getTempPipeline(), this->getPipelineRootIndexFromPipeline(item->getTempPipeline()), value.toBool());
-  }
-  else if (role == PipelineModel::Roles::ExpandedRole)
-  {
-    int expanded = value.toBool();
-    item->setExpanded(expanded);
   }
   else if(role == Qt::DecorationRole)
   {

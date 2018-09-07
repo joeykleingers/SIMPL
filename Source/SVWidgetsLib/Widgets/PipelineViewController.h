@@ -172,6 +172,29 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      */
     void getDefaultContextMenu(QMenu &menu);
 
+    /**
+     * @brief hasActivePipeline
+     * @return
+     */
+    bool hasActivePipeline();
+
+    /**
+     * @brief getActivePipeline
+     * @return
+     */
+    QModelIndex getActivePipeline() const;
+
+    /**
+     * @brief updateActivePipeline
+     * @param pipelineIdx
+     */
+    void updateActivePipeline(const QModelIndex &pipelineIdx);
+
+    /**
+     * @brief clearActivePipeline
+     */
+    void clearActivePipeline();
+
   public slots:
     /**
      * @brief Adds a filter with the specified filterClassName to the current model
@@ -342,6 +365,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     void stdOutMessage(const QString& message);
     void errorMessage(const QString& message);
 
+    void activePipelineUpdated(const QModelIndex &pipelineRootIndex);
     void pipelineSavedAs(const QModelIndex &pipelineRootIndex, const QString &filePath);
     void pipelineStarted(const QModelIndex &pipelineRootIndex);
     void pipelineFilePathUpdated(const QString &name);
@@ -378,6 +402,8 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     QAction* m_ActionCopy = nullptr;
     QAction* m_ActionPaste = nullptr;
     QAction* m_ActionClearPipeline = nullptr;
+
+    QPersistentModelIndex m_ActivePipelineIndex;
 
     /**
      * @brief setupUndoStack

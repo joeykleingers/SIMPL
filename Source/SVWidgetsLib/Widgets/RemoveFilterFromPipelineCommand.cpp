@@ -141,7 +141,7 @@ void RemoveFilterFromPipelineCommand::undo()
   m_Pipeline->blockSignals(false);
 
   emit m_Pipeline->pipelineWasEdited();
-  emit m_Pipeline->filtersWereAdded(m_Filters, m_Indices);
+  emit m_Pipeline->filtersAdded(m_Filters, m_Indices);
 
   QModelIndex pipelineRootIndex = m_PipelineModel->getPipelineRootIndexFromPipeline(m_Pipeline);
   m_PipelineModel->setData(pipelineRootIndex, m_PreviousModifiedState, PipelineModel::Roles::PipelineModifiedRole);

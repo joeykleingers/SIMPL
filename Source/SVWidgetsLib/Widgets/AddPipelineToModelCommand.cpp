@@ -57,8 +57,6 @@ AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pip
   }
   m_InsertIndex = insertIndex;
 
-  oldActivePipeline = m_PipelineModel->getActivePipeline();
-
   connect(this, &AddPipelineToModelCommand::statusMessageGenerated, m_PipelineModel, &PipelineModel::statusMessage);
   connect(this, &AddPipelineToModelCommand::standardOutputMessageGenerated, m_PipelineModel, &PipelineModel::stdOutMessage);
 }
@@ -91,10 +89,7 @@ void AddPipelineToModelCommand::redo()
     m_FirstRun = false;
   }
 
-  if (m_PipelineModel->hasActivePipeline() == false)
-  {
-    m_PipelineModel->updateActivePipeline(pipelineRootIndex);
-  }
+  emit m_PipelineModel->preflightTriggered(pipelineRootIndex);
 
   emit statusMessageGenerated(statusMessage);
   emit standardOutputMessageGenerated(statusMessage);
@@ -113,8 +108,6 @@ void AddPipelineToModelCommand::undo()
 
   statusMessage.prepend("Undo \"");
   statusMessage.append('\"');
-
-  m_PipelineModel->updateActivePipeline(oldActivePipeline);
 
   emit statusMessageGenerated(statusMessage);
   emit standardOutputMessageGenerated(statusMessage);

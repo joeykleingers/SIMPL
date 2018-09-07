@@ -222,7 +222,7 @@ void SVPipelineTreeView::beginDrag(QMouseEvent* event)
 
   if(modifiers.testFlag(Qt::AltModifier) == false)
   {
-    FilterPipeline::Pointer pipeline = model->tempPipeline(getPipelineModel()->getActivePipeline());
+    FilterPipeline::Pointer pipeline = model->tempPipeline(getActivePipeline());
     RemoveFilterFromPipelineCommand* cmd = new RemoveFilterFromPipelineCommand(filters, pipeline, getPipelineModel());
     if(filters.size() == 1)
     {
