@@ -62,7 +62,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="SVPipelineListView" name="pipelineView">
+    <widget class="PipelineListView" name="pipelineView">
      <property name="mouseTracking">
       <bool>true</bool>
      </property>
@@ -105,9 +105,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SVPipelineListView</class>
+   <class>PipelineListView</class>
    <extends>QListView</extends>
-   <header location="global">SVPipelineListView.h</header>
+   <header location="global">PipelineListView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

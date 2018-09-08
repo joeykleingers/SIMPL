@@ -33,14 +33,14 @@
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "SVPipelineTreeViewSelectionModel.h"
+#include "PipelineTreeViewSelectionModel.h"
 
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineTreeViewSelectionModel::SVPipelineTreeViewSelectionModel(PipelineModel* model)
+PipelineTreeViewSelectionModel::PipelineTreeViewSelectionModel(PipelineModel* model)
 : QItemSelectionModel(model)
 , m_PipelineModel(model)
 {
@@ -50,7 +50,7 @@ SVPipelineTreeViewSelectionModel::SVPipelineTreeViewSelectionModel(PipelineModel
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineTreeViewSelectionModel::~SVPipelineTreeViewSelectionModel()
+PipelineTreeViewSelectionModel::~PipelineTreeViewSelectionModel()
 {
 
 }
@@ -58,7 +58,7 @@ SVPipelineTreeViewSelectionModel::~SVPipelineTreeViewSelectionModel()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeViewSelectionModel::select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
+void PipelineTreeViewSelectionModel::select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
 {
   QItemSelection selection(index, index);
   select(selection, command);
@@ -67,7 +67,7 @@ void SVPipelineTreeViewSelectionModel::select(const QModelIndex &index, QItemSel
 // -----------------------------------------------------------------------------
 // This slot is overridden so that it is not possible to select filter indexes and pipeline root indexes at the same time
 // -----------------------------------------------------------------------------
-void SVPipelineTreeViewSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
+void PipelineTreeViewSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
 {
   // Run the superclass's select slot
   QItemSelectionModel::select(selection, command);

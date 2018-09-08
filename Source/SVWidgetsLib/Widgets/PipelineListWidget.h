@@ -54,7 +54,7 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
      * @brief getPipelineView
      * @return
      */
-    SVPipelineListView* getPipelineView();
+    PipelineListView* getPipelineView();
 
     /**
      * @brief setProgressValue
@@ -112,7 +112,7 @@ class SVWidgetsLib_EXPORT PipelineListWidget : public QFrame, private Ui::Pipeli
      * @brief Sets the PipelineState and updates the UI to match
      * @param state
      */
-    void setPipelineState(SVPipelineListView::PipelineViewState state);
+    void setPipelineState(PipelineListView::PipelineViewState state);
 
   public:
     PipelineListWidget(const PipelineListWidget&) = delete; // Copy Constructor Not Implemented

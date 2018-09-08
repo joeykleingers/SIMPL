@@ -40,11 +40,11 @@ set(SVWidgetsLib_Widgets_MOC_HDRS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineOutputTextEdit.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewSelectionModel.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineListView.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineListViewDelegate.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewDelegate.h
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeView.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineTreeViewSelectionModel.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListView.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListViewDelegate.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineTreeViewDelegate.h
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineTreeView.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.h
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarIssuesButton.h
@@ -96,22 +96,22 @@ set(SVWidgetsLib_Widgets_SRCS
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/FilterInputWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ImportHDF5TreeModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ImportHDF5TreeModelItem.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineListView.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeView.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListView.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineTreeView.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineFilterMimeData.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineItem.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineOutputTextEdit.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineView.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewSelectionModel.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineTreeViewSelectionModel.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineExecutionController.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineViewController.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarButton.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/StatusBarIssuesButton.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineListViewDelegate.cpp
-  ${SVWidgetsLib_SOURCE_DIR}/Widgets/SVPipelineTreeViewDelegate.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineListViewDelegate.cpp
+  ${SVWidgetsLib_SOURCE_DIR}/Widgets/PipelineTreeViewDelegate.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/PopUpWidget.cpp
   ${SVWidgetsLib_SOURCE_DIR}/Widgets/ProgressDialog.cpp
   

@@ -33,7 +33,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "SVPipelineTreeView.h"
+#include "PipelineTreeView.h"
 
 #include <QtCore/QJsonDocument>
 
@@ -45,8 +45,8 @@
 #include "SIMPLib/Filtering/FilterManager.h"
 
 #include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
-#include "SVWidgetsLib/Widgets/SVPipelineTreeViewDelegate.h"
-#include "SVWidgetsLib/Widgets/SVPipelineTreeViewSelectionModel.h"
+#include "SVWidgetsLib/Widgets/PipelineTreeViewDelegate.h"
+#include "SVWidgetsLib/Widgets/PipelineTreeViewSelectionModel.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
 #include "SVWidgetsLib/Widgets/AddPipelineToModelCommand.h"
@@ -56,7 +56,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineTreeView::SVPipelineTreeView(QWidget* parent)
+PipelineTreeView::PipelineTreeView(QWidget* parent)
 : QTreeView(parent)
 , PipelineView()
 {
@@ -66,28 +66,28 @@ SVPipelineTreeView::SVPipelineTreeView(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineTreeView::~SVPipelineTreeView()
+PipelineTreeView::~PipelineTreeView()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::setupGui()
+void PipelineTreeView::setupGui()
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
   setFocusPolicy(Qt::StrongFocus);
   setAcceptDrops(true);
 
-  SVPipelineTreeViewDelegate* delegate = new SVPipelineTreeViewDelegate(this);
-  setItemDelegate(delegate);
+//  PipelineTreeViewDelegate* delegate = new PipelineTreeViewDelegate(this);
+//  setItemDelegate(delegate);
 
   // Create the model
   PipelineModel* model = new PipelineModel(this);
-  model->setUseModelDisplayText(false);
+//  model->setUseModelDisplayText(false);
   setModel(model);
 
-  SVPipelineTreeViewSelectionModel* selectionModel = new SVPipelineTreeViewSelectionModel(model);
+  PipelineTreeViewSelectionModel* selectionModel = new PipelineTreeViewSelectionModel(model);
   setSelectionModel(selectionModel);
 
   connectSignalsSlots();
@@ -96,7 +96,7 @@ void SVPipelineTreeView::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::connectSignalsSlots()
+void PipelineTreeView::connectSignalsSlots()
 {
 
 }
@@ -104,7 +104,7 @@ void SVPipelineTreeView::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QModelIndexList SVPipelineTreeView::getSelectedRows()
+QModelIndexList PipelineTreeView::getSelectedRows()
 {
   return selectionModel()->selectedRows();
 }
@@ -112,14 +112,14 @@ QModelIndexList SVPipelineTreeView::getSelectedRows()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineTreeView::getDraggingPixmap(QModelIndexList indexes)
+QPixmap PipelineTreeView::getDraggingPixmap(QModelIndexList indexes)
 {
   if(indexes.size() <= 0)
   {
     return QPixmap();
   }
 
-//  SVPipelineTreeViewDelegate* delegate = dynamic_cast<SVPipelineTreeViewDelegate*>(itemDelegate());
+//  PipelineTreeViewDelegate* delegate = dynamic_cast<PipelineTreeViewDelegate*>(itemDelegate());
 //  if(delegate == nullptr)
 //  {
 //    return QPixmap();
@@ -151,7 +151,7 @@ QPixmap SVPipelineTreeView::getDraggingPixmap(QModelIndexList indexes)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::mouseMoveEvent(QMouseEvent* event)
+void PipelineTreeView::mouseMoveEvent(QMouseEvent* event)
 {
   if((event->buttons() & Qt::LeftButton) && (event->pos() - m_DragStartPosition).manhattanLength() >= QApplication::startDragDistance() + 1 && dragEnabled() == true)
   {
@@ -166,7 +166,7 @@ void SVPipelineTreeView::mouseMoveEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::beginDrag(QMouseEvent* event)
+void PipelineTreeView::beginDrag(QMouseEvent* event)
 {
   QModelIndexList selectedIndexes = selectionModel()->selectedRows();
   if(selectedIndexes.size() <= 0)
@@ -245,7 +245,7 @@ void SVPipelineTreeView::beginDrag(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::dragMoveEvent(QDragMoveEvent* event)
+void PipelineTreeView::dragMoveEvent(QDragMoveEvent* event)
 {
   QTreeView::dragMoveEvent(event);
 }
@@ -253,7 +253,7 @@ void SVPipelineTreeView::dragMoveEvent(QDragMoveEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::dropEvent(QDropEvent* event)
+void PipelineTreeView::dropEvent(QDropEvent* event)
 {
   PipelineModel* model = getPipelineModel();
 
@@ -300,7 +300,7 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
   const PipelineFilterMimeData* filterData = dynamic_cast<const PipelineFilterMimeData*>(mimedata);
   if(filterData != nullptr)
   {
-    // This is filter data from an SVPipelineTreeView instance
+    // This is filter data from an PipelineTreeView instance
     std::vector<PipelineFilterMimeData::FilterDragMetadata> dragData = filterData->getFilterDragData();
 
     std::vector<AbstractFilter::Pointer> filters;
@@ -475,7 +475,7 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineTreeView::openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex)
+int PipelineTreeView::openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex)
 {
   if(getPipelineViewController())
   {
@@ -490,7 +490,7 @@ int SVPipelineTreeView::openPipeline(const QString& filePath, QModelIndex pipeli
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::mousePressEvent(QMouseEvent* event)
+void PipelineTreeView::mousePressEvent(QMouseEvent* event)
 {
   if(event->button() == Qt::LeftButton)
   {
@@ -508,7 +508,7 @@ void SVPipelineTreeView::mousePressEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineTreeView::setModel(QAbstractItemModel* model)
+void PipelineTreeView::setModel(QAbstractItemModel* model)
 {
   PipelineModel* oldModel = dynamic_cast<PipelineModel*>(this->model());
   if(oldModel)

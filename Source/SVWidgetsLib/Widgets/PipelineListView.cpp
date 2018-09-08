@@ -33,7 +33,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "SVPipelineListView.h"
+#include "PipelineListView.h"
 
 #include <iostream>
 
@@ -88,7 +88,7 @@
 #include "SVWidgetsLib/Widgets/DataStructureWidget.h"
 #include "SVWidgetsLib/Widgets/FilterInputWidget.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
-#include "SVWidgetsLib/Widgets/SVPipelineListViewDelegate.h"
+#include "SVWidgetsLib/Widgets/PipelineListViewDelegate.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineViewController.h"
 #include "SVWidgetsLib/Widgets/ProgressDialog.h"
@@ -101,7 +101,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineListView::SVPipelineListView(QWidget* parent)
+PipelineListView::PipelineListView(QWidget* parent)
 : QListView(parent)
 , PipelineView()
 , m_PipelineIsRunning(false)
@@ -112,21 +112,20 @@ SVPipelineListView::SVPipelineListView(QWidget* parent)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineListView::~SVPipelineListView()
+PipelineListView::~PipelineListView()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::setupGui()
+void PipelineListView::setupGui()
 {
-  SVPipelineListViewDelegate* delegate = new SVPipelineListViewDelegate(this);
-  setItemDelegate(delegate);
+//  PipelineListViewDelegate* delegate = new PipelineListViewDelegate(this);
+//  setItemDelegate(delegate);
 
   // Create the model
   PipelineModel* model = new PipelineModel(1, this);
-  model->setUseModelDisplayText(false);
 
   setModel(model);
 
@@ -136,7 +135,7 @@ void SVPipelineListView::setupGui()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::connectSignalsSlots()
+void PipelineListView::connectSignalsSlots()
 {
   connect(getPipelineViewController(), &PipelineViewController::pipelineStarted, [=] { setPipelineViewState(PipelineViewState::Running); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineCanceling, [=] { setPipelineViewState(PipelineViewState::Cancelling); });
@@ -147,7 +146,7 @@ void SVPipelineListView::connectSignalsSlots()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::paintEvent(QPaintEvent* event)
+void PipelineListView::paintEvent(QPaintEvent* event)
 {
   DropIndicatorPosition position = dropIndicatorPosition();
   setDropIndicatorShown(position == QAbstractItemView::BelowItem || position == QAbstractItemView::AboveItem);
@@ -158,7 +157,7 @@ void SVPipelineListView::paintEvent(QPaintEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::setPipelineViewState(PipelineView::PipelineViewState state)
+void PipelineListView::setPipelineViewState(PipelineView::PipelineViewState state)
 {
   setPipelineState(state);
 
@@ -183,7 +182,7 @@ void SVPipelineListView::setPipelineViewState(PipelineView::PipelineViewState st
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex)
+void PipelineListView::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex)
 {
   if(getPipelineViewController())
   {
@@ -194,7 +193,7 @@ void SVPipelineListView::addPipeline(FilterPipeline::Pointer pipeline, int inser
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::removePipeline(FilterPipeline::Pointer pipeline)
+void PipelineListView::removePipeline(FilterPipeline::Pointer pipeline)
 {
   if(getPipelineViewController())
   {
@@ -205,7 +204,7 @@ void SVPipelineListView::removePipeline(FilterPipeline::Pointer pipeline)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QModelIndexList SVPipelineListView::getSelectedRows()
+QModelIndexList PipelineListView::getSelectedRows()
 {
   return selectionModel()->selectedRows();
 }
@@ -213,14 +212,14 @@ QModelIndexList SVPipelineListView::getSelectedRows()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getDraggingPixmap(QModelIndexList indexes)
+QPixmap PipelineListView::getDraggingPixmap(QModelIndexList indexes)
 {
   if(indexes.size() <= 0)
   {
     return QPixmap();
   }
 
-  SVPipelineListViewDelegate* delegate = dynamic_cast<SVPipelineListViewDelegate*>(itemDelegate());
+  PipelineListViewDelegate* delegate = dynamic_cast<PipelineListViewDelegate*>(itemDelegate());
   if(delegate == nullptr)
   {
     return QPixmap();
@@ -252,7 +251,7 @@ QPixmap SVPipelineListView::getDraggingPixmap(QModelIndexList indexes)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::mouseMoveEvent(QMouseEvent* event)
+void PipelineListView::mouseMoveEvent(QMouseEvent* event)
 {
   if((event->buttons() & Qt::LeftButton) && (event->pos() - m_DragStartPosition).manhattanLength() >= QApplication::startDragDistance() + 1 && dragEnabled() == true)
   {
@@ -267,7 +266,7 @@ void SVPipelineListView::mouseMoveEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::beginDrag(QMouseEvent* event)
+void PipelineListView::beginDrag(QMouseEvent* event)
 {
   QModelIndexList selectedIndexes = selectionModel()->selectedRows();
   if(selectedIndexes.size() <= 0)
@@ -361,7 +360,7 @@ void SVPipelineListView::beginDrag(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::dragMoveEvent(QDragMoveEvent* event)
+void PipelineListView::dragMoveEvent(QDragMoveEvent* event)
 {
   PipelineModel* model = getPipelineModel();
 
@@ -526,7 +525,7 @@ void SVPipelineListView::dragMoveEvent(QDragMoveEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::dragLeaveEvent(QDragLeaveEvent* event)
+void PipelineListView::dragLeaveEvent(QDragLeaveEvent* event)
 {
   removeDropIndicator();
 
@@ -536,7 +535,7 @@ void SVPipelineListView::dragLeaveEvent(QDragLeaveEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineListView::findNextRow(const QPoint& pos)
+int PipelineListView::findNextRow(const QPoint& pos)
 {
   if(filterCount(m_PipelineRootIndex) == 0)
   {
@@ -573,7 +572,7 @@ int SVPipelineListView::findNextRow(const QPoint& pos)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineListView::findPreviousRow(const QPoint& pos)
+int PipelineListView::findPreviousRow(const QPoint& pos)
 {
   if(filterCount(m_PipelineRootIndex) == 0)
   {
@@ -607,9 +606,9 @@ int SVPipelineListView::findPreviousRow(const QPoint& pos)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::addDropIndicator(const QString& text, int insertIndex)
+void PipelineListView::addDropIndicator(const QString& text, int insertIndex)
 {
-  SVPipelineListViewDelegate* delegate = getViewDelegate();
+  PipelineListViewDelegate* delegate = getViewDelegate();
   delegate->setDropText(text);
   delegate->setDropRow(insertIndex);
   m_DropIndicatorRow = insertIndex;
@@ -622,9 +621,9 @@ void SVPipelineListView::addDropIndicator(const QString& text, int insertIndex)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::removeDropIndicator()
+void PipelineListView::removeDropIndicator()
 {
-  SVPipelineListViewDelegate* delegate = getViewDelegate();
+  PipelineListViewDelegate* delegate = getViewDelegate();
 
   PipelineModel* pipelineModel = getPipelineModel();
   QModelIndex index = pipelineModel->index(m_DropIndicatorRow, PipelineItem::Contents, m_PipelineRootIndex);
@@ -639,7 +638,7 @@ void SVPipelineListView::removeDropIndicator()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::dropEvent(QDropEvent* event)
+void PipelineListView::dropEvent(QDropEvent* event)
 {
   PipelineModel* model = getPipelineModel();
 
@@ -651,7 +650,7 @@ void SVPipelineListView::dropEvent(QDropEvent* event)
   const PipelineFilterMimeData* filterData = dynamic_cast<const PipelineFilterMimeData*>(mimedata);
   if(filterData != nullptr)
   {
-    // This is filter data from an SVPipelineListView instance
+    // This is filter data from an PipelineListView instance
     std::vector<PipelineFilterMimeData::FilterDragMetadata> dragData = filterData->getFilterDragData();
 
     std::vector<AbstractFilter::Pointer> filters;
@@ -783,7 +782,7 @@ void SVPipelineListView::dropEvent(QDropEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::keyPressEvent(QKeyEvent* event)
+void PipelineListView::keyPressEvent(QKeyEvent* event)
 {
   if(event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)
   {
@@ -820,7 +819,7 @@ void SVPipelineListView::keyPressEvent(QKeyEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineListView::openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex)
+int PipelineListView::openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex)
 {
   int err = -1;
   if(getPipelineViewController())
@@ -845,7 +844,7 @@ int SVPipelineListView::openPipeline(const QString& filePath, QModelIndex pipeli
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::mousePressEvent(QMouseEvent* event)
+void PipelineListView::mousePressEvent(QMouseEvent* event)
 {
   if(event->button() == Qt::LeftButton)
   {
@@ -865,7 +864,7 @@ void SVPipelineListView::mousePressEvent(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::requestContextMenu(const QPoint& pos)
+void PipelineListView::requestContextMenu(const QPoint& pos)
 {
   activateWindow();
 
@@ -911,7 +910,7 @@ void SVPipelineListView::requestContextMenu(const QPoint& pos)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SVPipelineListView::setModel(QAbstractItemModel* model)
+void PipelineListView::setModel(QAbstractItemModel* model)
 {
   PipelineModel* oldModel = dynamic_cast<PipelineModel*>(this->model());
   if(oldModel)
@@ -941,7 +940,7 @@ void SVPipelineListView::setModel(QAbstractItemModel* model)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool SVPipelineListView::isPipelineCurrentlyRunning()
+bool PipelineListView::isPipelineCurrentlyRunning()
 {
   return (getPipelineState() == PipelineViewState::Running);
 }
@@ -949,7 +948,7 @@ bool SVPipelineListView::isPipelineCurrentlyRunning()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineModel* SVPipelineListView::getPipelineModel()
+PipelineModel* PipelineListView::getPipelineModel()
 {
   return static_cast<PipelineModel*>(model());
 }
@@ -957,7 +956,7 @@ PipelineModel* SVPipelineListView::getPipelineModel()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getDisableBtnPixmap(bool highlighted)
+QPixmap PipelineListView::getDisableBtnPixmap(bool highlighted)
 {
   if(m_DisableBtnPixmap.isNull())
   {
@@ -985,7 +984,7 @@ QPixmap SVPipelineListView::getDisableBtnPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getHighDPIDisableBtnPixmap(bool highlighted)
+QPixmap PipelineListView::getHighDPIDisableBtnPixmap(bool highlighted)
 {
   if(m_DisableBtnPixmap2x.isNull())
   {
@@ -1013,7 +1012,7 @@ QPixmap SVPipelineListView::getHighDPIDisableBtnPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getDisableBtnActivatedPixmap(bool highlighted)
+QPixmap PipelineListView::getDisableBtnActivatedPixmap(bool highlighted)
 {
   Q_UNUSED(highlighted)
 
@@ -1028,7 +1027,7 @@ QPixmap SVPipelineListView::getDisableBtnActivatedPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getHighDPIDisableBtnActivatedPixmap(bool highlighted)
+QPixmap PipelineListView::getHighDPIDisableBtnActivatedPixmap(bool highlighted)
 {
   Q_UNUSED(highlighted)
 
@@ -1043,7 +1042,7 @@ QPixmap SVPipelineListView::getHighDPIDisableBtnActivatedPixmap(bool highlighted
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getDisableBtnHoveredPixmap(bool highlighted)
+QPixmap PipelineListView::getDisableBtnHoveredPixmap(bool highlighted)
 {
   if(m_DisableBtnHoveredPixmap.isNull())
   {
@@ -1071,7 +1070,7 @@ QPixmap SVPipelineListView::getDisableBtnHoveredPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getHighDPIDisableBtnHoveredPixmap(bool highlighted)
+QPixmap PipelineListView::getHighDPIDisableBtnHoveredPixmap(bool highlighted)
 {
   if(m_DisableBtnHoveredPixmap2x.isNull())
   {
@@ -1099,7 +1098,7 @@ QPixmap SVPipelineListView::getHighDPIDisableBtnHoveredPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getDeleteBtnPixmap(bool highlighted)
+QPixmap PipelineListView::getDeleteBtnPixmap(bool highlighted)
 {
   if(m_DeleteBtnPixmap.isNull())
   {
@@ -1127,7 +1126,7 @@ QPixmap SVPipelineListView::getDeleteBtnPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getHighDPIDeleteBtnPixmap(bool highlighted)
+QPixmap PipelineListView::getHighDPIDeleteBtnPixmap(bool highlighted)
 {
   if(m_DeleteBtnPixmap2x.isNull())
   {
@@ -1155,7 +1154,7 @@ QPixmap SVPipelineListView::getHighDPIDeleteBtnPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getDeleteBtnHoveredPixmap(bool highlighted)
+QPixmap PipelineListView::getDeleteBtnHoveredPixmap(bool highlighted)
 {
   if(m_DeleteBtnHoveredPixmap.isNull())
   {
@@ -1183,7 +1182,7 @@ QPixmap SVPipelineListView::getDeleteBtnHoveredPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::getHighDPIDeleteBtnHoveredPixmap(bool highlighted)
+QPixmap PipelineListView::getHighDPIDeleteBtnHoveredPixmap(bool highlighted)
 {
   if(m_DeleteBtnHoveredPixmap2x.isNull())
   {
@@ -1211,7 +1210,7 @@ QPixmap SVPipelineListView::getHighDPIDeleteBtnHoveredPixmap(bool highlighted)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QPixmap SVPipelineListView::setPixmapColor(QPixmap pixmap, QColor pixmapColor)
+QPixmap PipelineListView::setPixmapColor(QPixmap pixmap, QColor pixmapColor)
 {
   QImage image = pixmap.toImage();
   for(int y = 0; y < image.height(); y++)
@@ -1237,7 +1236,7 @@ QPixmap SVPipelineListView::setPixmapColor(QPixmap pixmap, QColor pixmapColor)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SVPipelineListViewDelegate* SVPipelineListView::getViewDelegate()
+PipelineListViewDelegate* PipelineListView::getViewDelegate()
 {
-  return dynamic_cast<SVPipelineListViewDelegate*>(itemDelegate());
+  return dynamic_cast<PipelineListViewDelegate*>(itemDelegate());
 }

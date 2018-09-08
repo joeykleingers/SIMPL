@@ -43,15 +43,15 @@
 #include "SVWidgetsLib/Widgets/PipelineView.h"
 
 /**
- * @brief The SVPipelineTreeView class
+ * @brief The PipelineTreeView class
  */
-class SVWidgetsLib_EXPORT SVPipelineTreeView : public QTreeView, public PipelineView
+class SVWidgetsLib_EXPORT PipelineTreeView : public QTreeView, public PipelineView
 {
   Q_OBJECT
 
 public:
-  SVPipelineTreeView(QWidget* parent = nullptr);
-  virtual ~SVPipelineTreeView();
+  PipelineTreeView(QWidget* parent = nullptr);
+  virtual ~PipelineTreeView();
 
   /**
    * @brief openPipeline
@@ -104,6 +104,6 @@ private:
    */
   QPixmap getDraggingPixmap(QModelIndexList indexes);
 
-  SVPipelineTreeView(const SVPipelineTreeView&) = delete; // Copy Constructor Not Implemented
-  void operator=(const SVPipelineTreeView&) = delete; // Move assignment Not Implemented
+  PipelineTreeView(const PipelineTreeView&) = delete; // Copy Constructor Not Implemented
+  void operator=(const PipelineTreeView&) = delete; // Move assignment Not Implemented
 };

@@ -42,25 +42,25 @@
 class PipelineModel;
 
 /**
- * @brief The SVPipelineTreeViewSelectionModel class primarily exists so that
+ * @brief The PipelineTreeViewSelectionModel class primarily exists so that
  * it is not possible to select filter indexes and pipeline root indexes at the same time
  */
-class SVWidgetsLib_EXPORT SVPipelineTreeViewSelectionModel : public QItemSelectionModel
+class SVWidgetsLib_EXPORT PipelineTreeViewSelectionModel : public QItemSelectionModel
 {
     Q_OBJECT
 
   public:
     /**
-   * @brief SVPipelineTreeViewSelectionModel
+   * @brief PipelineTreeViewSelectionModel
    * @param parent
    */
-    SVPipelineTreeViewSelectionModel(PipelineModel* model);
+    PipelineTreeViewSelectionModel(PipelineModel* model);
 
     /**
   * @brief Destructor
   * @return
   */
-    virtual ~SVPipelineTreeViewSelectionModel();
+    virtual ~PipelineTreeViewSelectionModel();
 
     /**
      * @brief QItemSelectionModel::select
@@ -79,7 +79,7 @@ class SVWidgetsLib_EXPORT SVPipelineTreeViewSelectionModel : public QItemSelecti
   private:
     PipelineModel* m_PipelineModel = nullptr;
 
-    SVPipelineTreeViewSelectionModel(const SVPipelineTreeViewSelectionModel&) = delete; // Copy Constructor Not Implemented
-    void operator=(const SVPipelineTreeViewSelectionModel&) = delete;     // Move assignment Not Implemented
+    PipelineTreeViewSelectionModel(const PipelineTreeViewSelectionModel&) = delete; // Copy Constructor Not Implemented
+    void operator=(const PipelineTreeViewSelectionModel&) = delete;     // Move assignment Not Implemented
 };
 

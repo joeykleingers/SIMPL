@@ -70,12 +70,12 @@ class DataStructureWidget;
 class PipelineModel;
 class QSignalMapper;
 class PipelineViewController;
-class SVPipelineListViewDelegate;
+class PipelineListViewDelegate;
 
 /*
  *
  */
-class SVWidgetsLib_EXPORT SVPipelineListView : public QListView, public PipelineView
+class SVWidgetsLib_EXPORT PipelineListView : public QListView, public PipelineView
 {
   Q_OBJECT
 
@@ -86,8 +86,8 @@ public:
 
   using IndexedFilterObject = std::pair<int, PipelineFilterObject*>;
 
-  SVPipelineListView(QWidget* parent = nullptr);
-  ~SVPipelineListView() override;
+  PipelineListView(QWidget* parent = nullptr);
+  ~PipelineListView() override;
 
   /**
    * @brief openPipeline
@@ -345,8 +345,8 @@ private:
    * @brief getViewDelegate
    * @return
    */
-  SVPipelineListViewDelegate* getViewDelegate();
+  PipelineListViewDelegate* getViewDelegate();
 
-  SVPipelineListView(const SVPipelineListView&) = delete; // Copy Constructor Not Implemented
-  void operator=(const SVPipelineListView&) = delete; // Move assignment Not Implemented
+  PipelineListView(const PipelineListView&) = delete; // Copy Constructor Not Implemented
+  void operator=(const PipelineListView&) = delete; // Move assignment Not Implemented
 };

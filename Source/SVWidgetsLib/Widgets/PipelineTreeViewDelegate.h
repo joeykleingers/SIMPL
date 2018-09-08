@@ -41,22 +41,22 @@
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 
-class SVPipelineTreeView;
+class PipelineTreeView;
 class QPushButton;
 class PipelineModel;
 
-class SVWidgetsLib_EXPORT SVPipelineTreeViewDelegate : public QStyledItemDelegate
+class SVWidgetsLib_EXPORT PipelineTreeViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
   public:    
-    explicit SVPipelineTreeViewDelegate(SVPipelineTreeView* view);
+    explicit PipelineTreeViewDelegate(PipelineTreeView* view);
 
-    virtual ~SVPipelineTreeViewDelegate();
+    virtual ~PipelineTreeViewDelegate();
 
   protected:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+//    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
   private:
     enum class HoverItem : unsigned int
@@ -67,7 +67,7 @@ class SVWidgetsLib_EXPORT SVPipelineTreeViewDelegate : public QStyledItemDelegat
       Unknown
     };
 
-    SVPipelineTreeView* m_View = nullptr;
+    PipelineTreeView* m_View = nullptr;
 //    int m_MousePressIndex = -1;
 //    HoverItem m_CurrentlyHoveredItem = HoverItem::Unknown;
     const qreal m_BorderSize = 1;
@@ -86,6 +86,6 @@ class SVWidgetsLib_EXPORT SVPipelineTreeViewDelegate : public QStyledItemDelegat
      */
     const PipelineModel* getPipelineModel(const QModelIndex &index) const;
 
-    SVPipelineTreeViewDelegate(const SVPipelineTreeViewDelegate&) = delete; // Copy Constructor Not Implemented
-    void operator=(const SVPipelineTreeViewDelegate&) = delete;        // Operator '=' Not Implemented
+    PipelineTreeViewDelegate(const PipelineTreeViewDelegate&) = delete; // Copy Constructor Not Implemented
+    void operator=(const PipelineTreeViewDelegate&) = delete;        // Operator '=' Not Implemented
 };
