@@ -156,6 +156,8 @@ public:
 
   QString getName();
 
+  QString getFilePath();
+
   /**
   * @brief This method returns a deep copy of the FilterPipeline and all its filters
   * @return
@@ -193,6 +195,8 @@ public slots:
   virtual void cancelPipeline();
 
   void setName(QString name);
+
+  void setFilePath(QString filePath);
 
 protected:
   FilterPipeline();
@@ -255,10 +259,18 @@ signals:
   */
   void pipelineNameChanged(QString oldName, QString newName);
 
+  /**
+   * @brief This signal is emitted when the pipeline file path changes
+   * @param oldName The FilterPipeline's previous file path
+   * @param newName The FilterPipeline's current file path
+   */
+  void pipelineFilePathChanged(QString oldName, QString newName);
+
 private:
   bool m_Cancel;
   FilterContainerType m_Pipeline;
   QString m_PipelineName;
+  QString m_PipelineFilePath;
   bool m_Executing = false;
 
   QVector<QObject*> m_MessageReceivers;

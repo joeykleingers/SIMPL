@@ -312,12 +312,10 @@ void SVPipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionView
       if (m_View->getActivePipeline() == index)
       {
         font.setWeight(QFont::Bold);
-        qDebug() << "Setting pipeline " << index.row() + 1 << " to bold";
         painter->setFont(font);
       }
       else
       {
-        qDebug() << "Setting pipeline " << index.row() + 1 << " to normal";
       }
 
       QString pipelineName = "";

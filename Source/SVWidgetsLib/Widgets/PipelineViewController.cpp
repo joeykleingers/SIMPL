@@ -164,7 +164,7 @@ bool PipelineViewController::savePipeline(const QModelIndex &pipelineRootIndex)
     return false;
   }
 
-  QString filePath = model->data(pipelineRootIndex, PipelineModel::Roles::PipelinePathRole).toString();
+  QString filePath = model->pipelineFilePath(pipelineRootIndex);
   if(filePath.isEmpty())
   {
     // When the file hasn't been saved before, the same functionality as a "Save As" occurs...
@@ -177,8 +177,7 @@ bool PipelineViewController::savePipeline(const QModelIndex &pipelineRootIndex)
   if(err >= 0)
   {
     QFileInfo fi(filePath);
-    model->savePipeline(pipelineRootIndex, fi.baseName());
-    model->setData(pipelineRootIndex, filePath, PipelineModel::Roles::PipelinePathRole);
+    model->savePipeline(pipelineRootIndex, filePath);
     model->setData(pipelineRootIndex, false, PipelineModel::Roles::PipelineModifiedRole);
 
     // Cache the last directory
@@ -228,8 +227,7 @@ bool PipelineViewController::savePipelineAs(const QModelIndex &pipelineRootIndex
 
   if(err >= 0)
   {
-    model->savePipeline(pipelineRootIndex, fi.baseName());
-    model->setData(pipelineRootIndex, filePath, PipelineModel::Roles::PipelinePathRole);
+    model->savePipeline(pipelineRootIndex, filePath);
     model->setData(pipelineRootIndex, false, PipelineModel::Roles::PipelineModifiedRole);
 
     // Cache the last directory
@@ -252,6 +250,8 @@ bool PipelineViewController::savePipelineAs(const QModelIndex &pipelineRootIndex
 // -----------------------------------------------------------------------------s
 void PipelineViewController::updatePasteAvailability()
 {
+  m_ActionPaste->setDisabled(true);
+
   QClipboard* clipboard = QApplication::clipboard();
   QString jsonString = clipboard->text();
   if (jsonString.isEmpty())
@@ -270,7 +270,6 @@ void PipelineViewController::updatePasteAvailability()
 
   if (pipelinesArray.size() <= 0)
   {
-    m_ActionPaste->setDisabled(true);
     return;
   }
 
@@ -281,7 +280,6 @@ void PipelineViewController::updatePasteAvailability()
     FilterPipeline::Pointer pipeline = jsonReader->readPipelineFromObject(obj);
     if(FilterPipeline::NullPointer() == pipeline)
     {
-      m_ActionPaste->setDisabled(true);
       return;
     }
   }
@@ -438,7 +436,7 @@ void PipelineViewController::addPipelineMessageObserver(QObject* pipelineMessage
 // -----------------------------------------------------------------------------
 void PipelineViewController::addFilterFromClassName(const QString& filterClassName, const QModelIndex &pipelineRootIndex, int insertIndex, QString actionText)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     FilterManager* fm = FilterManager::Instance();
     if(fm != nullptr)
@@ -458,9 +456,12 @@ void PipelineViewController::addFilterFromClassName(const QString& filterClassNa
 // -----------------------------------------------------------------------------
 void PipelineViewController::addFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex, int insertIndex, QString actionText)
 {
-  std::vector<AbstractFilter::Pointer> filters;
-  filters.push_back(filter);
-  addFilters(filters, pipelineRootIndex, insertIndex, actionText);
+  if (m_PipelineModel && pipelineRootIndex.isValid())
+  {
+    std::vector<AbstractFilter::Pointer> filters;
+    filters.push_back(filter);
+    addFilters(filters, pipelineRootIndex, insertIndex, actionText);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -468,7 +469,7 @@ void PipelineViewController::addFilter(AbstractFilter::Pointer filter, const QMo
 // -----------------------------------------------------------------------------
 void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex, QString actionText)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     if (actionText.isEmpty())
     {
@@ -481,7 +482,7 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
       pipeline = FilterPipeline::New();
       pipeline->insert(0, filters);
       pipeline->setName("Untitled");
-      addPipeline(pipeline, -1, "", actionText);
+      addPipeline(pipeline, -1, actionText);
       QModelIndex index = m_PipelineModel->index(m_PipelineModel->rowCount() - 1, PipelineItem::Contents);
       m_PipelineModel->setData(index, true, PipelineModel::Roles::PipelineModifiedRole);
       return;
@@ -530,11 +531,11 @@ void PipelineViewController::addFilters(std::vector<AbstractFilter::Pointer> fil
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineViewController::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex, const QString &pipelineFilePath, QString actionText)
+void PipelineViewController::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex, QString actionText)
 {
   if (m_PipelineModel)
   {
-    AddPipelineToModelCommand* cmd = new AddPipelineToModelCommand(pipeline, insertIndex, m_PipelineModel, pipelineFilePath);
+    AddPipelineToModelCommand* cmd = new AddPipelineToModelCommand(pipeline, insertIndex, m_PipelineModel);
     cmd->setText(QObject::tr("\"%1 '%2' Pipeline\"").arg(actionText).arg(pipeline->getName()));
     addUndoCommand(cmd);
   }
@@ -545,9 +546,12 @@ void PipelineViewController::addPipeline(FilterPipeline::Pointer pipeline, int i
 // -----------------------------------------------------------------------------
 void PipelineViewController::removeFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex, QString actionText)
 {
-  std::vector<AbstractFilter::Pointer> filters;
-  filters.push_back(filter);
-  removeFilters(filters, pipelineRootIndex, actionText);
+  if (m_PipelineModel && pipelineRootIndex.isValid())
+  {
+    std::vector<AbstractFilter::Pointer> filters;
+    filters.push_back(filter);
+    removeFilters(filters, pipelineRootIndex, actionText);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -555,7 +559,7 @@ void PipelineViewController::removeFilter(AbstractFilter::Pointer filter, const 
 // -----------------------------------------------------------------------------
 void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, QString actionText)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     if (actionText.isEmpty())
     {
@@ -615,7 +619,7 @@ void PipelineViewController::removeFilters(std::vector<AbstractFilter::Pointer> 
 // -----------------------------------------------------------------------------
 void PipelineViewController::removePipeline(const QModelIndex &pipelineRootIndex, QString actionText)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
     removePipeline(pipeline, actionText);
@@ -640,9 +644,12 @@ void PipelineViewController::removePipeline(FilterPipeline::Pointer pipeline, QS
 // -----------------------------------------------------------------------------
 void PipelineViewController::cutFilter(AbstractFilter::Pointer filter, const QModelIndex &pipelineRootIndex)
 {
-  std::vector<AbstractFilter::Pointer> filters;
-  filters.push_back(filter);
-  removeFilters(filters, pipelineRootIndex, "Cut");
+  if (m_PipelineModel && pipelineRootIndex.isValid())
+  {
+    std::vector<AbstractFilter::Pointer> filters;
+    filters.push_back(filter);
+    removeFilters(filters, pipelineRootIndex, "Cut");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -650,7 +657,10 @@ void PipelineViewController::cutFilter(AbstractFilter::Pointer filter, const QMo
 // -----------------------------------------------------------------------------
 void PipelineViewController::cutFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex)
 {
-  removeFilters(filters, pipelineRootIndex, "Cut");
+  if (m_PipelineModel && pipelineRootIndex.isValid())
+  {
+    removeFilters(filters, pipelineRootIndex, "Cut");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -658,7 +668,10 @@ void PipelineViewController::cutFilters(std::vector<AbstractFilter::Pointer> fil
 // -----------------------------------------------------------------------------
 void PipelineViewController::cutPipeline(FilterPipeline::Pointer pipeline)
 {
-  removePipeline(pipeline, "Cut");
+  if (m_PipelineModel)
+  {
+    removePipeline(pipeline, "Cut");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -666,7 +679,10 @@ void PipelineViewController::cutPipeline(FilterPipeline::Pointer pipeline)
 // -----------------------------------------------------------------------------
 void PipelineViewController::cutPipeline(const QModelIndex &pipelineRootIndex)
 {
-  removePipeline(pipelineRootIndex, "Cut");
+  if (m_PipelineModel && pipelineRootIndex.isValid())
+  {
+    removePipeline(pipelineRootIndex, "Cut");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -686,8 +702,7 @@ void PipelineViewController::copySelection()
     if (itemType == PipelineItem::ItemType::PipelineRoot)
     {
       FilterPipeline::Pointer pipeline = m_PipelineModel->tempPipeline(selectedIndex);
-      QString filePath = m_PipelineModel->data(selectedIndex, PipelineModel::Roles::PipelinePathRole).toString();
-      QJsonObject obj = jsonWriter->writePipelineToObject(pipeline, pipeline->getName());
+      QJsonObject obj = jsonWriter->writePipelineToObject(pipeline);
       obj["Pipeline Root Node"] = true;
       pipelineArray.push_back(obj);
     }
@@ -700,7 +715,7 @@ void PipelineViewController::copySelection()
 
   if (filtersPipeline->size() > 0)
   {
-    QJsonObject obj = jsonWriter->writePipelineToObject(filtersPipeline, "Untitled");
+    QJsonObject obj = jsonWriter->writePipelineToObject(filtersPipeline);
     obj["Pipeline Root Node"] = false;
     pipelineArray.push_back(obj);
   }
@@ -717,7 +732,10 @@ void PipelineViewController::copySelection()
 // -----------------------------------------------------------------------------
 void PipelineViewController::pasteFilters(std::vector<AbstractFilter::Pointer> filters, const QModelIndex &pipelineRootIndex, int insertIndex)
 {
-  addFilters(filters, pipelineRootIndex, insertIndex, "Paste");
+  if (m_PipelineModel && pipelineRootIndex.isValid())
+  {
+    addFilters(filters, pipelineRootIndex, insertIndex, "Paste");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -725,7 +743,10 @@ void PipelineViewController::pasteFilters(std::vector<AbstractFilter::Pointer> f
 // -----------------------------------------------------------------------------
 void PipelineViewController::pastePipeline(FilterPipeline::Pointer pipeline, int insertIndex)
 {
-  addPipeline(pipeline, insertIndex, "", "Paste");
+  if (m_PipelineModel)
+  {
+    addPipeline(pipeline, insertIndex, "Paste");
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -759,7 +780,7 @@ void PipelineViewController::blockPreflightSignals(bool b)
 // -----------------------------------------------------------------------------
 void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     if(m_BlockPreflight)
     {
@@ -776,7 +797,7 @@ void PipelineViewController::preflightPipeline(const QModelIndex &pipelineRootIn
       pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
     }
 
-    pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex));
+    pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex).get());
     pipeline->addMessageReceiver(m_PipelineModel->pipelineMessageObserver(pipelineRootIndex));
 
     FilterPipeline::FilterContainerType filters = pipeline->getFilterContainer();
@@ -881,7 +902,7 @@ void PipelineViewController::setFiltersEnabled(QModelIndexList indexes)
 // -----------------------------------------------------------------------------
 void PipelineViewController::clearPipeline(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     std::vector<AbstractFilter::Pointer> filters;
     for(int i = 0; i < m_PipelineModel->rowCount(pipelineRootIndex); i++)
@@ -899,7 +920,7 @@ void PipelineViewController::clearPipeline(const QModelIndex &pipelineRootIndex)
 // -----------------------------------------------------------------------------
 void PipelineViewController::updateFilterInputWidgetIndices(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     int rowCount = m_PipelineModel->rowCount(pipelineRootIndex);
     int col = PipelineModel::ItemTypeRole;
@@ -959,7 +980,18 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
           DataContainerReader::Pointer reader = DataContainerReader::New();
           reader->setInputFile(filePath);
 
-          addFilter(reader, pipelineRootIndex, insertIndex);
+          if (pipelineRootIndex.isValid() == false)
+          {
+            FilterPipeline::Pointer pipeline = FilterPipeline::New();
+            pipeline->pushBack(reader);
+            addPipeline(pipeline, -1);
+            pipelineRootIndex = m_PipelineModel->index(m_PipelineModel->rowCount() - 1, PipelineItem::Contents);
+          }
+          else
+          {
+            addFilter(reader, pipelineRootIndex, insertIndex);
+          }
+
           return true;
         }
       }
@@ -984,7 +1016,7 @@ int PipelineViewController::openPipeline(const QString& filePath, QModelIndex &p
     FilterPipeline::Pointer insertPipeline = m_PipelineModel->tempPipeline(pipelineRootIndex);
     if (insertPipeline.get() == nullptr)
     {
-      addPipeline(pipeline, -1, filePath);
+      addPipeline(pipeline, -1);
       pipelineRootIndex = m_PipelineModel->index(m_PipelineModel->rowCount() - 1, PipelineItem::Contents);
     }
     else
@@ -1033,6 +1065,11 @@ FilterPipeline::Pointer PipelineViewController::readPipelineFromFile(const QStri
       pipeline = FilterPipeline::NullPointer();
     }
 
+    if (pipeline != FilterPipeline::NullPointer())
+    {
+      pipeline->setFilePath(filePath);
+    }
+
     return pipeline;
   }
 
@@ -1044,7 +1081,7 @@ FilterPipeline::Pointer PipelineViewController::readPipelineFromFile(const QStri
 // -----------------------------------------------------------------------------
 void PipelineViewController::executePipeline(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     // Clear out the Issues Table
     emit clearIssuesTriggered();
@@ -1056,7 +1093,7 @@ void PipelineViewController::executePipeline(const QModelIndex &pipelineRootInde
       pipeline->addMessageReceiver(m_PipelineMessageObservers[i]);
     }
 
-    pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex));
+    pipeline->addMessageReceiver(m_PipelineModel->pipelineOutputTextEdit(pipelineRootIndex).get());
     pipeline->addMessageReceiver(m_PipelineModel->pipelineMessageObserver(pipelineRootIndex));
 
     // Give the pipeline one last chance to preflight and get all the latest values from the GUI
@@ -1097,7 +1134,7 @@ void PipelineViewController::executePipeline(const QModelIndex &pipelineRootInde
 // -----------------------------------------------------------------------------
 void PipelineViewController::cancelPipeline(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     emit pipelineCanceling(pipelineRootIndex);
 
@@ -1113,7 +1150,7 @@ void PipelineViewController::cancelPipeline(const QModelIndex &pipelineRootIndex
 // -----------------------------------------------------------------------------
 void PipelineViewController::pipelineExecutionFinished(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     // Put back the DataContainerArray for each filter at the conclusion of running
     // the pipeline. this keeps the data browser current and up to date.
@@ -1158,7 +1195,7 @@ void PipelineViewController::pipelineExecutionFinished(FilterPipeline::Pointer p
 // -----------------------------------------------------------------------------
 void PipelineViewController::setPipelineToReadyState(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     for(int i = 0; i < m_PipelineModel->rowCount(pipelineRootIndex); i++)
     {
@@ -1179,7 +1216,7 @@ void PipelineViewController::setPipelineToReadyState(const QModelIndex &pipeline
 // -----------------------------------------------------------------------------
 void PipelineViewController::setPipelineToRunningState(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     for(int i = 0; i < m_PipelineModel->rowCount(pipelineRootIndex); i++)
     {
@@ -1199,7 +1236,7 @@ void PipelineViewController::setPipelineToRunningState(const QModelIndex &pipeli
 // -----------------------------------------------------------------------------
 void PipelineViewController::setPipelineToStoppedState(const QModelIndex &pipelineRootIndex)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     for(int i = 0; i < m_PipelineModel->rowCount(pipelineRootIndex); i++)
     {
@@ -1220,8 +1257,8 @@ void PipelineViewController::setPipelineToStoppedState(const QModelIndex &pipeli
       }
     }
 
-    m_ActionUndo->setEnabled(true);
-    m_ActionRedo->setEnabled(true);
+    m_ActionUndo->setEnabled(m_UndoStack->canUndo());
+    m_ActionRedo->setEnabled(m_UndoStack->canRedo());
   }
 }
 
@@ -1230,7 +1267,7 @@ void PipelineViewController::setPipelineToStoppedState(const QModelIndex &pipeli
 // -----------------------------------------------------------------------------
 int PipelineViewController::writePipeline(const QModelIndex &pipelineRootIndex, const QString& outputPath)
 {
-  if (m_PipelineModel)
+  if (m_PipelineModel && pipelineRootIndex.isValid())
   {
     QFileInfo fi(outputPath);
     QString ext = fi.completeSuffix();
@@ -1259,7 +1296,7 @@ int PipelineViewController::writePipeline(const QModelIndex &pipelineRootIndex, 
       }
 
       H5FilterParametersWriter::Pointer dream3dWriter = H5FilterParametersWriter::New();
-      err = dream3dWriter->writePipelineToFile(pipeline, fi.absoluteFilePath(), fi.fileName(), observers);
+      err = dream3dWriter->writePipelineToFile(pipeline, fi.absoluteFilePath(), observers);
     }
     else if(ext == "json")
     {
@@ -1270,7 +1307,7 @@ int PipelineViewController::writePipeline(const QModelIndex &pipelineRootIndex, 
       }
 
       JsonFilterParametersWriter::Pointer jsonWriter = JsonFilterParametersWriter::New();
-      jsonWriter->writePipelineToFile(pipeline, fi.absoluteFilePath(), fi.fileName(), observers);
+      jsonWriter->writePipelineToFile(pipeline, fi.absoluteFilePath(), observers);
     }
     else
     {
@@ -1384,21 +1421,26 @@ void PipelineViewController::getFilterItemContextMenu(QMenu &menu, const QModelI
 
   menu.addAction(m_ActionCut);
   menu.addAction(m_ActionCopy);
-  menu.addSeparator();
 
-  QAction* actionPasteAbove = new QAction("Paste Above");
-  QAction* actionPasteBelow = new QAction("Paste Below");
+  if (index.isValid())
+  {
+    menu.addSeparator();
 
-  QJsonArray pipelinesArray = getPipelinesArrayFromClipboard();
-  actionPasteAbove->setEnabled(pipelinesArray.size() > 0);
-  actionPasteBelow->setEnabled(pipelinesArray.size() > 0);
+    QAction* actionPasteAbove = new QAction("Paste Above");
+    QAction* actionPasteBelow = new QAction("Paste Below");
 
-  QObject::connect(actionPasteAbove, &QAction::triggered, [=] { handleActionPasteAbove(pipelinesArray, index); });
+    QJsonArray pipelinesArray = getPipelinesArrayFromClipboard();
+    actionPasteAbove->setEnabled(pipelinesArray.size() > 0);
+    actionPasteBelow->setEnabled(pipelinesArray.size() > 0);
 
-  QObject::connect(actionPasteBelow, &QAction::triggered, [=] { handleActionPasteBelow(pipelinesArray, index); });
+    QObject::connect(actionPasteAbove, &QAction::triggered, [=] { handleActionPasteAbove(pipelinesArray, index); });
 
-  menu.addAction(actionPasteAbove);
-  menu.addAction(actionPasteBelow);
+    QObject::connect(actionPasteBelow, &QAction::triggered, [=] { handleActionPasteBelow(pipelinesArray, index); });
+
+    menu.addAction(actionPasteAbove);
+    menu.addAction(actionPasteBelow);
+  }
+
   menu.addSeparator();
 
   int count = selectedIndexes.size();

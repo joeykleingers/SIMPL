@@ -86,7 +86,15 @@ class SVWidgetsLib_EXPORT PipelineView
      * @param insertIndex
      * @return
      */
-    virtual int openPipeline(const QString& filePath, int insertIndex = -1) = 0;
+    int openPipeline(const QString& filePath, int insertIndex = -1);
+
+    /**
+     * @brief openPipeline
+     * @param filePath
+     * @param insertIndex
+     * @return
+     */
+    virtual int openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex = -1) = 0;
 
     /**
      * @brief writePipeline

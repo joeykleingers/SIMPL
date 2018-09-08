@@ -70,7 +70,7 @@ hid_t H5FilterParametersWriter::getCurrentGroupId() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int H5FilterParametersWriter::writePipelineToFile(FilterPipeline::Pointer pipeline, QString filePath, QString pipelineName, QList<IObserver *> obs)
+int H5FilterParametersWriter::writePipelineToFile(FilterPipeline::Pointer pipeline, QString filePath, QList<IObserver *> obs)
 {
   if(nullptr == pipeline.get())
   {
@@ -133,10 +133,16 @@ int H5FilterParametersWriter::writePipelineToFile(FilterPipeline::Pointer pipeli
   setGroupId(pipelineGroupId);
 
   QH5Lite::writeScalarAttribute(pipelineGroupId, "/" + SIMPL::StringConstants::PipelineGroupName, SIMPL::StringConstants::PipelineVersionName, 2);
-  QH5Lite::writeStringAttribute(pipelineGroupId, "/" + SIMPL::StringConstants::PipelineGroupName, SIMPL::StringConstants::PipelineCurrentName, pipelineName);
+  QH5Lite::writeStringAttribute(pipelineGroupId, "/" + SIMPL::StringConstants::PipelineGroupName, SIMPL::StringConstants::PipelineCurrentName, pipeline->getName());
 
   JsonFilterParametersWriter::Pointer jsonWriter = JsonFilterParametersWriter::New();
-  QString jsonString = jsonWriter->writePipelineToString(pipeline, pipelineName, obs);
+  QString jsonString = jsonWriter->writePipelineToString(pipeline, obs);
+
+  QString pipelineName = pipeline->getName();
+  if (pipelineName.isEmpty())
+  {
+    pipelineName = "Untitled";
+  }
   QH5Lite::writeStringDataset(pipelineGroupId, pipelineName, jsonString);
 
   return 0;

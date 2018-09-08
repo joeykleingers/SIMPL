@@ -67,11 +67,6 @@ PipelineItem::~PipelineItem()
   {
     delete m_FilterInputWidget;
   }
-
-  if (m_PipelineOutputTextEdit)
-  {
-    delete m_PipelineOutputTextEdit;
-  }
 }
 
 // -----------------------------------------------------------------------------

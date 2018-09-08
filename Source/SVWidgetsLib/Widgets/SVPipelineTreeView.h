@@ -59,7 +59,7 @@ public:
    * @param insertIndex
    * @return
    */
-  int openPipeline(const QString& filePath, int insertIndex = -1);
+  int openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex = -1);
 
   /**
    * @brief setModel
@@ -71,12 +71,6 @@ protected:
   void setupGui();
 
   void connectSignalsSlots();
-
-  /**
-   * @brief paintEvent
-   * @param event
-   */
-  void paintEvent(QPaintEvent* event) override;
 
   /**
    * @brief beginDrag

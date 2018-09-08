@@ -50,7 +50,7 @@ class SVWidgetsLib_EXPORT AddPipelineToModelCommand : public QObject, public QUn
     Q_OBJECT
 
 public:
-  AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, const QString &pipelineFilePath = "", QUndoCommand* parent = nullptr);
+  AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, QUndoCommand* parent = nullptr);
 
   ~AddPipelineToModelCommand() override;
 
@@ -64,7 +64,6 @@ signals:
 
 private:
   FilterPipeline::Pointer m_Pipeline;
-  QString m_PipelineFilePath;
   int m_InsertIndex = 0;
   PipelineModel* m_PipelineModel = nullptr;
   bool m_FirstRun = true;

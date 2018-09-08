@@ -328,6 +328,8 @@ FilterPipeline::Pointer JsonFilterParametersReader::readPipeline(IObserver* obs)
     pipeline = FilterPipeline::New();
     QString pipelineName = builderObj[SIMPL::Settings::PipelineName].toString("Empty Pipeline Name");
     pipeline->setName(pipelineName);
+
+    pipeline->setFilePath(builderObj[SIMPL::Settings::PipelineFilePath].toString());
   }
   else
   {

@@ -74,10 +74,10 @@ JsonFilterParametersWriter::~JsonFilterParametersWriter() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int JsonFilterParametersWriter::writePipelineToFile(FilterPipeline::Pointer pipeline, QString filePath, QString pipelineName, QList<IObserver *> obs)
+int JsonFilterParametersWriter::writePipelineToFile(FilterPipeline::Pointer pipeline, QString filePath, QList<IObserver *> obs)
 {
   int err = 0;
-  err = populateWriter(pipeline, pipelineName, obs);
+  err = populateWriter(pipeline, obs);
   if(err < 0)
   {
     return err;
@@ -92,9 +92,9 @@ int JsonFilterParametersWriter::writePipelineToFile(FilterPipeline::Pointer pipe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString JsonFilterParametersWriter::writePipelineToString(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver*> obs)
+QString JsonFilterParametersWriter::writePipelineToString(FilterPipeline::Pointer pipeline, QList<IObserver*> obs)
 {
-  populateWriter(pipeline, pipelineName, obs);
+  populateWriter(pipeline, obs);
 
   QJsonDocument doc = toDocument();
   QString contents = QString::fromStdString(doc.toJson().toStdString());
@@ -107,9 +107,9 @@ QString JsonFilterParametersWriter::writePipelineToString(FilterPipeline::Pointe
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QJsonObject JsonFilterParametersWriter::writePipelineToObject(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver*> obs)
+QJsonObject JsonFilterParametersWriter::writePipelineToObject(FilterPipeline::Pointer pipeline, QList<IObserver*> obs)
 {
-  populateWriter(pipeline, pipelineName, obs);
+  populateWriter(pipeline, obs);
 
   QJsonDocument doc = toDocument();
 
@@ -121,7 +121,7 @@ QJsonObject JsonFilterParametersWriter::writePipelineToObject(FilterPipeline::Po
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int JsonFilterParametersWriter::populateWriter(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver*> obs)
+int JsonFilterParametersWriter::populateWriter(FilterPipeline::Pointer pipeline, QList<IObserver*> obs)
 {
   if(nullptr == pipeline.get())
   {
@@ -140,9 +140,7 @@ int JsonFilterParametersWriter::populateWriter(FilterPipeline::Pointer pipeline,
     return -1;
   }
 
-  QFileInfo info(pipelineName);
-
-  setPipelineName(info.completeBaseName());
+  setPipelineName(pipeline->getName());
 
   FilterPipeline::FilterContainerType& filters = pipeline->getFilterContainer();
   setMaxFilterIndex(filters.size());
@@ -227,6 +225,7 @@ QJsonDocument JsonFilterParametersWriter::toDocument()
   // Write our File Version and DREAM3D Version strings
   QJsonObject meta;
   meta[SIMPL::Settings::PipelineName] = m_PipelineName;
+  meta[SIMPL::Settings::PipelineFilePath] = m_PipelineFilePath;
   meta[SIMPL::Settings::Version] = SIMPL::PipelineVersionNumbers::CurrentVersion;
 
   if(m_Root.size() > 0)

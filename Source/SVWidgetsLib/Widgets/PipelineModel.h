@@ -66,7 +66,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
       ErrorStateRole,
       PipelineStateRole,
       ItemTypeRole,
-      PipelinePathRole,
       PipelineModifiedRole
     };
 
@@ -75,10 +74,29 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     SIMPL_GET_PROPERTY(size_t, MaxPipelineCount)
 
     /**
+     * @brief addPipeline
+     * @param pipeline
+     * @param insertIndex
+     */
+    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1);
+
+    /**
+     * @brief removePipeline
+     * @param pipeline
+     */
+    void removePipeline(FilterPipeline::Pointer pipeline);
+
+    /**
+     * @brief removePipeline
+     * @param pipelineRootIndex
+     */
+    void removePipeline(const QModelIndex &pipelineRootIndex);
+
+    /**
      * @brief savePipeline
      * @param pipelineRootIndex
      */
-    bool savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineName);
+    bool savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineFilePath);
 
     /**
      * @brief isPipelineRootItem
@@ -100,11 +118,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     FilterPipeline::Pointer tempPipeline(const QModelIndex &index) const;
     FilterPipeline::Pointer savedPipeline(const QModelIndex &index) const;
 
-    bool addPipeline(FilterPipeline::Pointer pipeline);
-    bool setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline);
-
     QString pipelineFilePath(const QModelIndex &index);
-    void setPipelineFilePath(const QModelIndex& index, const QString &filePath);
 
     AbstractFilter::Pointer filter(const QModelIndex &index) const;
 
@@ -113,7 +127,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     FilterInputWidget* filterInputWidget(const QModelIndex &index);
     void setFilterInputWidget(const QModelIndex &index, FilterInputWidget* fiw);
 
-    PipelineOutputTextEdit* pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex);
+    PipelineOutputTextEdit::Pointer pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex);
 
     PipelineMessageObserver* pipelineMessageObserver(const QModelIndex &pipelineRootIndex);
     QVector<PipelineMessage> pipelineMessages(const QModelIndex &pipelineRootIndex);
@@ -156,7 +170,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
      * @param pipelineRootIndex
      * @param pipelineOutputTE
      */
-    void setPipelineOutputTextEdit(const QModelIndex &pipelineRootIndex, PipelineOutputTextEdit* pipelineOutputTE);
+    void setPipelineOutputTextEdit(const QModelIndex &pipelineRootIndex, PipelineOutputTextEdit::Pointer pipelineOutputTE);
 
     /**
      * @brief setPipelineMessageObserver
@@ -167,7 +181,7 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
 
   signals:
     void pipelineAdded(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
-    void pipelineRemoved(FilterPipeline::Pointer pipeline);
+    void pipelineRemoved(FilterPipeline::Pointer pipeline, int row);
     void pipelineModified(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex, bool modified);
     void pipelineSaved(FilterPipeline::Pointer pipeline, const QModelIndex &pipelineRootIndex);
 
@@ -207,6 +221,8 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
     void insertFilter(AbstractFilter::Pointer filter, int index, const QModelIndex &pipelineRootIndex);
 
     void addFilterData(AbstractFilter::Pointer filter, const QModelIndex &filterIndex);
+
+    bool setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline);
 
     PipelineModel(const PipelineModel&);    // Copy Constructor Not Implemented
     void operator=(const PipelineModel&);  // Operator '=' Not Implemented

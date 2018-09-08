@@ -49,6 +49,7 @@
 #include "SVWidgetsLib/Widgets/SVPipelineTreeViewSelectionModel.h"
 #include "SVWidgetsLib/Widgets/PipelineModel.h"
 #include "SVWidgetsLib/Widgets/PipelineFilterMimeData.h"
+#include "SVWidgetsLib/Widgets/AddPipelineToModelCommand.h"
 #include "SVWidgetsLib/Widgets/AddFilterToPipelineCommand.h"
 #include "SVWidgetsLib/Widgets/RemoveFilterFromPipelineCommand.h"
 
@@ -145,17 +146,6 @@ QPixmap SVPipelineTreeView::getDraggingPixmap(QModelIndexList indexes)
 //  p.end();
 
   return QPixmap();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SVPipelineTreeView::paintEvent(QPaintEvent* event)
-{
-  DropIndicatorPosition position = dropIndicatorPosition();
-  setDropIndicatorShown(position == QAbstractItemView::BelowItem || position == QAbstractItemView::AboveItem);
-  QTreeView::paintEvent(event);
-  setDropIndicatorShown(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -267,10 +257,36 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
 {
   PipelineModel* model = getPipelineModel();
 
-  QModelIndex nearestIndex = indexAt(event->pos());
-  QModelIndex nearestIndexParent = nearestIndex.parent();
   DropIndicatorPosition dropIndicatorPos = dropIndicatorPosition();
-  int dropRow = filterCount(nearestIndexParent);
+
+  QModelIndex pipelineRootIndex;
+
+  QModelIndex nearestIndex = indexAt(event->pos());
+  if (nearestIndex.isValid() == false)
+  {
+    pipelineRootIndex = QModelIndex();
+  }
+  else
+  {
+    PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(model->data(nearestIndex, PipelineModel::Roles::ItemTypeRole).toInt());
+    if (itemType == PipelineItem::ItemType::PipelineRoot)
+    {
+      if (dropIndicatorPos == QAbstractItemView::AboveItem || dropIndicatorPos == QAbstractItemView::BelowItem)
+      {
+        pipelineRootIndex = QModelIndex();
+      }
+      else
+      {
+        pipelineRootIndex = nearestIndex;
+      }
+    }
+    else
+    {
+      pipelineRootIndex = nearestIndex.parent();
+    }
+  }
+
+  int dropRow = filterCount(pipelineRootIndex);
   if (dropIndicatorPos == QAbstractItemView::AboveItem)
   {
     dropRow = nearestIndex.row();
@@ -278,11 +294,6 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
   else if (dropIndicatorPos == QAbstractItemView::BelowItem)
   {
     dropRow = nearestIndex.row() + 1;
-  }
-  else
-  {
-    event->ignore();
-    return;
   }
 
   const QMimeData* mimedata = event->mimeData();
@@ -303,7 +314,7 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
       return;
     }
 
-    FilterPipeline::Pointer pipeline = model->tempPipeline(nearestIndexParent);
+    FilterPipeline::Pointer pipeline = model->tempPipeline(pipelineRootIndex);
     FilterPipeline::FilterContainerType dropContainer = pipeline->getFilterContainer();
 
     if (getPipelineViewController() != nullptr)
@@ -316,18 +327,32 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
           std::vector<QUndoCommand*> cmds;
           cmds.push_back(filterData->getSourceUndoCommand());
 
-          dropRow = dropRow - filters.size();  // The filters we are moving haven't been removed from their original positions yet, so this is the new drop row after removing the filters
-          AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, model);
-          cmds.push_back(cmd);
+          if (pipelineRootIndex.isValid())
+          {
+            dropRow = dropRow - filters.size();  // The filters we are moving haven't been removed from their original positions yet, so this is the new drop row after removing the filters
+            AddFilterToPipelineCommand* cmd = new AddFilterToPipelineCommand(filters, pipeline, dropRow, model);
+            cmds.push_back(cmd);
+          }
+          else
+          {
+            FilterPipeline::Pointer pipeline = FilterPipeline::New();
+            foreach(AbstractFilter::Pointer f, filters)
+            {
+              pipeline->pushBack(f);
+            }
+
+            AddPipelineToModelCommand* cmd = new AddPipelineToModelCommand(pipeline, dropRow, model);
+            cmds.push_back(cmd);
+          }
 
           QString cmdText;
           if(filters.size() == 1)
           {
-            cmdText = QObject::tr("\"%1 '%2'\"").arg("Move").arg(filters[0]->getHumanLabel()).arg(pipeline->getName());
+            cmdText = QObject::tr("\"%1 '%2'\"").arg("Move").arg(filters[0]->getHumanLabel());
           }
           else
           {
-            cmdText = QObject::tr("\"%1 %2 filters\"").arg("Move").arg(filters.size()).arg(pipeline->getName());
+            cmdText = QObject::tr("\"%1 %2 filters\"").arg("Move").arg(filters.size());
           }
           getPipelineViewController()->addUndoCommandMacro(cmds, cmdText);
         }
@@ -367,7 +392,7 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
     QUrl url(data);
     QString filePath = url.toLocalFile();
 
-    int err = openPipeline(filePath, dropRow);
+    int err = openPipeline(filePath, pipelineRootIndex, dropRow);
 
     if(err >= 0)
     {
@@ -393,7 +418,7 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
     QJsonObject::iterator iter = obj.begin();
     QString filePath = iter.value().toString();
 
-    int err = openPipeline(filePath, dropRow);
+    int err = openPipeline(filePath, pipelineRootIndex, dropRow);
 
     if(err >= 0)
     {
@@ -427,7 +452,17 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
     }
 
     AbstractFilter::Pointer filter = wf->create();
-    addFilter(filter, nearestIndexParent, dropRow);
+
+    if (pipelineRootIndex.isValid())
+    {
+      addFilter(filter, pipelineRootIndex, dropRow);
+    }
+    else
+    {
+      FilterPipeline::Pointer pipeline = FilterPipeline::New();
+      pipeline->pushBack(filter);
+      addPipeline(pipeline, dropRow);
+    }
 
     event->accept();
   }
@@ -440,11 +475,10 @@ void SVPipelineTreeView::dropEvent(QDropEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineTreeView::openPipeline(const QString& filePath, int insertIndex)
+int SVPipelineTreeView::openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex)
 {
   if(getPipelineViewController())
   {
-    QModelIndex pipelineRootIndex;
     int err = getPipelineViewController()->openPipeline(filePath, pipelineRootIndex, insertIndex);
     expand(pipelineRootIndex);
     return err;

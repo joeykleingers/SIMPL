@@ -42,7 +42,6 @@
 #include <QtWidgets/QFileDialog>
 
 #include "SVWidgetsLib/QtSupport/QtSSettings.h"
-#include "SVWidgetsLib/Widgets/PipelineOutputTextEdit.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -124,9 +123,9 @@ void StandardOutputWidget::on_saveLogBtn_clicked()
     {
       file.write(stdOutTE->toPlainText().toStdString().c_str());
     }
-    else
+    else if (m_CurrentPipelineOutTextEdit.lock() != PipelineOutputTextEdit::NullPointer())
     {
-      file.write(m_CurrentPipelineOutTextEdit->toPlainText().toStdString().c_str());
+      file.write(m_CurrentPipelineOutTextEdit.lock()->toPlainText().toStdString().c_str());
     }
     file.close();
   }
@@ -171,9 +170,9 @@ void StandardOutputWidget::on_clearLogBtn_clicked()
     {
       stdOutTE->clear();
     }
-    else
+    else if (m_CurrentPipelineOutTextEdit.lock() != PipelineOutputTextEdit::NullPointer())
     {
-      m_CurrentPipelineOutTextEdit->clear();
+      m_CurrentPipelineOutTextEdit.lock()->clear();
     }
 
     clearLogBtn->setDisabled(true);
@@ -195,21 +194,22 @@ void StandardOutputWidget::appendStdOutText(const QString &text)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void StandardOutputWidget::setPipelineOutputTextEdit(PipelineOutputTextEdit* textEdit)
+void StandardOutputWidget::setPipelineOutputTextEdit(PipelineOutputTextEdit::WeakPointer textEdit)
 {
-  if (m_CurrentPipelineOutTextEdit)
+  if (m_CurrentPipelineOutTextEdit.lock() != PipelineOutputTextEdit::NullPointer())
   {
-    gridLayout_3->removeWidget(m_CurrentPipelineOutTextEdit);
-    m_CurrentPipelineOutTextEdit->setParent(nullptr);
-    m_CurrentPipelineOutTextEdit = nullptr;
+    PipelineOutputTextEdit::Pointer pipelineOutTE = m_CurrentPipelineOutTextEdit.lock();
+    gridLayout_3->removeWidget(pipelineOutTE.get());
+    pipelineOutTE->setParent(nullptr);
   }
 
   m_CurrentPipelineOutTextEdit = textEdit;
 
-  if (m_CurrentPipelineOutTextEdit)
+  if (m_CurrentPipelineOutTextEdit.lock() != PipelineOutputTextEdit::NullPointer())
   {
-    gridLayout_3->addWidget(m_CurrentPipelineOutTextEdit, 0, 0, 1, 1);
-    m_CurrentPipelineOutTextEdit->moveCursor(QTextCursor::End);
-    m_CurrentPipelineOutTextEdit->ensureCursorVisible();
+    PipelineOutputTextEdit::Pointer pipelineOutTE = m_CurrentPipelineOutTextEdit.lock();
+    gridLayout_3->addWidget(pipelineOutTE.get(), 0, 0, 1, 1);
+    pipelineOutTE->moveCursor(QTextCursor::End);
+    pipelineOutTE->ensureCursorVisible();
   }
 }

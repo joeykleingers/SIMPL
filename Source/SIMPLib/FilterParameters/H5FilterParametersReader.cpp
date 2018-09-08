@@ -203,6 +203,10 @@ FilterPipeline::Pointer H5FilterParametersReader::readPipelineFromFile(QString f
   H5ScopedFileSentinel sentinel(&fid, true);
 
   FilterPipeline::Pointer pipeline = readPipelineFromFile(fid, obs);
+  if (pipeline.get() != nullptr)
+  {
+    pipeline->setFilePath(filePath);
+  }
   return pipeline;
 }
 
@@ -297,7 +301,7 @@ QString H5FilterParametersReader::getJsonFromFile(QString filePath, IObserver* o
 
     JsonFilterParametersWriter::Pointer jsonWriter = JsonFilterParametersWriter::New();
     jsonWriter->setExpandReaderFilters(false);
-    jsonString = jsonWriter->writePipelineToString(pipeline, "");
+    jsonString = jsonWriter->writePipelineToString(pipeline);
   }
 
   return jsonString;

@@ -514,6 +514,7 @@ namespace SIMPL
     const QString FavoriteConfig("favorite_config");
     const QString NumFilters("Number_Filters");
     const QString PipelineName("Name");
+    const QString PipelineFilePath("File Path");
     const QString FilterName("Filter_Name");
     const QString FilterUuid("Filter_Uuid");
     const QString FilterVersion("FilterVersion");

@@ -45,6 +45,9 @@ class SVWidgetsLib_EXPORT PipelineOutputTextEdit : public QTextEdit
     Q_OBJECT
 
   public:
+    SIMPL_SHARED_POINTERS(PipelineOutputTextEdit)
+    SIMPL_STATIC_NEW_MACRO(PipelineOutputTextEdit)
+
     PipelineOutputTextEdit(QWidget* parent = nullptr);
     PipelineOutputTextEdit(const QString &text, QWidget* parent = nullptr);
     ~PipelineOutputTextEdit() override;

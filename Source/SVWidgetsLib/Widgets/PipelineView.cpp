@@ -143,6 +143,14 @@ bool PipelineView::arePipelinesRunning()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+int PipelineView::openPipeline(const QString& filePath, int insertIndex)
+{
+  return openPipeline(filePath, getActivePipeline(), insertIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 bool PipelineView::hasActivePipeline()
 {
   if (m_PipelineViewController)

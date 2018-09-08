@@ -59,8 +59,7 @@ class SVWidgetsLib_EXPORT PipelineItem
     SIMPL_BOOL_PROPERTY(PipelineModified)
     SIMPL_INSTANCE_PROPERTY(QIcon, Icon)
     SIMPL_INSTANCE_PROPERTY(QString, ItemTooltip)
-    SIMPL_INSTANCE_PROPERTY(QString, PipelineFilePath)
-    SIMPL_POINTER_PROPERTY(PipelineOutputTextEdit, PipelineOutputTextEdit)
+    SIMPL_INSTANCE_PROPERTY(PipelineOutputTextEdit::Pointer, PipelineOutputTextEdit)
     SIMPL_POINTER_PROPERTY(PipelineMessageObserver, PipelineMessageObserver)
 
     enum PipelineItemData

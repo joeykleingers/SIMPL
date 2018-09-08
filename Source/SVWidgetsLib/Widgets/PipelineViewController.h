@@ -233,7 +233,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
      * @param pipeline
      * @param insertIndex
      */
-    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1, const QString &pipelineFilePath = "", QString actionText = "Add");
+    void addPipeline(FilterPipeline::Pointer pipeline, int insertIndex = -1, QString actionText = "Add");
 
     /**
      * @brief removePipeline

@@ -42,11 +42,11 @@
 
 #include "SVWidgetsLib/SVWidgetsLib.h"
 #include "SVWidgetsLib/Core/SVWidgetsLibConstants.h"
+#include "SVWidgetsLib/Widgets/PipelineOutputTextEdit.h"
 
 #include "ui_StandardOutputWidget.h"
 
 class QtSSettings;
-class PipelineOutputTextEdit;
 
 class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserver, private Ui::StandardOutputWidget
 {
@@ -75,7 +75,7 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
      * @brief setStandardOutputTextEdit
      * @param textEdit
      */
-    void setPipelineOutputTextEdit(PipelineOutputTextEdit* textEdit);
+    void setPipelineOutputTextEdit(PipelineOutputTextEdit::WeakPointer textEdit);
 
   protected:
     void setupGui();
@@ -92,8 +92,8 @@ class SVWidgetsLib_EXPORT StandardOutputWidget : public QWidget, public IObserve
     void on_clearLogBtn_clicked();
 
   private:
-    QString                           m_LastPathOpened = "";
-    PipelineOutputTextEdit*           m_CurrentPipelineOutTextEdit = nullptr;
+    QString                               m_LastPathOpened = "";
+    PipelineOutputTextEdit::WeakPointer   m_CurrentPipelineOutTextEdit = PipelineOutputTextEdit::NullPointer();
 
     StandardOutputWidget(const StandardOutputWidget&) = delete; // Copy Constructor Not Implemented
     void operator=(const StandardOutputWidget&) = delete;       // Move assignment Not Implemented

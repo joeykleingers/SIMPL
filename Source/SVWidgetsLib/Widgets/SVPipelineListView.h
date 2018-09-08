@@ -95,7 +95,7 @@ public:
    * @param insertIndex
    * @return
    */
-  int openPipeline(const QString& filePath, int insertIndex = -1) override;
+  int openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex = -1) override;
 
   /**
    * @brief setModel

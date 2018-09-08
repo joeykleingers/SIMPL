@@ -710,7 +710,7 @@ void SVPipelineListView::dropEvent(QDropEvent* event)
     QUrl url(data);
     QString filePath = url.toLocalFile();
 
-    int err = openPipeline(filePath, dropRow);
+    int err = openPipeline(filePath, m_PipelineRootIndex, dropRow);
 
     if(err >= 0)
     {
@@ -736,7 +736,7 @@ void SVPipelineListView::dropEvent(QDropEvent* event)
     QJsonObject::iterator iter = obj.begin();
     QString filePath = iter.value().toString();
 
-    int err = openPipeline(filePath, dropRow);
+    int err = openPipeline(filePath, m_PipelineRootIndex, dropRow);
 
     if(err >= 0)
     {
@@ -820,20 +820,20 @@ void SVPipelineListView::keyPressEvent(QKeyEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int SVPipelineListView::openPipeline(const QString& filePath, int insertIndex)
+int SVPipelineListView::openPipeline(const QString& filePath, QModelIndex pipelineRootIndex, int insertIndex)
 {
   int err = -1;
   if(getPipelineViewController())
   {
-    QModelIndex originalPipelineRootIndex = m_PipelineRootIndex;
-    err = getPipelineViewController()->openPipeline(filePath, m_PipelineRootIndex, insertIndex);
+    QModelIndex originalPipelineRootIndex = pipelineRootIndex;
+    err = getPipelineViewController()->openPipeline(filePath, pipelineRootIndex, insertIndex);
 
     if (err >= 0 && originalPipelineRootIndex.isValid() == false)
     {
       PipelineModel* model = getPipelineModel();
       if (model->rowCount() > 0)
       {
-        QModelIndex index = model->index(0, PipelineItem::PipelineItemData::Contents, m_PipelineRootIndex);
+        QModelIndex index = model->index(0, PipelineItem::PipelineItemData::Contents, pipelineRootIndex);
         selectionModel()->select(index, QItemSelectionModel::SelectCurrent);
       }
     }

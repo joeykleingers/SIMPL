@@ -79,7 +79,43 @@ PipelineModel::~PipelineModel()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool PipelineModel::savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineName)
+void PipelineModel::addPipeline(FilterPipeline::Pointer pipeline, int insertIndex)
+{
+  insertRow(insertIndex);
+  QModelIndex pipelineRootIndex = index(insertIndex, PipelineItem::Contents);
+  setData(pipelineRootIndex, static_cast<int>(PipelineItem::ItemType::PipelineRoot), PipelineModel::Roles::ItemTypeRole);
+  setPipeline(pipelineRootIndex, pipeline);
+
+  emit pipelineAdded(pipeline, pipelineRootIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::removePipeline(FilterPipeline::Pointer pipeline)
+{
+  QModelIndex pipelineRootIndex = getPipelineRootIndexFromPipeline(pipeline);
+  removePipeline(pipelineRootIndex);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void PipelineModel::removePipeline(const QModelIndex &pipelineRootIndex)
+{
+  FilterPipeline::Pointer pipeline = tempPipeline(pipelineRootIndex);
+  setPipeline(pipelineRootIndex, FilterPipeline::NullPointer());
+
+  int row = pipelineRootIndex.row();
+  removeRow(row);
+
+  emit pipelineRemoved(pipeline, row);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool PipelineModel::savePipeline(const QModelIndex &pipelineRootIndex, const QString &pipelineFilePath)
 {
   PipelineItem* item = getItem(pipelineRootIndex);
   if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
@@ -87,11 +123,15 @@ bool PipelineModel::savePipeline(const QModelIndex &pipelineRootIndex, const QSt
     return false;
   }
 
+  QFileInfo fi(pipelineFilePath);
+
   FilterPipeline::Pointer tempPipeline = item->getTempPipeline();
   FilterPipeline::Pointer savedPipeline = tempPipeline->deepCopy();
   item->setSavedPipeline(savedPipeline);
-  tempPipeline->setName(pipelineName);
-  savedPipeline->setName(pipelineName);
+  tempPipeline->setName(fi.baseName());
+  savedPipeline->setName(fi.baseName());
+  tempPipeline->setFilePath(pipelineFilePath);
+  savedPipeline->setFilePath(pipelineFilePath);
 
   emit pipelineSaved(savedPipeline, pipelineRootIndex);
   return true;
@@ -160,10 +200,6 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
 
     return item->data(index.column());
   }
-  else if(role == PipelineModel::Roles::PipelinePathRole)
-  {
-    return item->getPipelineFilePath();
-  }
   else if(role == Qt::ForegroundRole)
   {
     QColor fgColor = getForegroundColor(index);
@@ -221,24 +257,6 @@ FilterPipeline::Pointer PipelineModel::savedPipeline(const QModelIndex &index) c
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-bool PipelineModel::addPipeline(FilterPipeline::Pointer pipeline)
-{
-  if (pipeline.get() == nullptr)
-  {
-    return false;
-  }
-
-  int row = rowCount();
-  insertRow(row);
-  QModelIndex index = this->index(row, PipelineItem::Contents);
-  setData(index, static_cast<int>(PipelineItem::ItemType::PipelineRoot), Roles::ItemTypeRole);
-
-  return setPipeline(index, pipeline);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointer pipeline)
 {
   QModelIndex pipelineRootIndex = index;
@@ -286,7 +304,7 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
 
   if (pipeline != FilterPipeline::NullPointer())
   {
-    PipelineOutputTextEdit* pipelineOutputTE = new PipelineOutputTextEdit();
+    PipelineOutputTextEdit::Pointer pipelineOutputTE = PipelineOutputTextEdit::New();
     pipelineOutputTE->setReadOnly(true);
     setPipelineOutputTextEdit(pipelineRootIndex, pipelineOutputTE);
 
@@ -343,8 +361,6 @@ bool PipelineModel::setPipeline(const QModelIndex &index, FilterPipeline::Pointe
     emit preflightTriggered(pipelineRootIndex);
   }
 
-  emit pipelineAdded(pipeline, pipelineRootIndex);
-
   return true;
 }
 
@@ -369,21 +385,13 @@ QString PipelineModel::pipelineFilePath(const QModelIndex &index)
     return QString();
   }
 
-  return item->getPipelineFilePath();
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineModel::setPipelineFilePath(const QModelIndex& index, const QString &filePath)
-{
-  PipelineItem* item = getItem(index);
-  if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
+  FilterPipeline::Pointer pipeline = tempPipeline(index);
+  if (pipeline.get() == nullptr)
   {
-    return;
+    return QString();
   }
 
-  item->setPipelineFilePath(filePath);
+  return pipeline->getFilePath();
 }
 
 // -----------------------------------------------------------------------------
@@ -408,7 +416,7 @@ AbstractFilter::Pointer PipelineModel::filter(const QModelIndex &index) const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PipelineOutputTextEdit* PipelineModel::pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex)
+PipelineOutputTextEdit::Pointer PipelineModel::pipelineOutputTextEdit(const QModelIndex &pipelineRootIndex)
 {
   PipelineItem* item = getItem(pipelineRootIndex);
   if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
@@ -474,7 +482,7 @@ void PipelineModel::clearPipelineMessages(const QModelIndex &pipelineRootIndex)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineModel::setPipelineOutputTextEdit(const QModelIndex &pipelineRootIndex, PipelineOutputTextEdit* pipelineOutputTE)
+void PipelineModel::setPipelineOutputTextEdit(const QModelIndex &pipelineRootIndex, PipelineOutputTextEdit::Pointer pipelineOutputTE)
 {
   PipelineItem* item = getItem(pipelineRootIndex);
   if (item == nullptr || item->getItemType() != PipelineItem::ItemType::PipelineRoot)
@@ -573,9 +581,14 @@ Qt::ItemFlags PipelineModel::flags(const QModelIndex& index) const
     return Qt::ItemIsDropEnabled;
   }
 
-  Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
+  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 
-  Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
+  PipelineItem* item = getItem(index);
+  PipelineItem::ItemType itemType = item->getItemType();
+  if (itemType == PipelineItem::ItemType::PipelineRoot)
+  {
+    itemFlags = itemFlags | Qt::ItemIsDropEnabled;
+  }
 
   return itemFlags;
 }
@@ -819,10 +832,6 @@ bool PipelineModel::setData(const QModelIndex& index, const QVariant& value, int
 
     PipelineItem::ItemType value = static_cast<PipelineItem::ItemType>(intValue);
     item->setItemType(value);
-  }
-  else if (role == PipelineModel::Roles::PipelinePathRole)
-  {
-    item->setPipelineFilePath(value.toString());
   }
   else if (role == PipelineModel::Roles::PipelineModifiedRole)
   {

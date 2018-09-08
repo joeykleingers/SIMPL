@@ -50,7 +50,7 @@ FilterPipeline::FilterPipeline()
 : QObject()
 , m_ErrorCondition(0)
 , m_Cancel(false)
-, m_PipelineName("")
+, m_PipelineName("Untitled Pipeline")
 , m_Dca(nullptr)
 {
 }
@@ -71,12 +71,31 @@ QString FilterPipeline::getName()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+QString FilterPipeline::getFilePath()
+{
+  return m_PipelineFilePath;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void FilterPipeline::setName(QString newName)
 {
   QString oldName = m_PipelineName;
   m_PipelineName = newName;
 
   emit pipelineNameChanged(oldName, newName);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void FilterPipeline::setFilePath(QString filePath)
+{
+  QString oldFilePath = m_PipelineFilePath;
+  m_PipelineFilePath = filePath;
+
+  emit pipelineFilePathChanged(oldFilePath, m_PipelineFilePath);
 }
 
 // -----------------------------------------------------------------------------
@@ -137,6 +156,7 @@ QJsonObject FilterPipeline::toJson()
   {
     QJsonObject meta;
     meta[SIMPL::Settings::PipelineName] = m_PipelineName;
+    meta[SIMPL::Settings::PipelineFilePath] = m_PipelineFilePath;
     meta[SIMPL::Settings::Version] = SIMPL::PipelineVersionNumbers::CurrentVersion;
 
     if(json.size() > 0)
@@ -193,6 +213,8 @@ void FilterPipeline::fromJson(const QJsonObject& json, IObserver* obs)
   //  int maxFilterIndex = filterCount - 1; // Zero based indexing
 
   setName(builderObj[SIMPL::Settings::PipelineName].toString());
+  setFilePath(builderObj[SIMPL::Settings::PipelineFilePath].toString());
+
 
   for(int i = 0; i < filterCount; ++i)
   {

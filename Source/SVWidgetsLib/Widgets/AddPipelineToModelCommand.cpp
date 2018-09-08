@@ -40,10 +40,9 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, const QString &pipelineFilePath, QUndoCommand* parent)
+AddPipelineToModelCommand::AddPipelineToModelCommand(FilterPipeline::Pointer pipeline, int insertIndex, PipelineModel* model, QUndoCommand* parent)
 : QUndoCommand(parent)
 , m_Pipeline(pipeline)
-, m_PipelineFilePath(pipelineFilePath)
 , m_PipelineModel(model)
 {
   if (pipeline.get() == nullptr || model == nullptr)
@@ -71,11 +70,7 @@ AddPipelineToModelCommand::~AddPipelineToModelCommand() = default;
 // -----------------------------------------------------------------------------
 void AddPipelineToModelCommand::redo()
 {
-  m_PipelineModel->insertRow(m_InsertIndex);
-  QModelIndex pipelineRootIndex = m_PipelineModel->index(m_InsertIndex, PipelineItem::Contents);
-  m_PipelineModel->setData(pipelineRootIndex, static_cast<int>(PipelineItem::ItemType::PipelineRoot), PipelineModel::Roles::ItemTypeRole);
-  m_PipelineModel->setPipeline(pipelineRootIndex, m_Pipeline);
-  m_PipelineModel->setPipelineFilePath(pipelineRootIndex, m_PipelineFilePath);
+  m_PipelineModel->addPipeline(m_Pipeline, m_InsertIndex);
 
   QString statusMessage = getStatusMessage();
 
@@ -89,6 +84,8 @@ void AddPipelineToModelCommand::redo()
     m_FirstRun = false;
   }
 
+  QModelIndex pipelineRootIndex = m_PipelineModel->index(m_InsertIndex, PipelineItem::Contents);
+
   emit m_PipelineModel->preflightTriggered(pipelineRootIndex);
 
   emit statusMessageGenerated(statusMessage);
@@ -100,9 +97,7 @@ void AddPipelineToModelCommand::redo()
 // -----------------------------------------------------------------------------
 void AddPipelineToModelCommand::undo()
 {
-  QModelIndex pipelineRootIndex = m_PipelineModel->index(m_InsertIndex, PipelineItem::Contents);
-  m_PipelineModel->setPipeline(pipelineRootIndex, FilterPipeline::NullPointer());
-  m_PipelineModel->removeRow(m_InsertIndex);
+  m_PipelineModel->removePipeline(m_Pipeline);
 
   QString statusMessage = getStatusMessage();
 

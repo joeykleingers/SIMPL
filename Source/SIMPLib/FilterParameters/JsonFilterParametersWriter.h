@@ -61,6 +61,7 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
 
     SIMPL_INSTANCE_PROPERTY(QString, FileName)
     SIMPL_INSTANCE_PROPERTY(QString, PipelineName)
+    SIMPL_INSTANCE_PROPERTY(QString, PipelineFilePath)
     SIMPL_INSTANCE_PROPERTY(bool, ExpandReaderFilters)
 
     JsonFilterParametersWriter(QString& fileName, QString& pipelineName, int& numFilters);
@@ -77,7 +78,7 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
     * @param obs Any observer that we can pass error/warning messages back to in case something goes wrong.
     * @return
     */
-    int writePipelineToFile(FilterPipeline::Pointer pipeline, QString filePath, QString pipelineName, QList<IObserver*> obs = QList<IObserver*>()) override;
+    int writePipelineToFile(FilterPipeline::Pointer pipeline, QString filePath, QList<IObserver*> obs = QList<IObserver*>()) override;
 
     /**
     * @brief WritePipelineToString This function will write a pipeline to a QString.
@@ -86,7 +87,7 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
     * @param obs Any observer that we can pass error/warning messages back to in case something goes wrong.
     * @return The pipeline as a QString
     */
-    QString writePipelineToString(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver *> obs = QList<IObserver*>());
+    QString writePipelineToString(FilterPipeline::Pointer pipeline, QList<IObserver *> obs = QList<IObserver*>());
 
     /**
      * @brief writePipelineToObject
@@ -96,7 +97,7 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
      * @param obs
      * @return
      */
-    QJsonObject writePipelineToObject(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver *> obs = QList<IObserver*>());
+    QJsonObject writePipelineToObject(FilterPipeline::Pointer pipeline, QList<IObserver *> obs = QList<IObserver*>());
 
     /**
      * @brief openFilterGroup
@@ -129,7 +130,7 @@ class SIMPLib_EXPORT JsonFilterParametersWriter : public AbstractFilterParameter
     QJsonObject m_CurrentFilterIndex;
     int         m_CurrentIndex;
 
-    int populateWriter(FilterPipeline::Pointer pipeline, QString pipelineName, QList<IObserver *> obs);
+    int populateWriter(FilterPipeline::Pointer pipeline, QList<IObserver *> obs);
     void writePipeline();
     void clearWriter();
 
