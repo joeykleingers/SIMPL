@@ -205,6 +205,15 @@ QVariant PipelineModel::data(const QModelIndex& index, int role) const
     QColor fgColor = getForegroundColor(index);
     return fgColor;
   }
+//  else if(role == Qt::FontRole)
+//  {
+//    QFont font;
+//    if (item->getItemType() == PipelineItem::ItemType::PipelineRoot)
+//    {
+//      font.setBold(true);
+//    }
+//    return font;
+//  }
   else if(role == Qt::ToolTipRole)
   {
     return QString();

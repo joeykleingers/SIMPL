@@ -65,14 +65,25 @@ PipelineTreeViewDelegate::~PipelineTreeViewDelegate() = default;
 // -----------------------------------------------------------------------------
 void PipelineTreeViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  if (m_View->getActivePipeline() == index)
+  QStyleOptionViewItem opt = option;
+  PipelineModel* pipelineModel = m_View->getPipelineModel();
+  PipelineItem::ItemType itemType = static_cast<PipelineItem::ItemType>(pipelineModel->data(index, PipelineModel::ItemTypeRole).toInt());
+  if (itemType == PipelineItem::ItemType::PipelineRoot)
   {
-    QFont font = option.font;
-    font.setBold(true);
-
+    if (m_View->getActivePipeline() == index)
+    {
+      qDebug() << "Painting pipeline " << index.row() + 1 << " (Active)";
+      QFont font = opt.font;
+      font.setBold(true);
+      opt.font = font;
+    }
+    else
+    {
+      qDebug() << "Painting pipeline " << index.row() + 1 << " (Inactive)";
+    }
   }
 
-  QStyledItemDelegate::paint(painter, option, index);
+  QStyledItemDelegate::paint(painter, opt, index);
 
 //  PipelineModel* model = m_View->getPipelineModel();
 

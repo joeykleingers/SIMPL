@@ -1632,9 +1632,12 @@ void PipelineViewController::updateActivePipeline(const QModelIndex &pipelineIdx
 {
   emit clearIssuesTriggered();
 
+  QModelIndex oldActiveIdx = m_ActivePipelineIndex;
+  QModelIndex newActiveIdx = pipelineIdx;
+
   m_ActivePipelineIndex = pipelineIdx;
 
-  emit activePipelineUpdated(m_ActivePipelineIndex);
+  emit activePipelineUpdated(oldActiveIdx, newActiveIdx);
 }
 
 // -----------------------------------------------------------------------------

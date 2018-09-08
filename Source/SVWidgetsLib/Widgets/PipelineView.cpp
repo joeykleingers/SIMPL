@@ -170,6 +170,8 @@ QModelIndex PipelineView::getActivePipeline() const
   {
     return m_PipelineViewController->getActivePipeline();
   }
+
+  return QModelIndex();
 }
 
 // -----------------------------------------------------------------------------

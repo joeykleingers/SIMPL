@@ -79,16 +79,17 @@ void PipelineTreeView::setupGui()
   setFocusPolicy(Qt::StrongFocus);
   setAcceptDrops(true);
 
-//  PipelineTreeViewDelegate* delegate = new PipelineTreeViewDelegate(this);
-//  setItemDelegate(delegate);
+  PipelineTreeViewDelegate* delegate = new PipelineTreeViewDelegate(this);
+  setItemDelegate(delegate);
 
   // Create the model
   PipelineModel* model = new PipelineModel(this);
-//  model->setUseModelDisplayText(false);
   setModel(model);
 
   PipelineTreeViewSelectionModel* selectionModel = new PipelineTreeViewSelectionModel(model);
   setSelectionModel(selectionModel);
+
+  getPipelineViewController()->setAbstractPipelineView(this);
 
   connectSignalsSlots();
 }
@@ -157,10 +158,8 @@ void PipelineTreeView::mouseMoveEvent(QMouseEvent* event)
   {
     beginDrag(event);
   }
-  else
-  {
-    QTreeView::mouseMoveEvent(event);
-  }
+
+  QTreeView::mouseMoveEvent(event);
 }
 
 // -----------------------------------------------------------------------------
@@ -240,14 +239,6 @@ void PipelineTreeView::beginDrag(QMouseEvent* event)
   {
     drag->exec(Qt::MoveAction);
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineTreeView::dragMoveEvent(QDragMoveEvent* event)
-{
-  QTreeView::dragMoveEvent(event);
 }
 
 // -----------------------------------------------------------------------------

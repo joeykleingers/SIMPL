@@ -126,8 +126,9 @@ void PipelineListView::setupGui()
 
   // Create the model
   PipelineModel* model = new PipelineModel(1, this);
-
   setModel(model);
+
+  getPipelineViewController()->setAbstractPipelineView(this);
 
   connectSignalsSlots();
 }
@@ -141,17 +142,6 @@ void PipelineListView::connectSignalsSlots()
   connect(getPipelineViewController(), &PipelineViewController::pipelineCanceling, [=] { setPipelineViewState(PipelineViewState::Cancelling); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineFinished, [=] { setPipelineViewState(PipelineViewState::Idle); });
   connect(getPipelineViewController(), &PipelineViewController::pipelineCanceled, [=] { setPipelineViewState(PipelineViewState::Idle); });
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineListView::paintEvent(QPaintEvent* event)
-{
-  DropIndicatorPosition position = dropIndicatorPosition();
-  setDropIndicatorShown(position == QAbstractItemView::BelowItem || position == QAbstractItemView::AboveItem);
-  QListView::paintEvent(event);
-  setDropIndicatorShown(true);
 }
 
 // -----------------------------------------------------------------------------
@@ -257,10 +247,8 @@ void PipelineListView::mouseMoveEvent(QMouseEvent* event)
   {
     beginDrag(event);
   }
-  else
-  {
-    QListView::mouseMoveEvent(event);
-  }
+
+  QListView::mouseMoveEvent(event);
 }
 
 // -----------------------------------------------------------------------------
@@ -360,181 +348,6 @@ void PipelineListView::beginDrag(QMouseEvent* event)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineListView::dragMoveEvent(QDragMoveEvent* event)
-{
-  PipelineModel* model = getPipelineModel();
-
-  QString dropIndicatorText;
-  const QMimeData* mimedata = event->mimeData();
-  const PipelineFilterMimeData* filterData = dynamic_cast<const PipelineFilterMimeData*>(mimedata);
-  if(filterData != nullptr)
-  {
-    // This drag has filter data, so set the appropriate drop indicator text
-    std::vector<PipelineFilterMimeData::FilterDragMetadata> dragData = filterData->getFilterDragData();
-    if(dragData.size() == 1)
-    {
-      AbstractFilter::Pointer filter = dragData[0].first;
-      dropIndicatorText = filter->getHumanLabel();
-    }
-    else
-    {
-      dropIndicatorText = QObject::tr("Place %1 Filters Here").arg(dragData.size());
-    }
-  }
-  else if(mimedata->hasUrls())
-  {
-    // This drag has URL data, so set the appropriate drop indicator text
-    QString data = mimedata->text();
-    QUrl url(data);
-    QString filePath = url.toLocalFile();
-
-    QFileInfo fi(filePath);
-    dropIndicatorText = QObject::tr("Place '%1' Here").arg(fi.baseName());
-  }
-  else if(mimedata->hasFormat(SIMPLView::DragAndDrop::BookmarkItem))
-  {
-    // This drag has Bookmark data, so set the appropriate drop indicator text
-    QByteArray jsonArray = mimedata->data(SIMPLView::DragAndDrop::BookmarkItem);
-    QJsonDocument doc = QJsonDocument::fromJson(jsonArray);
-    QJsonObject obj = doc.object();
-
-    if(obj.size() > 1)
-    {
-      event->ignore();
-      return;
-    }
-
-    QJsonObject::iterator iter = obj.begin();
-    QString filePath = iter.value().toString();
-
-    QFileInfo fi(filePath);
-    if(fi.isDir() == true)
-    {
-      event->ignore();
-      return;
-    }
-
-    dropIndicatorText = QObject::tr("Place '%1' Here").arg(fi.baseName());
-  }
-  else if(mimedata->hasFormat(SIMPLView::DragAndDrop::FilterListItem))
-  {
-    // This drag has Filter List data, so set the appropriate drop indicator text
-    QByteArray jsonArray = mimedata->data(SIMPLView::DragAndDrop::FilterListItem);
-    QJsonDocument doc = QJsonDocument::fromJson(jsonArray);
-    QJsonObject obj = doc.object();
-    QJsonObject::iterator iter = obj.begin();
-    QString filterClassName = iter.value().toString();
-
-    FilterManager* fm = FilterManager::Instance();
-    if(nullptr == fm)
-    {
-      event->ignore();
-      return;
-    }
-
-    IFilterFactory::Pointer wf = fm->getFactoryFromClassName(filterClassName);
-    if(nullptr == wf)
-    {
-      event->ignore();
-      return;
-    }
-
-    AbstractFilter::Pointer filter = wf->create();
-    dropIndicatorText = filter->getHumanLabel();
-  }
-  else
-  {
-    // We don't know what type of data this drag is, so ignore the event
-    event->ignore();
-    return;
-  }
-
-  QPoint mousePos = event->pos();
-
-  QModelIndex index = this->indexAt(mousePos);
-
-  int itemHeight = sizeHintForRow(0);
-
-  QModelIndex lastIndex = model->index(model->rowCount(m_PipelineRootIndex) - 1, PipelineItem::Contents, m_PipelineRootIndex);
-  QRect lastIndexRect = visualRect(lastIndex);
-
-  if(index.isValid() == false)
-  {
-    // The drag is occurring in an empty space at the end of the view
-    int dropIndicatorRow;
-    if (mousePos.y() > lastIndexRect.y())
-    {
-      dropIndicatorRow = filterCount(m_PipelineRootIndex);
-    }
-    else if (m_DropIndicatorRow >= 0)
-    {
-      dropIndicatorRow = m_DropIndicatorRow;
-    }
-    else
-    {
-      dropIndicatorRow = findNextRow(mousePos);
-    }
-
-    if (dropIndicatorRow != m_DropIndicatorRow)
-    {
-      removeDropIndicator();
-      addDropIndicator(dropIndicatorText, dropIndicatorRow);
-    }
-  }
-  else if(index.row() != m_DropIndicatorRow)
-  {
-    // The drag is occurring on top of a filter item
-    QRect indexRect = visualRect(index);
-
-    int dropIndicatorRow;
-    if(mousePos.y() <= indexRect.y() + itemHeight / 2)
-    {
-      // The drag is in the upper half of the item
-      if (m_DropIndicatorRow == index.row() - 1)
-      {
-        dropIndicatorRow = m_DropIndicatorRow;
-      }
-      else
-      {
-        dropIndicatorRow = index.row();
-      }
-    }
-    else
-    {
-      // The drag is in the lower half of the item
-      if (m_DropIndicatorRow == index.row() + 1)
-      {
-        dropIndicatorRow = m_DropIndicatorRow;
-      }
-      else
-      {
-        dropIndicatorRow = index.row();
-      }
-    }
-
-    if (dropIndicatorRow != m_DropIndicatorRow)
-    {
-      removeDropIndicator();
-      addDropIndicator(dropIndicatorText, dropIndicatorRow);
-    }
-  }
-
-  QListView::dragMoveEvent(event);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineListView::dragLeaveEvent(QDragLeaveEvent* event)
-{
-  removeDropIndicator();
-
-  QListView::dragLeaveEvent(event);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 int PipelineListView::findNextRow(const QPoint& pos)
 {
   if(filterCount(m_PipelineRootIndex) == 0)
@@ -606,45 +419,22 @@ int PipelineListView::findPreviousRow(const QPoint& pos)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PipelineListView::addDropIndicator(const QString& text, int insertIndex)
-{
-  PipelineListViewDelegate* delegate = getViewDelegate();
-  delegate->setDropText(text);
-  delegate->setDropRow(insertIndex);
-  m_DropIndicatorRow = insertIndex;
-
-  PipelineModel* pipelineModel = getPipelineModel();
-  QModelIndex index = pipelineModel->index(m_DropIndicatorRow, PipelineItem::Contents, m_PipelineRootIndex);
-  emit pipelineModel->dataChanged(index, index);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineListView::removeDropIndicator()
-{
-  PipelineListViewDelegate* delegate = getViewDelegate();
-
-  PipelineModel* pipelineModel = getPipelineModel();
-  QModelIndex index = pipelineModel->index(m_DropIndicatorRow, PipelineItem::Contents, m_PipelineRootIndex);
-
-  delegate->setDropText("");
-  delegate->setDropRow(-1);
-  m_DropIndicatorRow = -1;
-
-  emit pipelineModel->dataChanged(index, index);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void PipelineListView::dropEvent(QDropEvent* event)
 {
   PipelineModel* model = getPipelineModel();
 
-  int dropRow = m_DropIndicatorRow;
+  DropIndicatorPosition dropIndicatorPos = dropIndicatorPosition();
+  QModelIndex nearestIndex = indexAt(event->pos());
 
-  removeDropIndicator();
+  int dropRow = filterCount(m_PipelineRootIndex);
+  if (dropIndicatorPos == QAbstractItemView::AboveItem)
+  {
+    dropRow = nearestIndex.row();
+  }
+  else if (dropIndicatorPos == QAbstractItemView::BelowItem)
+  {
+    dropRow = nearestIndex.row() + 1;
+  }
 
   const QMimeData* mimedata = event->mimeData();
   const PipelineFilterMimeData* filterData = dynamic_cast<const PipelineFilterMimeData*>(mimedata);
@@ -777,43 +567,6 @@ void PipelineListView::dropEvent(QDropEvent* event)
   {
     event->ignore();
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void PipelineListView::keyPressEvent(QKeyEvent* event)
-{
-  if(event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)
-  {
-    if(getPipelineState() == PipelineViewState::Running)
-    {
-      QModelIndexList selectedIndexes = selectionModel()->selectedRows();
-      if(selectedIndexes.size() <= 0)
-      {
-        return;
-      }
-
-      qSort(selectedIndexes);
-
-      PipelineModel* model = getPipelineModel();
-
-      std::vector<AbstractFilter::Pointer> filters;
-      for(int i = 0; i < selectedIndexes.size(); i++)
-      {
-        AbstractFilter::Pointer filter = model->filter(selectedIndexes[i]);
-        filters.push_back(filter);
-      }
-
-      removeFilters(filters);
-    }
-  }
-  else if(event->key() == Qt::Key_A && qApp->queryKeyboardModifiers() == Qt::ControlModifier)
-  {
-    selectAll();
-  }
-
-  QListView::keyPressEvent(event);
 }
 
 // -----------------------------------------------------------------------------

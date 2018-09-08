@@ -69,8 +69,6 @@ class SVWidgetsLib_EXPORT PipelineModel : public QAbstractItemModel
       PipelineModifiedRole
     };
 
-    SIMPL_SET_PROPERTY(bool, UseModelDisplayText)
-
     SIMPL_GET_PROPERTY(size_t, MaxPipelineCount)
 
     /**

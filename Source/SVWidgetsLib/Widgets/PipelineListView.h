@@ -236,11 +236,7 @@ protected:
 
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
-  void dragMoveEvent(QDragMoveEvent* event) override;
-  void dragLeaveEvent(QDragLeaveEvent* event) override;
   void dropEvent(QDropEvent* event) override;
-  void keyPressEvent(QKeyEvent* event) override;
-  void paintEvent(QPaintEvent* event) override;
 
 protected slots:
   /**
@@ -254,7 +250,6 @@ private:
 
   QUndoCommand* m_MoveCommand = nullptr;
   QPoint m_DragStartPosition;
-  int m_DropIndicatorRow;
 
   QString m_CurrentPipelineFilePath;
 
@@ -300,18 +295,6 @@ private:
    * @return
    */
   QModelIndexList getSelectedRows() override;
-
-  /**
-   * @brief addDropIndicator
-   * @param text
-   * @param insertIndex
-   */
-  void addDropIndicator(const QString& text, int insertIndex);
-
-  /**
-   * @brief removeDropIndicator
-   */
-  void removeDropIndicator();
 
   /**
    * @brief findNextRow

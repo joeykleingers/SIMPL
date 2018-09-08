@@ -42,6 +42,7 @@
 #include <QtCore/QModelIndex>
 
 #include <QtWidgets/QAction>
+#include <QtWidgets/QAbstractItemView>
 
 #include "SIMPLib/Filtering/FilterPipeline.h"
 
@@ -66,6 +67,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     virtual ~PipelineViewController();
 
     SIMPL_POINTER_PROPERTY(PipelineView, PipelineView)
+    SIMPL_POINTER_PROPERTY(QAbstractItemView, AbstractPipelineView)
 
     SIMPL_GET_PROPERTY(QAction*, ActionUndo)
     SIMPL_GET_PROPERTY(QAction*, ActionRedo)
@@ -365,7 +367,7 @@ class SVWidgetsLib_EXPORT PipelineViewController : public QObject
     void stdOutMessage(const QString& message);
     void errorMessage(const QString& message);
 
-    void activePipelineUpdated(const QModelIndex &pipelineRootIndex);
+    void activePipelineUpdated(const QModelIndex &oldPipelineRootIndex, const QModelIndex &newPipelineRootIndex);
     void pipelineSavedAs(const QModelIndex &pipelineRootIndex, const QString &filePath);
     void pipelineStarted(const QModelIndex &pipelineRootIndex);
     void pipelineFilePathUpdated(const QString &name);
