@@ -217,6 +217,35 @@ SIMPL_ENABLE_GROUP(GROUP_NAME PLUGIN
             ENABLE ON
             DESC "Compile SIMPL Plugin functionality"
             DEPENDENCIES BASE FILTERS)
+SIMPL_ENABLE_GROUP(GROUP_NAME S3
+            ENABLE OFF
+            DESC "Compile SIMPL AWS S3 functionality"
+            DEPENDENCIES BASE)
+
+if(SIMPL_Group_S3)
+  find_package(aws-cpp-sdk-core)
+  find_package(aws-cpp-sdk-transfer)
+  find_package(aws-cpp-sdk-s3)
+
+  if(aws-cpp-sdk-core_FOUND)
+  message(STATUS "Found AWS Core Library")
+else()
+  message(FATAL_ERROR "The AWS Core Library is required for some algorithms to execute, but was not found.")
+endif()
+
+if(aws-cpp-sdk-transfer_FOUND)
+  message(STATUS "Found AWS Transfer Library")
+else()
+  message(FATAL_ERROR "The AWS Transfer Library is required for some algorithms to execute, but was not found.")
+endif()
+
+if(aws-cpp-sdk-s3_FOUND)
+  message(STATUS "Found AWS S3 Library")
+else()
+  message(FATAL_ERROR "The AWS S3 Library is required for some algorithms to execute, but was not found.")
+endif()
+endif()
+
 SIMPL_ENABLE_GROUP(GROUP_NAME WIDGETS
             ENABLE ON
             DESC "Compile SIMPL Qt Widgets functionality"

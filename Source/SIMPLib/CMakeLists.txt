@@ -90,6 +90,7 @@ endMacro()
 set(SIMPL_Group_BASE_MODULES Common DataArrays DataContainers Geometry HDF5 Math StatsData Utilities ITK)
 set(SIMPL_Group_FILTERS_MODULES Filtering FilterParameters VTKUtils)
 set(SIMPL_Group_PLUGIN_MODULES Plugin)
+set(SIMPL_Group_S3_MODULES S3)
 
 if(SIMPL_Group_BASE)
   foreach(SIMPLIB_SUB_DIR ${SIMPL_Group_BASE_MODULES})
@@ -105,6 +106,12 @@ endif()
 
 if(SIMPL_Group_PLUGIN)
   foreach(SIMPLIB_SUB_DIR ${SIMPL_Group_PLUGIN_MODULES})
+    D3DCompileDir(${SIMPLIB_SUB_DIR})
+  endforeach()
+endif()
+
+if(SIMPL_Group_S3)
+  foreach(SIMPLIB_SUB_DIR ${SIMPL_Group_S3_MODULES})
     D3DCompileDir(${SIMPLIB_SUB_DIR})
   endforeach()
 endif()
@@ -208,6 +215,16 @@ if(SIMPL_Group_PLUGIN)
   foreach(SIMPLIB_SUB_DIR ${SIMPL_Group_PLUGIN_MODULES})
     target_include_directories(${PROJECT_NAME} PUBLIC 
                                 $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}/${SIMPLIB_SUB_DIR}>)
+  endforeach()
+endif()
+
+
+
+if(SIMPL_Group_S3)
+  foreach(SIMPLIB_SUB_DIR ${SIMPL_Group_S3_MODULES})
+    target_include_directories(${PROJECT_NAME} PUBLIC 
+                                $<BUILD_INTERFACE:${${PROJECT_NAME}_BINARY_DIR}/${SIMPLIB_SUB_DIR}>)
+    list(APPEND ${PROJECT_NAME}_LINK_LIBS aws-cpp-sdk-core aws-cpp-sdk-transfer)
   endforeach()
 endif()
 
