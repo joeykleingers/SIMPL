@@ -192,6 +192,11 @@ namespace UnitTest
    const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
   }
 
+  namespace FeatureDataCSVWriterTest
+  {
+   const QString OutputFile("@TEST_TEMP_DIR@/FeatureDataCSVOutputTestFile.txt");
+  }
+
   namespace RestUnitTest
   {
     const QString RestServerExecutableFilePath("@CMAKE_RUNTIME_OUTPUT_DIRECTORY@/SIMPLRestServer@SERVER_FILE_PATH_POSTFIX@");
