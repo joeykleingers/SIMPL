@@ -168,7 +168,10 @@ void ExecutePipelineController::serviceJSON(QJsonObject pipelineObj)
   }
 
   // Append to the json response payload all the output links
-  m_ResponseObj[SIMPL::JSON::OutputLinks] = outputLinks;
+  if (outputLinks.isEmpty() == false)
+  {
+    m_ResponseObj[SIMPL::JSON::OutputLinks] = outputLinks;
+  }
 
   // Execute the pipeline
   Observer obs; // Create an Observer to report errors/progress from the executing pipeline
@@ -437,7 +440,12 @@ QJsonObject ExecutePipelineController::replacePipelineValuesUsingMetadata(QJsonO
       {
         // The property is an output, so create the file path where we will temporarily store the file data on the server,
         // create the directory structure, and update the pipeline json with that file path.
-        QString tempFilePath = m_TempDir->path() + propertyValue;
+        QString tempFilePath = m_TempDir->path();
+        if (propertyValue.startsWith("/") == false)
+        {
+          tempFilePath.append(QDir::separator());
+        }
+        tempFilePath.append(propertyValue);
         QFileInfo fi(tempFilePath);
         QDir dir;
         dir.mkpath(fi.path());
@@ -462,7 +470,12 @@ QJsonObject ExecutePipelineController::replacePipelineValuesUsingMetadata(QJsonO
 
           if (parameterName.startsWith(propertyValue))
           {
-            QString tempFilePath = m_TempDir->path() + parameterName;
+            QString tempFilePath = m_TempDir->path();
+            if (parameterName.startsWith("/") == false)
+            {
+              tempFilePath.append(QDir::separator());
+            }
+            tempFilePath.append(parameterName);
             QFileInfo fi(tempFilePath);
             QDir dir;
             dir.mkpath(fi.path());
@@ -475,20 +488,28 @@ QJsonObject ExecutePipelineController::replacePipelineValuesUsingMetadata(QJsonO
               tempFile->close();
 
               // Update the pipeline json with the file path that we just wrote out to
-              propertyValue = m_TempDir->path() + propertyValue;
-              filterObj[propertyName] = propertyValue;
+              QString tempPropertyValue = m_TempDir->path();
+              if (propertyValue.startsWith("/") == false)
+              {
+                tempPropertyValue.append(QDir::separator());
+              }
+              tempPropertyValue.append(propertyValue);
+
+              filterObj[propertyName] = tempPropertyValue;
               pipelineJsonObj[filterKey] = filterObj;
             }
             else
             {
-              // Form Error response
-              m_ResponseObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
-              m_ResponseObj[SIMPL::JSON::ErrorCode] = -90;
-              QJsonDocument jdoc(m_ResponseObj);
-
-              m_Response->write(jdoc.toJson(), true);
+              QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
+              sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -90);
               return QJsonObject();
             }
+          }
+          else
+          {
+            QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
+            sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -100);
+            return QJsonObject();
           }
         }
       }

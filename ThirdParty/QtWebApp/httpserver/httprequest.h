@@ -197,7 +197,7 @@ private:
   int maxSize;
 
   /** Maximum allowed size of multipart forms in bytes. */
-  int maxMultiPartSize;
+  int64_t maxMultiPartSize;
 
   /** Current size */
   int currentSize;
