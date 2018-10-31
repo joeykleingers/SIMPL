@@ -1584,6 +1584,8 @@ public:
 
     // Configure and start the TCP listener
     QSettings* listenerSettings = new QSettings(configFileName, QSettings::IniFormat);
+    listenerSettings->beginGroup("listener");
+
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
     {
       if (address.protocol() == QAbstractSocket::IPv4Protocol && address.isLoopback() == false)
@@ -1594,7 +1596,6 @@ public:
       }
     }
 
-    listenerSettings->beginGroup("listener");
     m_HttpListener = QSharedPointer<HttpListener>(new HttpListener(listenerSettings, new SIMPLRequestMapper()));
 
     m_Connection = QSharedPointer<QNetworkAccessManager>(new QNetworkAccessManager());
