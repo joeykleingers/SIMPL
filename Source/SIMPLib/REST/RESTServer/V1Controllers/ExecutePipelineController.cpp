@@ -505,12 +505,12 @@ QJsonObject ExecutePipelineController::replacePipelineValuesUsingMetadata(QJsonO
               return QJsonObject();
             }
           }
-          else
-          {
-            QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
-            sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -100);
-            return QJsonObject();
-          }
+//          else
+//          {
+//            QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
+//            sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -100);
+//            return QJsonObject();
+//          }
         }
       }
       else
