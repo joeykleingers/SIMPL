@@ -75,8 +75,36 @@
 
 #include "SIMPLib/Testing/SIMPLTestFileLocations.h"
 
+/**
+* @brief
+*/
+class RESTUnitTestObserver : public QObject
+{
+  Q_OBJECT
+
+public:
+  RESTUnitTestObserver() = default;
+
+  ~RESTUnitTestObserver() override = default;
+
+public slots:
+  void processUploadProgress(qint64 bytesSent, qint64 bytesTotal)
+  {
+    double percent = (static_cast<double>(bytesSent)/bytesTotal)*100;
+    qDebug() << tr("Upload Progress: %1/%2 - %3\%").arg(bytesSent).arg(bytesTotal).arg(percent);
+  }
+
+private:
+
+  RESTUnitTestObserver(const RESTUnitTestObserver&); // Copy Constructor Not Implemented
+  void operator=(const RESTUnitTestObserver&);         // Move assignment Not Implemented
+};
+
+#include "RESTUnitTest.moc"
+
 class RESTUnitTest
 {
+
 public:
   RESTUnitTest() = default;
   virtual ~RESTUnitTest() = default;
@@ -138,7 +166,7 @@ public:
     QEventLoop waitLoop;
     QSharedPointer<QNetworkReply> reply = QSharedPointer<QNetworkReply>(m_Connection->post(netRequest, data));
     QObject::connect(reply.data(), SIGNAL(finished()), &waitLoop, SLOT(quit()));
-//    QObject::connect(reply.data(), SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
+    QObject::connect(reply.data(), SIGNAL(uploadProgress(qint64, qint64)), &m_Observer, SLOT(processUploadProgress(qint64, qint64)));
     waitLoop.exec();
 
     return reply;
@@ -155,8 +183,7 @@ public:
     QSharedPointer<QNetworkReply> reply = QSharedPointer<QNetworkReply>(m_Connection->post(netRequest, multiPart));
     multiPart->setParent(reply.data());
     QObject::connect(reply.data(), SIGNAL(finished()), &waitLoop, SLOT(quit()));
-//    QObject::connect(reply.data(), SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
-//    connect(reply.data(), SIGNAL(uploadProgress(qint64, qint64)), this, SLOT(uploadProgress(qint64, qint64)));
+    QObject::connect(reply.data(), SIGNAL(uploadProgress(qint64, qint64)), &m_Observer, SLOT(processUploadProgress(qint64, qint64)));
     waitLoop.exec();
 
     return reply;
@@ -1652,6 +1679,8 @@ private:
   QSharedPointer<HttpListener> m_HttpListener;
 
   QSharedPointer<QNetworkAccessManager> m_Connection;
+
+  RESTUnitTestObserver m_Observer;
 
   bool m_RunDREAM3DTests = true;
 
