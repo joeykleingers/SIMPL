@@ -87,5 +87,7 @@ private:
   QJsonArray getFileParameterNames(QJsonObject pipelineReplacementObj);
 
   QJsonObject replacePipelineValuesUsingMetadata(QJsonObject pipelineJsonObj, QJsonObject pipelineMetadataObject);
-
+  QJsonObject replaceFilterValuesUsingMetadata(const QString &filterKey, QJsonObject filterObj, QJsonObject filterMetadataObj);
+  void replaceOutputFileParametersUsingMetadata(const QString &propertyName, const QString &propertyValue, QJsonObject &filterObj);
+  void replaceInputFileParametersUsingMetadata(const QString &propertyName, const QString &propertyValue, QJsonObject &filterObj);
 };

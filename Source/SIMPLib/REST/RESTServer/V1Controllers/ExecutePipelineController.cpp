@@ -389,9 +389,7 @@ void ExecutePipelineController::sendErrorResponse(HttpResponse::HttpStatusCode s
 // -----------------------------------------------------------------------------
 QJsonObject ExecutePipelineController::replacePipelineValuesUsingMetadata(QJsonObject pipelineJsonObj, QJsonObject pipelineMetadataObject)
 {
-  QMultiMap<QByteArray,QByteArray> parameterMap = m_Request->getParameterMap();
-
-  // Loop over every parameter that was received from the request
+  // Loop over every filter object and filter metadata object in the pipeline metadata object
   for(QJsonObject::iterator pIter = pipelineMetadataObject.begin(); pIter != pipelineMetadataObject.end(); pIter++)
   {
     QString filterKey = pIter.key();
@@ -410,123 +408,158 @@ QJsonObject ExecutePipelineController::replacePipelineValuesUsingMetadata(QJsonO
 
     QJsonObject filterMetadataObj = pIter.value().toObject();
 
-    // Loop over every entry in the filter metadata object
-    for(QJsonObject::iterator fIter = filterMetadataObj.begin(); fIter != filterMetadataObj.end(); fIter++)
+    filterObj = replaceFilterValuesUsingMetadata(filterKey, filterObj, filterMetadataObj);
+
+    pipelineJsonObj[filterKey] = filterObj;
+  }
+
+  return pipelineJsonObj;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QJsonObject ExecutePipelineController::replaceFilterValuesUsingMetadata(const QString &filterKey, QJsonObject filterObj, QJsonObject filterMetadataObj)
+{
+  // Loop over every entry in the filter metadata object
+  for(QJsonObject::iterator fIter = filterMetadataObj.begin(); fIter != filterMetadataObj.end(); fIter++)
+  {
+    QString propertyName = fIter.key();
+    QString propertyValue = filterObj[propertyName].toString();
+
+    // Get the property metadata object - this contains information such as whether the property is an input or an output
+    if (!fIter.value().isObject())
     {
-      QString propertyName = fIter.key();
-      QString propertyValue = filterObj[propertyName].toString();
+      m_ResponseObj[SIMPL::JSON::ErrorMessage] = tr("%1: Pipeline metadata is not in the right format: property '%2' in filter %2 metadata does not have an associated metadata object.").arg(EndPoint()).arg(propertyName).arg(filterKey);
+      m_ResponseObj[SIMPL::JSON::ErrorCode] = -60;
+      QJsonDocument jdoc(m_ResponseObj);
 
-      // Get the property metadata object - this contains information such as whether the property is an input or an output
-      if (!fIter.value().isObject())
-      {
-        m_ResponseObj[SIMPL::JSON::ErrorMessage] = tr("%1: Pipeline metadata is not in the right format: property '%2' in filter %2 metadata does not have an associated metadata object.").arg(EndPoint()).arg(propertyName).arg(filterKey);
-        m_ResponseObj[SIMPL::JSON::ErrorCode] = -60;
-        QJsonDocument jdoc(m_ResponseObj);
+      m_Response->write(jdoc.toJson(), true);
+      return QJsonObject();
+    }
 
-        m_Response->write(jdoc.toJson(), true);
-        return QJsonObject();
-      }
+    QJsonObject propertyMetadataObj = fIter.value().toObject();
 
-      QJsonObject propertyMetadataObj = fIter.value().toObject();
+    // Get the IO_Type value - This will tell us whether the property is an input or an output
+    QString propertyIOType = getStringValue("IO_Type", propertyMetadataObj);
+    if (m_ResponseObj[SIMPL::JSON::ErrorCode].toInt() < 0)
+    {
+      return QJsonObject();
+    }
 
-      // Get the IO_Type value - This will tell us whether the property is an input or an output
-      QString propertyIOType = getStringValue("IO_Type", propertyMetadataObj);
+    if (propertyIOType == "Output")
+    {
+      replaceOutputFileParametersUsingMetadata(propertyName, propertyValue, filterObj);
       if (m_ResponseObj[SIMPL::JSON::ErrorCode].toInt() < 0)
       {
         return QJsonObject();
       }
-
-      if (propertyIOType == "Output")
+    }
+    else if (propertyIOType == "Input")
+    {
+      replaceInputFileParametersUsingMetadata(propertyName, propertyValue, filterObj);
+      if (m_ResponseObj[SIMPL::JSON::ErrorCode].toInt() < 0)
       {
-        // The property is an output, so create the file path where we will temporarily store the file data on the server,
-        // create the directory structure, and update the pipeline json with that file path.
-        QString tempFilePath = m_TempDir->path();
+        return QJsonObject();
+      }
+    }
+    else
+    {
+      // Form Error response
+      m_ResponseObj[SIMPL::JSON::ErrorMessage] = tr("%1: Unrecognized 'IO_Type' value for property '%2'.").arg(EndPoint()).arg(propertyName);
+      m_ResponseObj[SIMPL::JSON::ErrorCode] = -100;
+      QJsonDocument jdoc(m_ResponseObj);
+
+      m_Response->write(jdoc.toJson(), true);
+      return QJsonObject();
+    }
+  }
+
+  return filterObj;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ExecutePipelineController::replaceOutputFileParametersUsingMetadata(const QString &propertyName, const QString &propertyValue, QJsonObject &filterObj)
+{
+  // The property is an output, so create the file path where we will temporarily store the file data on the server,
+  // create the directory structure, and update the pipeline json with that file path.
+  QString tempFilePath = m_TempDir->path();
+  if (propertyValue.startsWith("/") == false)
+  {
+    tempFilePath.append(QDir::separator());
+  }
+  tempFilePath.append(propertyValue);
+  QFileInfo fi(tempFilePath);
+  QDir dir;
+  dir.mkpath(fi.path());
+
+  m_OutputFilePaths.push_back(propertyValue);
+  m_TemporaryOutputFilePaths.push_back(tempFilePath);
+
+  filterObj[propertyName] = tempFilePath;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ExecutePipelineController::replaceInputFileParametersUsingMetadata(const QString &propertyName, const QString &propertyValue, QJsonObject &filterObj)
+{
+  QMultiMap<QByteArray,QByteArray> parameterMap = m_Request->getParameterMap();
+
+  // This property is an input, so we need to figure out which other request parameter is the matching input file data.
+  // This parameter's name will match the file path to the file on the client's file system.  If the path is a folder, each
+  // file in the folder will be listed as a separate request parameter and this algorithm will still match the files correctly
+  // because it tests to see if each request parameter name starts with the client's file path.
+  for(QMultiMap<QByteArray,QByteArray>::iterator mapIter = parameterMap.begin(); mapIter != parameterMap.end(); mapIter++)
+  {
+    QString parameterName = mapIter.key();
+    QByteArray parameterData = mapIter.value();
+
+    if (parameterName.startsWith(propertyValue))
+    {
+      QString tempFilePath = m_TempDir->path();
+      if (parameterName.startsWith("/") == false)
+      {
+        tempFilePath.append(QDir::separator());
+      }
+      tempFilePath.append(parameterName);
+      QFileInfo fi(tempFilePath);
+      QDir dir;
+      dir.mkpath(fi.path());
+
+      QFile* tempFile = new QFile(tempFilePath);
+      if (tempFile->open(QFile::ReadWrite))
+      {
+        // Write out the file data to the temporary file we created on the server
+        tempFile->write(parameterData);
+        tempFile->close();
+
+        // Update the pipeline json with the file path that we just wrote out to
+        QString tempPropertyValue = m_TempDir->path();
         if (propertyValue.startsWith("/") == false)
         {
-          tempFilePath.append(QDir::separator());
+          tempPropertyValue.append(QDir::separator());
         }
-        tempFilePath.append(propertyValue);
-        QFileInfo fi(tempFilePath);
-        QDir dir;
-        dir.mkpath(fi.path());
+        tempPropertyValue.append(propertyValue);
 
-        m_OutputFilePaths.push_back(propertyValue);
-        m_TemporaryOutputFilePaths.push_back(tempFilePath);
-
-        propertyValue = tempFilePath;
-        filterObj[propertyName] = propertyValue;
-        pipelineJsonObj[filterKey] = filterObj;
+        filterObj[propertyName] = tempPropertyValue;
       }
-      else if (propertyIOType == "Input")
+      else
       {
-        // This property is an input, so we need to figure out which other request parameter is the matching input file data.
-        // This parameter's name will match the file path to the file on the client's file system.  If the path is a folder, each
-        // file in the folder will be listed as a separate request parameter and this algorithm will still match the files correctly
-        // because it tests to see if each request parameter name starts with the client's file path.
-        for(QMultiMap<QByteArray,QByteArray>::iterator mapIter = parameterMap.begin(); mapIter != parameterMap.end(); mapIter++)
-        {
-          QString parameterName = mapIter.key();
-          QByteArray parameterData = mapIter.value();
-
-          if (parameterName.startsWith(propertyValue))
-          {
-            QString tempFilePath = m_TempDir->path();
-            if (parameterName.startsWith("/") == false)
-            {
-              tempFilePath.append(QDir::separator());
-            }
-            tempFilePath.append(parameterName);
-            QFileInfo fi(tempFilePath);
-            QDir dir;
-            dir.mkpath(fi.path());
-
-            QFile* tempFile = new QFile(tempFilePath);
-            if (tempFile->open(QFile::ReadWrite))
-            {
-              // Write out the file data to the temporary file we created on the server
-              tempFile->write(parameterData);
-              tempFile->close();
-
-              // Update the pipeline json with the file path that we just wrote out to
-              QString tempPropertyValue = m_TempDir->path();
-              if (propertyValue.startsWith("/") == false)
-              {
-                tempPropertyValue.append(QDir::separator());
-              }
-              tempPropertyValue.append(propertyValue);
-
-              filterObj[propertyName] = tempPropertyValue;
-              pipelineJsonObj[filterKey] = filterObj;
-            }
-            else
-            {
-              QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
-              sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -90);
-              return QJsonObject();
-            }
-          }
+        QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
+        sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -90);
+        return;
+      }
+    }
 //          else
 //          {
 //            QString errMsg = EndPoint() + ": File data included in the request could not be written to a temporary file on the server.";
 //            sendErrorResponse(HttpResponse::HttpStatusCode::InternalServerError, errMsg, -100);
 //            return QJsonObject();
 //          }
-        }
-      }
-      else
-      {
-        // Form Error response
-        m_ResponseObj[SIMPL::JSON::ErrorMessage] = tr("%1: Unrecognized 'IO_Type' value for property '%2'.").arg(EndPoint()).arg(propertyName);
-        m_ResponseObj[SIMPL::JSON::ErrorCode] = -100;
-        QJsonDocument jdoc(m_ResponseObj);
-
-        m_Response->write(jdoc.toJson(), true);
-        return QJsonObject();
-      }
-    }
   }
-
-  return pipelineJsonObj;
 }
 
 // -----------------------------------------------------------------------------
