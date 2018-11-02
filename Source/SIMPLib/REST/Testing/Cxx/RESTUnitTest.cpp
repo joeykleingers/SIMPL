@@ -90,7 +90,15 @@ public:
 public slots:
   void processUploadProgress(qint64 bytesSent, qint64 bytesTotal)
   {
-    double percent = (static_cast<double>(bytesSent)/bytesTotal)*100;
+    double percent;
+    if (bytesTotal == 0)
+    {
+      percent = 0;
+    }
+    else
+    {
+      percent = (static_cast<double>(bytesSent)/bytesTotal)*100;
+    }
     qDebug() << tr("Upload Progress: %1/%2 - %3\%").arg(bytesSent).arg(bytesTotal).arg(percent);
   }
 
