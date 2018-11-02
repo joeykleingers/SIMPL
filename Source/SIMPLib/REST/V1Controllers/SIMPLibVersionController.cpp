@@ -29,23 +29,21 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#include "NumFiltersController.h"
 
-#include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/Plugin/PluginManager.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
-#include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLibVersionController.h"
 
-#include <QtCore/QDateTime>
-#include <QtCore/QVariant>
-
+#include <QtCore/QCoreApplication>
+#include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+
+#include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/SIMPLibVersion.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-NumFiltersController::NumFiltersController(const QHostAddress& hostAddress, const int hostPort)
+SIMPLibVersionController::SIMPLibVersionController(const QHostAddress& hostAddress, const int hostPort)
 {
   setListenHost(hostAddress, hostPort);
 }
@@ -53,9 +51,8 @@ NumFiltersController::NumFiltersController(const QHostAddress& hostAddress, cons
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void NumFiltersController::service(HttpRequest& request, HttpResponse& response)
+void SIMPLibVersionController::service(HttpRequest& request, HttpResponse& response)
 {
-
   QString content_type = request.getHeader(QByteArray("content-type"));
 
   QJsonObject rootObj;
@@ -68,22 +65,14 @@ void NumFiltersController::service(HttpRequest& request, HttpResponse& response)
     rootObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": Content Type is not application/json";
     rootObj[SIMPL::JSON::ErrorCode] = -20;
     QJsonDocument jdoc(rootObj);
-
     response.write(jdoc.toJson(), true);
     return;
   }
 
-  //   response.setCookie(HttpCookie("firstCookie","hello",600,QByteArray(),QByteArray(),QByteArray(),false,true));
-  //   response.setCookie(HttpCookie("secondCookie","world",600));
-
-  // Register all the filters including trying to load those from Plugins
-  FilterManager* fm = FilterManager::Instance();
-
-  FilterManager::Collection factories = fm->getFactories();
-
+  rootObj[SIMPL::JSON::Version] = SIMPLib::Version::Complete();
   rootObj[SIMPL::JSON::ErrorMessage] = "";
   rootObj[SIMPL::JSON::ErrorCode] = 0;
-  rootObj[SIMPL::JSON::NumFilters] = factories.size();
+
   QJsonDocument jdoc(rootObj);
 
   response.write(jdoc.toJson(), true);
@@ -92,7 +81,7 @@ void NumFiltersController::service(HttpRequest& request, HttpResponse& response)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString NumFiltersController::EndPoint()
+QString SIMPLibVersionController::EndPoint()
 {
-  return QString("NumFilters");
+  return QString("SIMPLibVersion");
 }

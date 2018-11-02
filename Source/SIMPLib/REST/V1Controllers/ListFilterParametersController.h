@@ -1,5 +1,6 @@
 /* ============================================================================
- * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ * Copyright (c) 2017 BlueQuartz Softwae, LLC
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -11,9 +12,9 @@
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
  *
- * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
- * contributors may be used to endorse or promote products derived from this software
- * without specific prior written permission.
+ * Neither the names of any of the BlueQuartz Software contributors
+ * may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -26,46 +27,44 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * The code contained herein was partially funded by the followig contracts:
- *    United States Air Force Prime Contract FA8650-07-D-5800
- *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#ifndef ListFilterParametersController_H_
+#define ListFilterParametersController_H_
 
-#ifndef _simpldirectorylisting_h_
-#define _simpldirectorylisting_h_
+#include "QtWebApp/httpserver/httprequest.h"
+#include "QtWebApp/httpserver/httprequesthandler.h"
+#include "QtWebApp/httpserver/httpresponse.h"
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include "SIMPLib/SIMPLib.h"
 
-class SIMPLDirectoryListing
+/**
+  @brief This class responds to REST API endpoint
+*/
+
+class SIMPLib_EXPORT ListFilterParametersController : public HttpRequestHandler
 {
+  Q_OBJECT
+  Q_DISABLE_COPY(ListFilterParametersController)
 public:
-  /**
-   * @brief ParseDir
-   * @param directory
-   * @param fileNames
-   * @param dates
-   */
-  static void ParseDir(QDir directory, QVector<QFileInfo>& fileNames);
+  /** Constructor */
+  ListFilterParametersController(const QHostAddress& hostAddress, const int hostPort);
+
+  /** Generates the response */
+  void service(HttpRequest& request, HttpResponse& response);
 
   /**
-   * @brief CreateHTMLTable
-   * @param fileNames
-   * @param dates
+   * @brief Returns the name of the end point that is controller uses
    * @return
    */
-  static QString CreateHTMLTable(QVector<QFileInfo>& fileInfos);
+  static QString EndPoint();
 
   /**
-   * @brief ParseDirForTable
-   * @param directory
-   * @return
+   * @brief createFilterParametersJson
+   * @param plugin
+   * @param rootObject
    */
-  static QString ParseDirForTable(QDir directory);
+  void createFilterParametersJson(const QString& filterName, QJsonObject& rootObject);
 };
 
-#endif
+#endif // ListFilterParametersController_H_

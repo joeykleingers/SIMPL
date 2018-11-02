@@ -33,21 +33,21 @@
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
-#include <QtCore/QVariant>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+#include <QtCore/QVariant>
 
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 #include "SIMPLib/Plugin/PluginManager.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 #include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 #include "QtWebApp/httpserver/httplistener.h"
 #include "QtWebApp/httpserver/httpsessionstore.h"
-#include "REST/RESTServer/PipelineListener.h"
-#include "REST/RESTServer/V1Controllers/SIMPLStaticFileController.h"
+#include "SIMPLib/REST/PipelineListener.h"
+#include "SIMPLib/REST/V1Controllers/SIMPLStaticFileController.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -86,7 +86,7 @@ void PreflightPipelineController::service(HttpRequest& request, HttpResponse& re
   QJsonParseError jsonParseError;
   QString requestBody = request.getBody();
   QJsonDocument requestDoc = QJsonDocument::fromJson(requestBody.toUtf8(), &jsonParseError);
-  if (jsonParseError.error != QJsonParseError::ParseError::NoError)
+  if(jsonParseError.error != QJsonParseError::ParseError::NoError)
   {
     // Form Error response
     rootObj[SIMPL::JSON::ErrorMessage] = tr("%1: JSON Request Parsing Error - %2").arg(EndPoint()).arg(jsonParseError.errorString());
@@ -103,7 +103,7 @@ void PreflightPipelineController::service(HttpRequest& request, HttpResponse& re
   QJsonArray outputLinks;
 
   QJsonObject requestObj = requestDoc.object();
-  if (!requestObj.contains(SIMPL::JSON::Pipeline))
+  if(!requestObj.contains(SIMPL::JSON::Pipeline))
   {
     rootObj[SIMPL::JSON::ErrorMessage] = tr("%1: No Pipeline object found in the JSON request body.").arg(EndPoint());
     rootObj[SIMPL::JSON::ErrorCode] = -40;
@@ -115,7 +115,7 @@ void PreflightPipelineController::service(HttpRequest& request, HttpResponse& re
   // Pipeline
   QJsonObject pipelineObj = requestObj[SIMPL::JSON::Pipeline].toObject();
   FilterPipeline::Pointer pipeline = FilterPipeline::FromJson(pipelineObj);
-  if (pipeline.get() == nullptr)
+  if(pipeline.get() == nullptr)
   {
     rootObj[SIMPL::JSON::ErrorMessage] = tr("%1: Pipeline could not be created from the JSON request body.").arg(EndPoint());
     rootObj[SIMPL::JSON::ErrorCode] = -50;

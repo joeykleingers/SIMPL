@@ -29,35 +29,26 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef NumFiltersController_H_
-#define NumFiltersController_H_
+#ifndef ApiNotFoundController_H_
+#define ApiNotFoundController_H_
 
 #include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
 #include "QtWebApp/httpserver/httpresponse.h"
 
+#include "SIMPLib/SIMPLib.h"
+
 /**
-  @brief This class responds to REST API endpoint NumFilters
-
-  The returned JSON is the following on success
-
-  {
-    "NumFilters": 45
-  }
-
-  On Error the following JSON is returned.
-  {
-    "Error": "Error Message ...."
-  }
+  @brief This class responds to REST API endpoint
 */
 
-class NumFiltersController : public HttpRequestHandler
+class SIMPLib_EXPORT ApiNotFoundController : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(NumFiltersController)
+  Q_DISABLE_COPY(ApiNotFoundController)
 public:
   /** Constructor */
-  NumFiltersController(const QHostAddress& hostAddress, const int hostPort);
+  ApiNotFoundController(const QHostAddress& hostAddress, const int hostPort);
 
   /** Generates the response */
   void service(HttpRequest& request, HttpResponse& response);
@@ -69,4 +60,4 @@ public:
   static QString EndPoint();
 };
 
-#endif // NumFiltersController_H_
+#endif // ApiNotFoundController_H_

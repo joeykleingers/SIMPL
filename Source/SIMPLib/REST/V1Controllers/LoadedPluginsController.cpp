@@ -29,25 +29,23 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#include "NamesOfFiltersController.h"
+#include "LoadedPluginsController.h"
 
 #include <QtCore/QDateTime>
-#include <QtCore/QVariant>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+#include <QtCore/QVariant>
 
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Plugin/PluginManager.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 #include "SIMPLib/Plugin/SIMPLPluginConstants.h"
-
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-NamesOfFiltersController::NamesOfFiltersController(const QHostAddress& hostAddress, const int hostPort)
+LoadedPluginsController::LoadedPluginsController(const QHostAddress& hostAddress, const int hostPort)
 {
   setListenHost(hostAddress, hostPort);
 }
@@ -55,7 +53,7 @@ NamesOfFiltersController::NamesOfFiltersController(const QHostAddress& hostAddre
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void NamesOfFiltersController::service(HttpRequest& request, HttpResponse& response)
+void LoadedPluginsController::service(HttpRequest& request, HttpResponse& response)
 {
 
   QString content_type = request.getHeader(QByteArray("content-type"));
@@ -70,16 +68,15 @@ void NamesOfFiltersController::service(HttpRequest& request, HttpResponse& respo
     rootObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": Content Type is not application/json";
     rootObj[SIMPL::JSON::ErrorCode] = -20;
     QJsonDocument jdoc(rootObj);
-
     response.write(jdoc.toJson(), true);
     return;
   }
 
-  FilterManager* fm = FilterManager::Instance();
-
+  PluginManager* pm = PluginManager::Instance();
   rootObj[SIMPL::JSON::ErrorMessage] = "";
   rootObj[SIMPL::JSON::ErrorCode] = 0;
-  rootObj[SIMPL::JSON::Filters] = fm->toJsonArray();
+  rootObj[SIMPL::JSON::Plugins] = pm->toJsonArray();
+
   QJsonDocument jdoc(rootObj);
 
   response.write(jdoc.toJson(), true);
@@ -88,7 +85,7 @@ void NamesOfFiltersController::service(HttpRequest& request, HttpResponse& respo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString NamesOfFiltersController::EndPoint()
+QString LoadedPluginsController::EndPoint()
 {
-  return QString("AvailableFilters");
+  return QString("LoadedPlugins");
 }

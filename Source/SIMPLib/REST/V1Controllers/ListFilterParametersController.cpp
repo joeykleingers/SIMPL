@@ -32,16 +32,15 @@
 #include "ListFilterParametersController.h"
 
 #include <QtCore/QDateTime>
-#include <QtCore/QVariant>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
-
+#include <QtCore/QVariant>
 
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Plugin/PluginManager.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 #include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -60,7 +59,7 @@ void ListFilterParametersController::createFilterParametersJson(const QString& f
   FilterManager* fm = FilterManager::Instance();
 
   IFilterFactory::Pointer factory = fm->getFactoryFromClassName(filterName);
-  if (factory.get() == nullptr)
+  if(factory.get() == nullptr)
   {
     rootObject[SIMPL::JSON::ErrorMessage] = tr("%1: Could not load the filter factory needed to get the filter parameters for filter '%2'.").arg(EndPoint()).arg(filterName);
     rootObject[SIMPL::JSON::ErrorCode] = -70;
@@ -68,7 +67,7 @@ void ListFilterParametersController::createFilterParametersJson(const QString& f
   }
 
   AbstractFilter::Pointer filter = factory->create();
-  if (filter.get() == nullptr)
+  if(filter.get() == nullptr)
   {
     rootObject[SIMPL::JSON::ErrorMessage] = tr("%1: Could not load '%2' using its filter factory.").arg(EndPoint()).arg(filterName);
     rootObject[SIMPL::JSON::ErrorCode] = -80;
@@ -112,7 +111,7 @@ void ListFilterParametersController::service(HttpRequest& request, HttpResponse&
   if(content_type.compare("application/json") != 0)
   {
     // Form Error response
-    responseJsonRootObj[SIMPL::JSON::ErrorMessage]  = EndPoint() + ": Content Type is not application/json";
+    responseJsonRootObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": Content Type is not application/json";
     responseJsonRootObj[SIMPL::JSON::ErrorCode] = -20;
     QJsonDocument jdoc(responseJsonRootObj);
     response.write(jdoc.toJson(), true);
@@ -125,7 +124,7 @@ void ListFilterParametersController::service(HttpRequest& request, HttpResponse&
     QJsonParseError jsonParseError;
     QByteArray jsonBytes = request.getBody();
     QJsonDocument requestJsonDoc = QJsonDocument::fromJson(jsonBytes, &jsonParseError);
-    if (jsonParseError.error != QJsonParseError::ParseError::NoError)
+    if(jsonParseError.error != QJsonParseError::ParseError::NoError)
     {
       // Form Error response
       responseJsonRootObj[SIMPL::JSON::ErrorMessage] = tr("%1: JSON Request Parsing Error - %2").arg(EndPoint()).arg(jsonParseError.errorString());
@@ -136,7 +135,7 @@ void ListFilterParametersController::service(HttpRequest& request, HttpResponse&
     }
 
     QJsonObject rootObject = requestJsonDoc.object();
-    if (!rootObject.contains(SIMPL::JSON::ClassName))
+    if(!rootObject.contains(SIMPL::JSON::ClassName))
     {
       responseJsonRootObj[SIMPL::JSON::ErrorMessage] = tr("%1: No filter class name found in the JSON request body.").arg(EndPoint());
       responseJsonRootObj[SIMPL::JSON::ErrorCode] = -40;
@@ -171,10 +170,10 @@ void ListFilterParametersController::service(HttpRequest& request, HttpResponse&
   else
   {
     createFilterParametersJson(filterName, responseJsonRootObj);
-    if (responseJsonRootObj.contains(SIMPL::JSON::ErrorCode))
+    if(responseJsonRootObj.contains(SIMPL::JSON::ErrorCode))
     {
       int errCode = responseJsonRootObj[SIMPL::JSON::ErrorCode].toInt();
-      if (errCode < 0)
+      if(errCode < 0)
       {
         QJsonDocument jdoc(responseJsonRootObj);
         response.write(jdoc.toJson(), true);

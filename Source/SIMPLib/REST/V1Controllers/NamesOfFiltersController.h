@@ -29,42 +29,50 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#ifndef NamesOfFiltersController_H_
+#define NamesOfFiltersController_H_
 
-#ifndef SIMPLSIMPLRequestMapper_H_
-#define SIMPLSIMPLRequestMapper_H_
-
-#include <QtCore/QObject>
-
+#include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
+#include "QtWebApp/httpserver/httpresponse.h"
+
+#include "SIMPLib/SIMPLib.h"
 
 /**
-  The request mapper dispatches incoming HTTP requests to controller classes
-  depending on the requested path.
+  @brief This class responds to REST API endpoint NamesOfFilters
+
+  The returned JSON is the following on success
+
+{
+  "ErrorCode": 0,
+  "Filters":[
+  {"ClassName":"ArrayCalculator","HumanLabel":"Attribute Array Calculator"},
+  {"ClassName":"ArraySelectionExample","HumanLabel":"DataContainerArrayProxy Example"},
+  ....
+  ]
+  }
+  On Error the following JSON is returned.
+  {
+    "ErrorMessage": "Error Message ...."
+  }
 */
 
-class SIMPLRequestMapper : public HttpRequestHandler
+class SIMPLib_EXPORT NamesOfFiltersController : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(SIMPLRequestMapper)
-
+  Q_DISABLE_COPY(NamesOfFiltersController)
 public:
-  /**
-    Constructor.
-    @param parent Parent object
-  */
-  SIMPLRequestMapper(QObject* parent = 0);
+  /** Constructor */
+  NamesOfFiltersController(const QHostAddress& hostAddress, const int hostPort);
 
-  /**
-    Destructor.
-  */
-  virtual ~SIMPLRequestMapper();
-
-  /**
-    Dispatch incoming HTTP requests to different controllers depending on the URL.
-    @param request The received HTTP request
-    @param response Must be used to return the response
-  */
+  /** Generates the response */
   void service(HttpRequest& request, HttpResponse& response);
+
+  /**
+   * @brief Returns the name of the end point that is controller uses
+   * @return
+   */
+  static QString EndPoint();
 };
 
-#endif // SIMPLSIMPLRequestMapper_H_
+#endif // NamesOfFiltersController_H_

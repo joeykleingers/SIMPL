@@ -29,75 +29,65 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#include "SIMPLRequestMapper.h"
 
-#include <QtCore/QCoreApplication>
+#include "NamesOfFiltersController.h"
+
+#include <QtCore/QDateTime>
+#include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+#include <QtCore/QVariant>
 
-#include "QtWebApp/logging/filelogger.h"
-
-#include "V1Controllers/SIMPLStaticFileController.h"
-#include "V1Controllers/V1RequestMapper.h"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Plugin/PluginManager.h"
+#include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLRequestMapper::SIMPLRequestMapper(QObject* parent)
-: HttpRequestHandler(parent)
+NamesOfFiltersController::NamesOfFiltersController(const QHostAddress& hostAddress, const int hostPort)
 {
-  // qDebug() << "SIMPLRequestMapper: created";
+  setListenHost(hostAddress, hostPort);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLRequestMapper::~SIMPLRequestMapper()
+void NamesOfFiltersController::service(HttpRequest& request, HttpResponse& response)
 {
-  // qDebug() << "SIMPLRequestMapper: deleted";
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SIMPLRequestMapper::service(HttpRequest& request, HttpResponse& response)
-{
   QString content_type = request.getHeader(QByteArray("content-type"));
 
-  QByteArray path = request.getPath();
-  // qDebug() << "SIMPLRequestMapper: path=%s"<< path.data();
+  QJsonObject rootObj;
 
-  // For the following pathes, each request gets its own new instance of the related controller.
-  if(path.startsWith("/api/v1"))
-  {
-    V1RequestMapper v1RequestMapper;
-    v1RequestMapper.setListenHost(getListenHost(), getListenPort());
-    v1RequestMapper.service(request, response);
-  }
-  else if(content_type.compare("application/json") != 0)
-  {
-    SIMPLStaticFileController* staticFileController = SIMPLStaticFileController::Instance();
-    staticFileController->setListenHost(getListenHost(), getListenPort());
-    staticFileController->service(request, response);
-  }
-  else
-  {
-    QJsonObject rootObj;
-    QString msg;
-    QTextStream ss(&msg);
-    ss << "The end point '" << path << "' is not valid for this server. Please check your request settings.";
+  response.setHeader("Content-Type", "application/json");
 
-    rootObj["ErrorCode"] = -1;
-    rootObj["ErrorMessage"] = msg;
+  if(content_type.compare("application/json") != 0)
+  {
+    // Form Error response
+    rootObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": Content Type is not application/json";
+    rootObj[SIMPL::JSON::ErrorCode] = -20;
     QJsonDocument jdoc(rootObj);
+
     response.write(jdoc.toJson(), true);
+    return;
   }
 
-//  qDebug() << "SIMPLRequestMapper: finished request";
+  FilterManager* fm = FilterManager::Instance();
 
-  // Clear the log buffer
-  //    if (logger)
-  //    {
-  //       logger->clear();
-  //    }
+  rootObj[SIMPL::JSON::ErrorMessage] = "";
+  rootObj[SIMPL::JSON::ErrorCode] = 0;
+  rootObj[SIMPL::JSON::Filters] = fm->toJsonArray();
+  QJsonDocument jdoc(rootObj);
+
+  response.write(jdoc.toJson(), true);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QString NamesOfFiltersController::EndPoint()
+{
+  return QString("AvailableFilters");
 }

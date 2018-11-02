@@ -30,20 +30,23 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "SIMPLibVersionController.h"
+#include "ApiNotFoundController.h"
 
-#include <QtCore/QJsonArray>
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Plugin/PluginManager.h"
+#include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
+
+#include <QtCore/QDateTime>
+#include <QtCore/QVariant>
+
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
-#include <QtCore/QCoreApplication>
-
-#include "SIMPLib/Plugin/SIMPLPluginConstants.h"
-#include "SIMPLib/SIMPLibVersion.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SIMPLibVersionController::SIMPLibVersionController(const QHostAddress& hostAddress, const int hostPort)
+ApiNotFoundController::ApiNotFoundController(const QHostAddress& hostAddress, const int hostPort)
 {
   setListenHost(hostAddress, hostPort);
 }
@@ -51,8 +54,9 @@ SIMPLibVersionController::SIMPLibVersionController(const QHostAddress& hostAddre
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SIMPLibVersionController::service(HttpRequest& request, HttpResponse& response)
+void ApiNotFoundController::service(HttpRequest& request, HttpResponse& response)
 {
+
   QString content_type = request.getHeader(QByteArray("content-type"));
 
   QJsonObject rootObj;
@@ -64,15 +68,20 @@ void SIMPLibVersionController::service(HttpRequest& request, HttpResponse& respo
     // Form Error response
     rootObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": Content Type is not application/json";
     rootObj[SIMPL::JSON::ErrorCode] = -20;
+
     QJsonDocument jdoc(rootObj);
+
     response.write(jdoc.toJson(), true);
     return;
   }
-  
-  rootObj[SIMPL::JSON::Version] = SIMPLib::Version::Complete();
-  rootObj[SIMPL::JSON::ErrorMessage] = "";
-  rootObj[SIMPL::JSON::ErrorCode] = 0;
 
+  //   response.setCookie(HttpCookie("firstCookie","hello",600,QByteArray(),QByteArray(),QByteArray(),false,true));
+  //   response.setCookie(HttpCookie("secondCookie","world",600));
+
+  QByteArray path = request.getPath();
+
+  rootObj[SIMPL::JSON::ErrorCode] = -10;
+  rootObj[SIMPL::JSON::ErrorMessage] = "THIS API IS NOT IMPLEMENTED." + QString(path);
   QJsonDocument jdoc(rootObj);
 
   response.write(jdoc.toJson(), true);
@@ -81,7 +90,7 @@ void SIMPLibVersionController::service(HttpRequest& request, HttpResponse& respo
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString SIMPLibVersionController::EndPoint()
+QString ApiNotFoundController::EndPoint()
 {
-  return QString("SIMPLibVersion");
+  return QString("ApiNotFound");
 }
