@@ -32,32 +32,27 @@
 
 #pragma once
 
+#include <QtCore/QJsonObject>
+#include <QtCore/QTemporaryDir>
+#include <QtCore/QTemporaryFile>
+
 #include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
 #include "QtWebApp/httpserver/httpresponse.h"
 
+#include "SIMPLib/SIMPLib.h"
+
 /**
-  @brief This class responds to REST API endpoint LoadedPlugins
-
-  The returned JSON is the following on success
-
-  {
-    "Version": ["SIMPLib_VERSION_NUMBER"]
-  }
-
-  On Error the following JSON is returned.
-  {
-    "Error": "Error Message ...."
-  }
+  @brief This class responds to REST API endpoint
 */
 
-class SIMPLibVersionController : public HttpRequestHandler
+class SIMPLib_EXPORT ExecutePipelineController : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(SIMPLibVersionController)
+  Q_DISABLE_COPY(ExecutePipelineController)
 public:
   /** Constructor */
-  SIMPLibVersionController(const QHostAddress& hostAddress, const int hostPort);
+  ExecutePipelineController(const QHostAddress& hostAddress, const int hostPort);
 
   /** Generates the response */
   void service(HttpRequest& request, HttpResponse& response);
@@ -67,4 +62,32 @@ public:
    * @return
    */
   static QString EndPoint();
+
+private:
+  HttpRequest* m_Request = nullptr;
+  HttpResponse* m_Response = nullptr;
+  QJsonObject m_ResponseObj;
+
+  QTemporaryDir* m_TempDir = nullptr; // We need this to keep the temporary directories around until the pipeline is done executing
+  QStringList m_OutputFilePaths;
+  QStringList m_TemporaryOutputFilePaths;
+
+  void cleanup();
+
+  void serviceJSON(QJsonObject pipelineObj);
+  void serviceJSON();
+
+  // Functions that process multi-part requests
+  void serviceMultiPart();
+
+  void sendErrorResponse(HttpResponse::HttpStatusCode statusCode, const QString& errorMsg, int errCode);
+
+  QJsonObject getPipelineMetadata();
+  QString getStringValue(const QString& key, QJsonObject pipelineReplacementObj);
+  QJsonArray getFileParameterNames(QJsonObject pipelineReplacementObj);
+
+  QJsonObject replacePipelineValuesUsingMetadata(QJsonObject pipelineJsonObj, QJsonObject pipelineMetadataObject);
+  QJsonObject replaceFilterValuesUsingMetadata(const QString& filterKey, QJsonObject filterObj, QJsonObject filterMetadataObj);
+  void replaceOutputFileParametersUsingMetadata(const QString& propertyName, const QString& propertyValue, QJsonObject& filterObj);
+  void replaceInputFileParametersUsingMetadata(const QString& propertyName, const QString& propertyValue, QJsonObject& filterObj);
 };

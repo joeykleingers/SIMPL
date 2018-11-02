@@ -29,14 +29,14 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef PluginInfoController_H_
-#define PluginInfoController_H_
+#ifndef LoadedPluginsController_H_
+#define LoadedPluginsController_H_
 
 #include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
 #include "QtWebApp/httpserver/httpresponse.h"
 
-class ISIMPLibPlugin;
+#include "SIMPLib/SIMPLib.h"
 
 /**
   @brief This class responds to REST API endpoint LoadedPlugins
@@ -44,7 +44,7 @@ class ISIMPLibPlugin;
   The returned JSON is the following on success
 
   {
-    "PluginNames": ["Name1", "Name2"....],
+    "PluginNames": ["Name1", "Name2"....]
   }
 
   On Error the following JSON is returned.
@@ -53,22 +53,16 @@ class ISIMPLibPlugin;
   }
 */
 
-class PluginInfoController : public HttpRequestHandler
+class SIMPLib_EXPORT LoadedPluginsController : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(PluginInfoController)
+  Q_DISABLE_COPY(LoadedPluginsController)
 public:
   /** Constructor */
-  PluginInfoController(const QHostAddress& hostAddress, const int hostPort);
+  LoadedPluginsController(const QHostAddress& hostAddress, const int hostPort);
 
   /** Generates the response */
   void service(HttpRequest& request, HttpResponse& response);
-
-  /**
-   * @brief createPluginJson
-   * @param rootObject
-   */
-  void createPluginJson(ISIMPLibPlugin* plugin, QJsonObject& rootObject);
 
   /**
    * @brief Returns the name of the end point that is controller uses
@@ -77,4 +71,4 @@ public:
   static QString EndPoint();
 };
 
-#endif // PluginInfoController_H_
+#endif // LoadedPluginsController_H_

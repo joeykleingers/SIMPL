@@ -29,13 +29,12 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#include "ApiNotFoundController.h"
+#include "NumFiltersController.h"
 
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Plugin/PluginManager.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 #include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 #include <QtCore/QDateTime>
 #include <QtCore/QVariant>
@@ -46,7 +45,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ApiNotFoundController::ApiNotFoundController(const QHostAddress& hostAddress, const int hostPort)
+NumFiltersController::NumFiltersController(const QHostAddress& hostAddress, const int hostPort)
 {
   setListenHost(hostAddress, hostPort);
 }
@@ -54,7 +53,7 @@ ApiNotFoundController::ApiNotFoundController(const QHostAddress& hostAddress, co
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ApiNotFoundController::service(HttpRequest& request, HttpResponse& response)
+void NumFiltersController::service(HttpRequest& request, HttpResponse& response)
 {
 
   QString content_type = request.getHeader(QByteArray("content-type"));
@@ -68,7 +67,6 @@ void ApiNotFoundController::service(HttpRequest& request, HttpResponse& response
     // Form Error response
     rootObj[SIMPL::JSON::ErrorMessage] = EndPoint() + ": Content Type is not application/json";
     rootObj[SIMPL::JSON::ErrorCode] = -20;
-
     QJsonDocument jdoc(rootObj);
 
     response.write(jdoc.toJson(), true);
@@ -78,10 +76,14 @@ void ApiNotFoundController::service(HttpRequest& request, HttpResponse& response
   //   response.setCookie(HttpCookie("firstCookie","hello",600,QByteArray(),QByteArray(),QByteArray(),false,true));
   //   response.setCookie(HttpCookie("secondCookie","world",600));
 
-  QByteArray path = request.getPath();
+  // Register all the filters including trying to load those from Plugins
+  FilterManager* fm = FilterManager::Instance();
 
-  rootObj[SIMPL::JSON::ErrorCode] = -10;
-  rootObj[SIMPL::JSON::ErrorMessage] = "THIS API IS NOT IMPLEMENTED." + QString(path);
+  FilterManager::Collection factories = fm->getFactories();
+
+  rootObj[SIMPL::JSON::ErrorMessage] = "";
+  rootObj[SIMPL::JSON::ErrorCode] = 0;
+  rootObj[SIMPL::JSON::NumFilters] = factories.size();
   QJsonDocument jdoc(rootObj);
 
   response.write(jdoc.toJson(), true);
@@ -90,7 +92,7 @@ void ApiNotFoundController::service(HttpRequest& request, HttpResponse& response
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ApiNotFoundController::EndPoint()
+QString NumFiltersController::EndPoint()
 {
-  return QString("ApiNotFound");
+  return QString("NumFilters");
 }

@@ -34,8 +34,8 @@
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/PluginManager.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 #include "SIMPLib/Plugin/SIMPLPluginConstants.h"
+#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 #include <QtCore/QDateTime>
 #include <QtCore/QVariant>
@@ -100,7 +100,7 @@ void PluginInfoController::service(HttpRequest& request, HttpResponse& response)
   QJsonParseError jsonParseError;
   QByteArray jsonBytes = request.getBody();
   QJsonDocument requestJsonDoc = QJsonDocument::fromJson(jsonBytes, &jsonParseError);
-  if (jsonParseError.error != QJsonParseError::ParseError::NoError)
+  if(jsonParseError.error != QJsonParseError::ParseError::NoError)
   {
     // Form Error response
     QJsonObject rootObj;
@@ -111,7 +111,7 @@ void PluginInfoController::service(HttpRequest& request, HttpResponse& response)
     return;
   }
   QJsonObject rootObject = requestJsonDoc.object();
-  if (!rootObject.contains(SIMPL::JSON::PluginBaseName))
+  if(!rootObject.contains(SIMPL::JSON::PluginBaseName))
   {
     responseJsonRootObj[SIMPL::JSON::ErrorMessage] = "Key 'PluginBaseName' does not exist in the JSON payload.";
     responseJsonRootObj[SIMPL::JSON::ErrorCode] = -40;
@@ -133,7 +133,7 @@ void PluginInfoController::service(HttpRequest& request, HttpResponse& response)
     response.write(jdoc.toJson(), true);
     return;
   }
-  
+
   PluginManager* pm = PluginManager::Instance();
   ISIMPLibPlugin* plugin = pm->findPlugin(pluginName);
 

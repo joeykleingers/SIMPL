@@ -47,27 +47,24 @@
 #include <QtCore/QString>
 #include <QtCore/QtDebug>
 
+#include "QtWebApp/httpserver/httplistener.h"
+#include "QtWebApp/httpserver/httpsessionstore.h"
+#include "QtWebApp/logging/filelogger.h"
+
 // DREAM3DLib includes
-#include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/H5FilterParametersReader.h"
 #include "SIMPLib/FilterParameters/JsonFilterParametersReader.h"
-
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
+#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
-//
-#include "QtWebApp/httpserver/httplistener.h"
-//#include "QtWebApp/templateengine/templatecache.h"
-#include "QtWebApp/httpserver/httpsessionstore.h"
-
-#include "QtWebApp/logging/filelogger.h"
-#include "SIMPLRequestMapper.h"
-#include "V1Controllers/SIMPLStaticFileController.h"
+#include "SIMPLib/REST/SIMPLRequestMapper.h"
+#include "SIMPLib/REST/V1Controllers/SIMPLStaticFileController.h"
+#include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/SIMPLibVersion.h"
 
 // -----------------------------------------------------------------------------
 // Search the configuration file

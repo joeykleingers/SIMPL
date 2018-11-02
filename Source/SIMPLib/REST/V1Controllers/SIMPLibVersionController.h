@@ -29,39 +29,37 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef NamesOfFiltersController_H_
-#define NamesOfFiltersController_H_
+
+#pragma once
 
 #include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
 #include "QtWebApp/httpserver/httpresponse.h"
 
+#include "SIMPLib/SIMPLib.h"
+
 /**
-  @brief This class responds to REST API endpoint NamesOfFilters
+  @brief This class responds to REST API endpoint LoadedPlugins
 
   The returned JSON is the following on success
 
-{
-  "ErrorCode": 0,
-  "Filters":[
-  {"ClassName":"ArrayCalculator","HumanLabel":"Attribute Array Calculator"},
-  {"ClassName":"ArraySelectionExample","HumanLabel":"DataContainerArrayProxy Example"},
-  ....
-  ]
+  {
+    "Version": ["SIMPLib_VERSION_NUMBER"]
   }
+
   On Error the following JSON is returned.
   {
-    "ErrorMessage": "Error Message ...."
+    "Error": "Error Message ...."
   }
 */
 
-class NamesOfFiltersController : public HttpRequestHandler
+class SIMPLib_EXPORT SIMPLibVersionController : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(NamesOfFiltersController)
+  Q_DISABLE_COPY(SIMPLibVersionController)
 public:
   /** Constructor */
-  NamesOfFiltersController(const QHostAddress& hostAddress, const int hostPort);
+  SIMPLibVersionController(const QHostAddress& hostAddress, const int hostPort);
 
   /** Generates the response */
   void service(HttpRequest& request, HttpResponse& response);
@@ -72,5 +70,3 @@ public:
    */
   static QString EndPoint();
 };
-
-#endif // NamesOfFiltersController_H_

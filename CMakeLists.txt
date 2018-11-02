@@ -413,6 +413,7 @@ endif()
 
 if(SIMPL_Group_REST)
   add_subdirectory( ${SIMPLProj_SOURCE_DIR}/Source/RESTClient ${PROJECT_BINARY_DIR}/RESTClient)
+  add_subdirectory( ${SIMPLProj_SOURCE_DIR}/Source/RESTServer ${PROJECT_BINARY_DIR}/RESTServer)
 endif()
 
 # --------------------------------------------------------------------

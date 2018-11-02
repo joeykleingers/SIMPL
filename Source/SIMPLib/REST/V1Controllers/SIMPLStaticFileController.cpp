@@ -6,8 +6,7 @@
 
 #include "SIMPLib/Plugin/SIMPLPluginConstants.h"
 
-
-#include "REST/RESTServer/SIMPLDirectoryListing.h"
+#include "SIMPLib/REST/SIMPLDirectoryListing.h"
 
 SIMPLStaticFileController* SIMPLStaticFileController::m_Instance = nullptr;
 
@@ -24,7 +23,7 @@ SIMPLStaticFileController* SIMPLStaticFileController::Instance()
 // -----------------------------------------------------------------------------
 void SIMPLStaticFileController::CreateInstance(QSettings* settings, QObject* parent)
 {
-  if (m_Instance != nullptr)
+  if(m_Instance != nullptr)
   {
     delete m_Instance;
   }

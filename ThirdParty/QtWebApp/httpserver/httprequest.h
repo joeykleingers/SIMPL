@@ -32,7 +32,7 @@
   The body is always a little larger than the file itself.
 */
 
-class DECLSPEC HttpRequest
+class QtWebAppLib_EXPORT HttpRequest
 {
   Q_DISABLE_COPY(HttpRequest)
   friend class HttpSessionStore;

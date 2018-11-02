@@ -66,9 +66,9 @@
 
 #include "RESTClient/SIMPLRestClient.h"
 
-#include "REST/RESTServer/V1Controllers/SIMPLStaticFileController.h"
-#include "REST/RESTServer/SIMPLRequestMapper.h"
-#include "REST/RESTServer/PipelineListener.h"
+#include "SIMPLib/REST/PipelineListener.h"
+#include "SIMPLib/REST/SIMPLRequestMapper.h"
+#include "SIMPLib/REST/V1Controllers/SIMPLStaticFileController.h"
 
 #include "QtWebApp/httpserver/httplistener.h"
 #include "QtWebApp/httpserver/httpsessionstore.h"

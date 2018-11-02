@@ -29,24 +29,37 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef ListFilterParametersController_H_
-#define ListFilterParametersController_H_
+#ifndef NumFiltersController_H_
+#define NumFiltersController_H_
 
 #include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
 #include "QtWebApp/httpserver/httpresponse.h"
 
+#include "SIMPLib/SIMPLib.h"
+
 /**
-  @brief This class responds to REST API endpoint
+  @brief This class responds to REST API endpoint NumFilters
+
+  The returned JSON is the following on success
+
+  {
+    "NumFilters": 45
+  }
+
+  On Error the following JSON is returned.
+  {
+    "Error": "Error Message ...."
+  }
 */
 
-class ListFilterParametersController : public HttpRequestHandler
+class SIMPLib_EXPORT NumFiltersController : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(ListFilterParametersController)
+  Q_DISABLE_COPY(NumFiltersController)
 public:
   /** Constructor */
-  ListFilterParametersController(const QHostAddress& hostAddress, const int hostPort);
+  NumFiltersController(const QHostAddress& hostAddress, const int hostPort);
 
   /** Generates the response */
   void service(HttpRequest& request, HttpResponse& response);
@@ -56,13 +69,6 @@ public:
    * @return
    */
   static QString EndPoint();
-
-  /**
-   * @brief createFilterParametersJson
-   * @param plugin
-   * @param rootObject
-   */
-  void createFilterParametersJson(const QString& filterName, QJsonObject& rootObject);
 };
 
-#endif // ListFilterParametersController_H_
+#endif // NumFiltersController_H_

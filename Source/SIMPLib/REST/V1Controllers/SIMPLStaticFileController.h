@@ -2,12 +2,15 @@
 #ifndef _simplstaticfilecontroller_h_
 #define _simplstaticfilecontroller_h_
 
+#include <QtCore/QCache>
+#include <QtCore/QMutex>
+
 #include "QtWebApp/httpserver/httpglobal.h"
 #include "QtWebApp/httpserver/httprequest.h"
 #include "QtWebApp/httpserver/httprequesthandler.h"
 #include "QtWebApp/httpserver/httpresponse.h"
-#include <QCache>
-#include <QMutex>
+
+#include "SIMPLib/SIMPLib.h"
 
 /**
   Delivers static files. It is usually called by the applications main request handler when
@@ -36,7 +39,7 @@
   received a related HTTP request.
 */
 
-class DECLSPEC SIMPLStaticFileController : public HttpRequestHandler
+class SIMPLib_EXPORT SIMPLStaticFileController : public HttpRequestHandler
 {
   Q_OBJECT
   Q_DISABLE_COPY(SIMPLStaticFileController)

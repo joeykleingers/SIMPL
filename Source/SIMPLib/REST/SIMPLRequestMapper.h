@@ -29,33 +29,44 @@
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef PreflightPipelineController_H_
-#define PreflightPipelineController_H_
 
-#include "QtWebApp/httpserver/httprequest.h"
+#ifndef SIMPLSIMPLRequestMapper_H_
+#define SIMPLSIMPLRequestMapper_H_
+
+#include <QtCore/QObject>
+
 #include "QtWebApp/httpserver/httprequesthandler.h"
-#include "QtWebApp/httpserver/httpresponse.h"
+
+#include "SIMPLib/SIMPLib.h"
 
 /**
-  @brief This class responds to REST API endpoint
+  The request mapper dispatches incoming HTTP requests to controller classes
+  depending on the requested path.
 */
 
-class PreflightPipelineController : public HttpRequestHandler
+class SIMPLib_EXPORT SIMPLRequestMapper : public HttpRequestHandler
 {
   Q_OBJECT
-  Q_DISABLE_COPY(PreflightPipelineController)
-public:
-  /** Constructor */
-  PreflightPipelineController(const QHostAddress& hostAddress, const int hostPort);
+  Q_DISABLE_COPY(SIMPLRequestMapper)
 
-  /** Generates the response */
-  void service(HttpRequest& request, HttpResponse& response);
+public:
+  /**
+    Constructor.
+    @param parent Parent object
+  */
+  SIMPLRequestMapper(QObject* parent = 0);
 
   /**
-   * @brief Returns the name of the end point that is controller uses
-   * @return
-   */
-  static QString EndPoint();
+    Destructor.
+  */
+  virtual ~SIMPLRequestMapper();
+
+  /**
+    Dispatch incoming HTTP requests to different controllers depending on the URL.
+    @param request The received HTTP request
+    @param response Must be used to return the response
+  */
+  void service(HttpRequest& request, HttpResponse& response);
 };
 
-#endif // PreflightPipelineController_H_
+#endif // SIMPLSIMPLRequestMapper_H_

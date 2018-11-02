@@ -8,8 +8,9 @@
 #include "SIMPLib/Common/IObserver.h"
 #include "SIMPLib/Common/PipelineMessage.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include "SIMPLib/SIMPLib.h"
 
-class PipelineListener : public QObject, public IObserver
+class SIMPLib_EXPORT PipelineListener : public QObject, public IObserver
 {
   Q_OBJECT
 public:
