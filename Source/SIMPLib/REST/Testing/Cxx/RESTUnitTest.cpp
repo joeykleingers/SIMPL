@@ -1632,8 +1632,6 @@ public:
     }
 
     m_HttpListener = QSharedPointer<HttpListener>(new HttpListener(listenerSettings, new SIMPLRequestMapper()));
-
-    m_Connection = QSharedPointer<QNetworkAccessManager>(new QNetworkAccessManager());
   }
 
   // -----------------------------------------------------------------------------
@@ -1643,7 +1641,6 @@ public:
   {
     m_SessionStore = QSharedPointer<HttpSessionStore>();
     m_HttpListener = QSharedPointer<HttpListener>();
-    m_Connection = QSharedPointer<QNetworkAccessManager>();
   }
 
   // -----------------------------------------------------------------------------
@@ -1660,6 +1657,8 @@ public:
     registerFilters();
 
     checkDREAM3DTestRequirements();
+
+    m_Connection = QSharedPointer<QNetworkAccessManager>(new QNetworkAccessManager());
 
     startServer();
 
