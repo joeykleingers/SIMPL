@@ -484,14 +484,21 @@ QJsonObject ExecutePipelineController::replaceFilterValuesUsingMetadata(const QS
 // -----------------------------------------------------------------------------
 void ExecutePipelineController::replaceOutputFileParametersUsingMetadata(const QString& propertyName, const QString& propertyValue, QJsonObject& filterObj)
 {
+  QString propValue = propertyValue;
+
+  // If the property value is a path and it came from Windows, we must remove the colon because it isn't
+  // allowed as part of the path on some file systems.
+  propValue = propValue.remove(":");
+
   // The property is an output, so create the file path where we will temporarily store the file data on the server,
   // create the directory structure, and update the pipeline json with that file path.
   QString tempFilePath = m_TempDir->path();
-  if(propertyValue.startsWith("/") == false)
+  if(propValue.startsWith("/") == false)
   {
     tempFilePath.append(QDir::separator());
   }
-  tempFilePath.append(propertyValue);
+  tempFilePath.append(propValue);
+  tempFilePath = QDir::toNativeSeparators(tempFilePath);
   QFileInfo fi(tempFilePath);
   QDir dir;
   dir.mkpath(fi.path());
@@ -508,6 +515,7 @@ void ExecutePipelineController::replaceOutputFileParametersUsingMetadata(const Q
 void ExecutePipelineController::replaceInputFileParametersUsingMetadata(const QString& propertyName, const QString& propertyValue, QJsonObject& filterObj)
 {
   QMultiMap<QByteArray, QByteArray> parameterMap = m_Request->getParameterMap();
+  QString propValue = propertyValue;
 
   // This property is an input, so we need to figure out which other request parameter is the matching input file data.
   // This parameter's name will match the file path to the file on the client's file system.  If the path is a folder, each
@@ -518,7 +526,12 @@ void ExecutePipelineController::replaceInputFileParametersUsingMetadata(const QS
     QString parameterName = mapIter.key();
     QByteArray parameterData = mapIter.value();
 
-    if(parameterName.startsWith(propertyValue))
+    // If the property value is a path and it came from Windows, we must remove the colon because it isn't
+    // allowed as part of the path on some file systems.
+    parameterName = parameterName.remove(":");
+    propValue = propValue.remove(":");
+
+    if(parameterName.startsWith(propValue))
     {
       QString tempFilePath = m_TempDir->path();
       if(parameterName.startsWith("/") == false)
@@ -526,6 +539,7 @@ void ExecutePipelineController::replaceInputFileParametersUsingMetadata(const QS
         tempFilePath.append(QDir::separator());
       }
       tempFilePath.append(parameterName);
+      tempFilePath = QDir::toNativeSeparators(tempFilePath);
       QFileInfo fi(tempFilePath);
       QDir dir;
       dir.mkpath(fi.path());
@@ -539,11 +553,11 @@ void ExecutePipelineController::replaceInputFileParametersUsingMetadata(const QS
 
         // Update the pipeline json with the file path that we just wrote out to
         QString tempPropertyValue = m_TempDir->path();
-        if(propertyValue.startsWith("/") == false)
+        if(propValue.startsWith("/") == false)
         {
           tempPropertyValue.append(QDir::separator());
         }
-        tempPropertyValue.append(propertyValue);
+        tempPropertyValue.append(propValue);
 
         filterObj[propertyName] = tempPropertyValue;
       }
